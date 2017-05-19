@@ -1,0 +1,17 @@
+Package: mindr
+Version: 0.0.0
+Date: 2017-05-19
+Title: Convert markdown or rmarkdown files into a mindmap
+Author: Peng Zhao
+Maintainer: Peng Zhao <pzhao@pzhao.net>
+Depends: R (>= 3.0.0)
+Imports:
+Suggests:
+Description: A package that converts .md or .Rmd files into a .mm file, which can be opened by common mindmap software
+License: GPL
+URL: https://github.com/pzhao/mindr
+BugReports: https://github.com/pzhao/mindr/issues
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2017-05-15 09:53:27 UTC; pz
