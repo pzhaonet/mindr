@@ -5,16 +5,16 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "380240771",
+    "hash" : "0",
     "id" : "80162AFC",
-    "lastKnownWriteTime" : 1495266023,
-    "last_content_update" : 1495266023455,
+    "lastKnownWriteTime" : 1495350375,
+    "last_content_update" : 1495350375053,
     "path" : "D:/googledrive/a9/mindr/R/foo.R",
     "project_path" : "R/foo.R",
     "properties" : {
-        "cursorPosition" : "69,0",
+        "cursorPosition" : "72,18",
         "marks" : "<:0,0\n>:0,0",
-        "scrollLine" : "54"
+        "scrollLine" : "60"
     },
     "relative_order" : 1,
     "source_on_save" : false,

@@ -1,4 +1,4 @@
-# R package mindr: convert markdown (.md) or rmarkdown (.Rmd) files to mindmaps
+# R package mindr: convert markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
 
 ## Quick start
 
@@ -16,7 +16,19 @@ Create a folder named `mm` in the working directory (`getwd()`), and drop some m
 mindr::mindr()
 ```
 
-then you will get a `mm.mm` file. Open it with [freemind](http://freemind.sourceforge.net/wiki/index.php/Download), or import it into[Xmind](http://www.xmind.net/download/win/)，and you will get a mindmap.
+then you will get a `mm.mm` file. Open it with any mind-map (brainstorm) software, and you will get a mind map.
+
+Plenty of cross-platform and online mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)), among which [freemind](http://freemind.sourceforge.net/wiki/index.php/Download) and [Xmind](http://www.xmind.net/download/win/) are highly recommended.
+
+### Create a markdown file from a mind map
+
+Drop some mindmap files (.mm) into `mm/`. Run: 
+
+```
+mindr::outline(savefile = TRUE)
+```
+
+then you will get a markdown file.
 
 Have fun!
 
@@ -38,6 +50,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2017-05-21. **Version 0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
 - 2017-05-20. **Version 0.0.1**. Can Save the outline.
 - 2017-05-19. **Version 0.0.0**. A very preliminary version.
 

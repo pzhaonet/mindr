@@ -2,8 +2,7 @@
 % Please edit documentation in R/foo.R
 \name{outline}
 \alias{outline}
-\title{Outline
-Extract headers of markdown or rmarkdown files as an outline}
+\title{Extract headers of markdown or rmarkdown files as an outline, or convert a mind map (.mm) into a markdown outline.}
 \usage{
 outline(folder = "mm", remove_curly_bracket = FALSE, inputformat = "markdown", 
     savefile = FALSE, savefilename = "outline.md")
@@ -25,8 +24,7 @@ outline(folder = "mm", remove_curly_bracket = FALSE, inputformat = "markdown",
 outline of a markdown document or book.
 }
 \description{
-Outline
-Extract headers of markdown or rmarkdown files as an outline
+Extract headers of markdown or rmarkdown files as an outline, or convert a mind map (.mm) into a markdown outline.
 }
 \examples{
 outline()

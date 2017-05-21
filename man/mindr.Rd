@@ -2,28 +2,21 @@
 % Please edit documentation in R/foo.R
 \name{mindr}
 \alias{mindr}
-\title{mindr()
-Convert markdown or rmarkdown files to mindmap files.}
+\title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
-mindr(title = "my title", folder = "mm", inputformat = "markdown", 
-    remove_curly_bracket = FALSE)
+mindr(title = "my title", folder = "mm", remove_curly_bracket = FALSE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
 
 \item{folder}{character. The folder which contains the input file(s).}
 
-\item{inputformat}{character. Its value can be:
-- 'markdown' (default)
-- 'mindmap'}
-
 \item{remove_curly_bracket}{logical.}
 }
 \value{
-a mindmap file,which can be viewed by mindmap software, such as FreeMind or Xmind.
+a mindmap file, which can be viewed by common mindmap software, such as FreeMind or Xmind.
 }
 \description{
-mindr()
 Convert markdown or rmarkdown files to mindmap files.
 }
 \examples{
