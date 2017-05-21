@@ -7,14 +7,14 @@
     "folds" : "",
     "hash" : "0",
     "id" : "80162AFC",
-    "lastKnownWriteTime" : 1495350375,
-    "last_content_update" : 1495350375053,
+    "lastKnownWriteTime" : 1495393467,
+    "last_content_update" : 1495393467246,
     "path" : "D:/googledrive/a9/mindr/R/foo.R",
     "project_path" : "R/foo.R",
     "properties" : {
-        "cursorPosition" : "72,18",
+        "cursorPosition" : "40,8",
         "marks" : "<:0,0\n>:0,0",
-        "scrollLine" : "60"
+        "scrollLine" : "32"
     },
     "relative_order" : 1,
     "source_on_save" : false,
