@@ -8,7 +8,7 @@
 devtools::install_github("pzhaonet/mindr")
 ```
 
-### Convert a) markdown file(s) into a mindmap 
+### Convert (a) markdown file(s) into a mindmap 
 
 Create a folder named `mm` in the working directory (`getwd()`), and drop some markdown or rmarkdown files into `mm/`. Run: 
 
