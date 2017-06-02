@@ -5,23 +5,22 @@
 \title{Extract headers of markdown or rmarkdown files as an outline.}
 \usage{
 outline(folder = "mm", remove_curly_bracket = FALSE, savefile = TRUE, 
-    savefilename = "outline.md")
+    savefilename = "outline.md", backup = TRUE)
 }
 \arguments{
 \item{folder}{character. The folder which contains the input file(s).}
 
-\item{remove_curly_bracket}{logical.}
+\item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a bookdown project.)}
 
-\item{savefile}{logical}
+\item{savefile}{logical. Whether to save the output as a markdown file.}
 
-\item{savefilename}{character. Valid when savefile == TRUE}
+\item{savefilename}{character. Valid when savefile == TRUE.}
+
+\item{backup}{logical. Whether the existing target file, if any, should be saved as backups.}
 }
 \value{
-outline of a markdown document or book.
+a vector of strings showing outline of a markdown document or book.
 }
 \description{
 Extract headers of markdown or rmarkdown files as an outline.
-}
-\examples{
-outline()
 }

@@ -1,7 +1,0 @@
-setwd('D:\\googledrive\\a0\\pzhao\\')
-blogdown::build_site()
-blogdown::serve_site()
-library(postr)
-citation('postr')
-citation('blogdown')
-test

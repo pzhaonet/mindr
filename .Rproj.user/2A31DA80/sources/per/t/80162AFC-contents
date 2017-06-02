@@ -1,22 +1,24 @@
 #' Convert markdown or rmarkdown files to mindmap files.
 #'
 #' @param title character. The title of the output file.
-#' @param remove_curly_bracket logical.
+#' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a bookdown project.)
 #' @param folder character. The folder which contains the input file(s).
+#' @param savefilename character. Valid when savefile == TRUE.
+#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as FreeMind or Xmind.
 #' @export
 #'
-#' @examples
-#' md2mm()
 md2mm <- function(title = 'my title',
                   folder = 'mm',
-                  remove_curly_bracket = FALSE) {
+                  remove_curly_bracket = FALSE,
+                  savefilename = 'mm.mm',
+                  backup = TRUE) {
   header <- outline(folder, remove_curly_bracket, savefile = FALSE)
   ncc <- sapply(header, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
   mmtext <- substr(header, ncc + 2, nchar(header))
   mm <- '<map version="1.0.1">'
-  mm[2] <- paste0('<node TEXT="', title, '">')
+  mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
   diffncc <- diff(ncc)
   for (i in 1:length(diffncc)) {
     if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
@@ -25,23 +27,24 @@ md2mm <- function(title = 'my title',
   }
   mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
   mm[length(ncc) + 3] <- '</node></map>'
-  writeLines(text = mm, 'mm.mm', useBytes = TRUE)
+  if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
+  writeLines(text = mm, savefilename, useBytes = TRUE)
 }
 
 
-#' Convert a mind map (.mm) into a markdown file.
+#' Convert a mind map (.mm) into markdown headers.
 #'
 #' @param folder character. The folder which contains the input file(s).
-#' @param savefile logical
-#' @param savefilename character. Valid when savefile == TRUE
-#' @return outline of a markdown document or book.
+#' @param savefile logical. Whether to save the output as a markdown file.
+#' @param savefilename character. Valid when savefile == TRUE.
+#' @param backup logical. Whether the existing target file, if any, should be saved as backups.
+#' @return a vector of strings showing outline of a markdown document or book.
 #' @export
 #'
-#' @examples
-#' mm2md()
 mm2md <- function(folder = 'mm',
                   savefile = TRUE,
-                  savefilename = 'mm.md') {
+                  savefilename = 'mm.md',
+                  backup = TRUE) {
     mm <- NULL
     for (filename in dir(folder, full.names = TRUE)) mm <- c(mm, readLines(filename, encoding = 'UTF-8'))
     mm <- paste0(mm, collapse = '')
@@ -54,33 +57,40 @@ mm2md <- function(folder = 'mm',
     headers <- gsub('TEXT="([^>]*)">', '\\1', regmatches(mm, gregexpr('TEXT="[^>]*">', mm))[[1]])
     md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
-    if (savefile) writeLines(text = md, savefilename, useBytes = TRUE)
+    if (savefile) {
+      if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
+      writeLines(text = md, savefilename, useBytes = TRUE)
+      }
     return(md)
 }
 
 #' Extract headers of markdown or rmarkdown files as an outline.
 #'
 #' @param folder character. The folder which contains the input file(s).
-#' @param remove_curly_bracket logical.
-#' @param savefile logical
-#' @param savefilename character. Valid when savefile == TRUE
+#' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a bookdown project.)
+#' @param savefile logical. Whether to save the output as a markdown file.
+#' @param savefilename character. Valid when savefile == TRUE.
+#' @param backup logical. Whether the existing target file, if any, should be saved as backups.
 #'
-#' @return outline of a markdown document or book.
+#' @return a vector of strings showing outline of a markdown document or book.
 #' @export
 #'
-#' @examples
-#' outline()
 outline <- function(folder = 'mm',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
-                    savefilename = 'outline.md') {
+                    savefilename = 'outline.md',
+                    backup = TRUE) {
     md <- NULL
     for (filename in dir(folder, full.names = TRUE)) md <- c(md, readLines(filename, encoding = 'UTF-8'))
     headerloc <- grep('^#+', md)
     codeloc <- grep('^```', md)
     # exclude the lines begining with # but in code
-    header <- md[headerloc[!sapply(headerloc, function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])) == 1]]
+    if (length(codeloc) > 0) headerloc <- headerloc[!sapply(headerloc, function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])) == 1]
+    header <- md[headerloc]
     if (remove_curly_bracket) header <- gsub(pattern = '\\{.*\\}', '', header)
-    if (savefile) writeLines(text = header, savefilename, useBytes = TRUE)
+    if (savefile) {
+      if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
+      writeLines(text = header, savefilename, useBytes = TRUE)
+    }
     return(header)
 }

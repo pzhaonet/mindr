@@ -4,21 +4,23 @@
 \alias{md2mm}
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
-md2mm(title = "my title", folder = "mm", remove_curly_bracket = FALSE)
+md2mm(title = "my title", folder = "mm", remove_curly_bracket = FALSE, 
+    savefilename = "mm.mm", backup = TRUE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
 
 \item{folder}{character. The folder which contains the input file(s).}
 
-\item{remove_curly_bracket}{logical.}
+\item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a bookdown project.)}
+
+\item{savefilename}{character. Valid when savefile == TRUE.}
+
+\item{backup}{logical. Whether the existing target file, if any, should be saved as backup.}
 }
 \value{
 a mindmap file, which can be viewed by common mindmap software, such as FreeMind or Xmind.
 }
 \description{
 Convert markdown or rmarkdown files to mindmap files.
-}
-\examples{
-md2mm()
 }

@@ -61,6 +61,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2017-06-02. **Version 1.0.0**. Backup existing files before overwritten. Submitted to CRAN.
 - 2017-05-21. **Version 0.2.0**. Rename functions.
 - 2017-05-21. **Version 0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
 - 2017-05-20. **Version 0.0.1**. Can Save the outline.

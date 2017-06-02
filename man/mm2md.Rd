@@ -2,23 +2,22 @@
 % Please edit documentation in R/foo.R
 \name{mm2md}
 \alias{mm2md}
-\title{Convert a mind map (.mm) into a markdown file.}
+\title{Convert a mind map (.mm) into markdown headers.}
 \usage{
-mm2md(folder = "mm", savefile = TRUE, savefilename = "mm.md")
+mm2md(folder = "mm", savefile = TRUE, savefilename = "mm.md", backup = TRUE)
 }
 \arguments{
 \item{folder}{character. The folder which contains the input file(s).}
 
-\item{savefile}{logical}
+\item{savefile}{logical. Whether to save the output as a markdown file.}
 
-\item{savefilename}{character. Valid when savefile == TRUE}
+\item{savefilename}{character. Valid when savefile == TRUE.}
+
+\item{backup}{logical. Whether the existing target file, if any, should be saved as backups.}
 }
 \value{
-outline of a markdown document or book.
+a vector of strings showing outline of a markdown document or book.
 }
 \description{
-Convert a mind map (.mm) into a markdown file.
-}
-\examples{
-mm2md()
+Convert a mind map (.mm) into markdown headers.
 }
