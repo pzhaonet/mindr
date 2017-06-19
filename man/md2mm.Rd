@@ -12,15 +12,18 @@ md2mm(title = "my title", folder = "mm", remove_curly_bracket = FALSE,
 
 \item{folder}{character. The folder which contains the input file(s).}
 
-\item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a bookdown project.)}
+\item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 
 \item{savefilename}{character. Valid when savefile == TRUE.}
 
 \item{backup}{logical. Whether the existing target file, if any, should be saved as backup.}
 }
 \value{
-a mindmap file, which can be viewed by common mindmap software, such as FreeMind or Xmind.
+a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (\url{http://freemind.sourceforge.net/wiki/index.php/Main_Page}) and 'XMind' (\url{http://www.xmind.net}).
 }
 \description{
 Convert markdown or rmarkdown files to mindmap files.
+}
+\examples{
+md2mm()
 }

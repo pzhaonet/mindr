@@ -21,3 +21,6 @@ a vector of strings showing outline of a markdown document or book.
 \description{
 Convert a mind map (.mm) into markdown headers.
 }
+\examples{
+mm2md()
+}
