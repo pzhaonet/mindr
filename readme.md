@@ -3,9 +3,9 @@
 
 ## Introduction
 
-mindr is an R package which convert smarkdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net).
+mindr is an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net).
 
-If your are a markdown or  rmarkdown or bookdown or blogdown user, mindr can convert your .md or .Rmd files into mind maps easily. You can write a mind map with markdown syntax and use mindr to convert it into an .mm mind map.
+If your are a markdown or  rmarkdown or bookdown or blogdown user, mindr can convert your .md or .Rmd files into mind maps easily. You can write a new mind map with markdown syntax and use mindr to convert it into an .mm mind map.
 
 If you are a mind map user, you can export your mind map into an .mm file and use mindr to convert it into a markdown file as an outline of your document or book.
 
