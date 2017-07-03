@@ -93,13 +93,14 @@ Still being developed. Feel free to give your feedback to me!
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_bookdownplus.jpg)
 
-- Mindmap of my book *Learning R* (in Chinese. to be published soon.)
+- Mindmap of my book [*Learning R*](http://xuer.pzhao.net/) (in Chinese. to be published soon.)
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_xuer.jpg)
 
 ## Updates
 
-- 2017-06-19: **v1.0.4**. Released on [CRAN](https://cran.r-project.org/web/packages/mindr)!
+- 2017-07-03. **v1.0.5**. Better backup.
+- 2017-06-19. **v1.0.4**. Released on [CRAN](https://cran.r-project.org/web/packages/mindr)!
 - 2017-06-02. **V1.0.0**. Backup existing files before overwritten. Submitted to CRAN.
 - 2017-05-21. **V0.2.0**. Rename functions.
 - 2017-05-21. **V0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
@@ -110,5 +111,5 @@ Still being developed. Feel free to give your feedback to me!
 
 Copyright 2017 [Peng Zhao](http://pzhao.org).
 
-Released under the [MIT](https://github.com/pzhaonet/bookdown-plus/blob/master/LICENSE.md) license.
+Released under the GPL license.
 

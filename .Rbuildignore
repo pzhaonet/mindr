@@ -3,3 +3,4 @@
 ^\.gitignore$
 ^\.travis\.yml$
 showcase/
+readme*.*

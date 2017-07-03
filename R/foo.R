@@ -12,7 +12,7 @@
 md2mm <- function(title = 'my title',
                   folder = 'mm',
                   remove_curly_bracket = FALSE,
-                  savefilename = 'mm.mm',
+                  savefilename = 'mindr',
                   backup = TRUE) {
   if (dir.exists(folder)) {
     header <- outline(folder, remove_curly_bracket, savefile = FALSE)
@@ -28,8 +28,10 @@ md2mm <- function(title = 'my title',
     }
     mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
     mm[length(ncc) + 3] <- '</node></map>'
-    if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
-    writeLines(text = mm, savefilename, useBytes = TRUE)
+    if (backup & file.exists(paste0(savefilename, '.mm'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
+      savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+    }
+    writeLines(text = mm, paste0(savefilename, '.mm'), useBytes = TRUE)
   } else {print(paste('The directory', folder, 'does not exist!'))}
 }
 
@@ -46,7 +48,7 @@ md2mm <- function(title = 'my title',
 #' mm2md()
 mm2md <- function(folder = 'mm',
                   savefile = TRUE,
-                  savefilename = 'mm.md',
+                  savefilename = 'mindr',
                   backup = TRUE) {
   if (dir.exists(folder)) {
     mm <- NULL
@@ -62,8 +64,11 @@ mm2md <- function(folder = 'mm',
     md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
     if (savefile) {
-      if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
-      writeLines(text = md, savefilename, useBytes = TRUE)
+      if (backup & file.exists(paste0(savefilename, '.md'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      # if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
+      writeLines(text = md, paste0(savefilename, '.md'), useBytes = TRUE)
     }
     return(md)
   } else {print(paste('The directory', folder, 'does not exist!'))}
@@ -84,21 +89,26 @@ mm2md <- function(folder = 'mm',
 outline <- function(folder = 'mm',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
-                    savefilename = 'outline.md',
+                    savefilename = 'outline',
                     backup = TRUE) {
   if (dir.exists(folder)) {
     md <- NULL
     for (filename in dir(folder, full.names = TRUE)) md <- c(md, readLines(filename, encoding = 'UTF-8'))
     headerloc <- grep('^#+', md)
     codeloc <- grep('^```', md)
+    rmvcode <- function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])
     # exclude the lines begining with # but in code
-    if (length(codeloc) > 0) headerloc <- headerloc[!sapply(headerloc, function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])) == 1]
+    if (length(codeloc) > 0) headerloc <- headerloc[!sapply(headerloc, rmvcode) == 1]
     header <- md[headerloc]
     if (remove_curly_bracket) header <- gsub(pattern = '\\{.*\\}', '', header)
     if (savefile) {
-      if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
+      if (backup & file.exists(paste0(savefilename, '.md'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      # if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
       writeLines(text = header, savefilename, useBytes = TRUE)
     }
     return(header)
   } else {print(paste('The directory', folder, 'does not exist!'))}
 }
+

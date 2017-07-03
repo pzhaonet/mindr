@@ -5,7 +5,7 @@
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
 md2mm(title = "my title", folder = "mm", remove_curly_bracket = FALSE, 
-    savefilename = "mm.mm", backup = TRUE)
+    savefilename = "mindr", backup = TRUE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
