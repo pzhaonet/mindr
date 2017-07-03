@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# mindr: an R package which converts markdown (.md) or rmarkdown (.Rmd) files 
-=======
-# mindr: an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
->>>>>>> origin/master
+# mindr: an R package that converts markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
 
 ## Introduction
 
