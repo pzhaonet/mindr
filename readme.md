@@ -89,7 +89,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Showcase
 
-- Mindmap of [R bookdownplus Textbook](https://github.com/pzhaonet/bookdownplus-textbook)
+- Mindmap of [R bookdownplus](https://github.com/pzhaonet/bookdownplus) [Textbook](https://github.com/pzhaonet/bookdownplus-textbook)
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_bookdownplus.jpg)
 
