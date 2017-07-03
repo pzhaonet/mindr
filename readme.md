@@ -1,5 +1,7 @@
 # mindr: an R package that converts markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
 
+ ![CRAN downloads](http://cranlogs.r-pkg.org/badges/grand-total/mindr)
+
 ## Introduction
 
 With 'mindr' you can draw a mind map in markdown syntax, or start a markdown document from a mind map!
