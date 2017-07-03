@@ -93,7 +93,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_bookdownplus.jpg)
 
-- Mindmap of the book *Learning R* (in Chinese)
+- Mindmap of my book *Learning R* (in Chinese. to be published soon.)
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_xuer.jpg)
 
