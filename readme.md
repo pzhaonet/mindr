@@ -1,17 +1,13 @@
-<<<<<<< HEAD
-# mindr: an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
-=======
-# mindr: an R package which convert markdown (.md) or rmarkdown (.Rmd) files to mind maps, and vice versa
->>>>>>> origin/master
-
+# mindr: an R package which converts markdown (.md) or rmarkdown (.Rmd) files 
 
 ## Introduction
 
-mindr is an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net).
+With 'mindr' you can draw a mind map in markdown syntax, or start a markdown document from a mind map!
 
-If your are a markdown or  rmarkdown or bookdown or blogdown user, mindr can convert your .md or .Rmd files into mind maps easily. You can write a new mind map with markdown syntax and use mindr to convert it into an .mm mind map.
+mindr is an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as the desktop software ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net), or the online webware '[mindmeister](https://www.mindmeister.com/)'.
 
-If you are a mind map user, you can export your mind map into an .mm file and use mindr to convert it into a markdown file as an outline of your document or book.
+- If your are a  user of markdown or  rmarkdown or bookdown or blogdown, mindr can convert your .md or .Rmd files into mind maps easily. Furthermore, you can write a new mind map with markdown syntax and use mindr to convert it into an .mm mind map.
+- If you are a mind map user, you can export your mind map into an .mm file and use mindr to convert it into a markdown file as an outline of your new document or book.
 
 ## Quick start
 
@@ -34,9 +30,39 @@ mindr::md2mm()
 
 then you will get a `mm.mm` file. Open it with any mind-map (brainstorm) software, and you will get a mind map.
 
-Plenty of cross-platform and online mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)), among which [freemind](http://freemind.sourceforge.net/wiki/index.php/Download) and [Xmind](http://www.xmind.net/download/win/) are highly recommended.
+Plenty of cross-platform mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)), among which [freemind](http://freemind.sourceforge.net/wiki/index.php/Download) and [Xmind](http://www.xmind.net/download/win/) are highly recommended. If you would not like to install any of them, you could open the `.mm` file with the online webware '[mindmeister](https://www.mindmeister.com/)' in your web browser.
 
-### Convcert (a) mind map(s) into a markdown file 
+If you don't know what is markdown, just copy the following texts and paste them into a text file, and follow the steps described previously.
+
+```markdown
+# Introduction 
+## What is 'bookdown' 
+## What is 'bookdownplus' 
+## Why 'bookdownplus' 
+## Giants' Shoulders 
+# Quick Start 
+## Preparation 
+## Installation of 'bookdownplus' 
+## How to use 
+## More output formats
+## More templates
+## A magic trick
+## Recommendations
+# Basic 
+## Markdown Syntax 
+### What is Markdown 
+### Basic syntax 
+### Chapters 
+### Figures and tables 
+### References 
+### Theorems, lemma, definitions, etc. 
+### Export Word document 
+### Equations numbering 
+```
+
+Actually this is a new way to draw a mind map!
+
+### Convert (a) mind map(s) into a markdown file 
 
 Drop some mindmap files (.mm) into `mm/`. Run: 
 
@@ -63,15 +89,11 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Showcase
 
-- Mindmap of [bookdown manual](https://github.com/rstudio/bookdown/tree/master/inst/examples)
+- Mindmap of [R bookdownplus Textbook](https://github.com/pzhaonet/bookdownplus-textbook)
 
-![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_bookdown.jpeg)
+![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_bookdownplus.jpg)
 
-- Mindmap of [blogdown manual](https://github.com/rstudio/blogdown/tree/master/docs)
-
-![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_blogdown.jpg)
-
-- Mindmap of my book *Learning R*
+- Mindmap of the book *Learning R* (in Chinese)
 
 ![](https://raw.githubusercontent.com/pzhaonet/mindr/master/showcase/mindr_xuer.jpg)
 

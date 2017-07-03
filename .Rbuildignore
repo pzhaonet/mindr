@@ -2,3 +2,4 @@
 \.Rproj$
 ^\.gitignore$
 ^\.travis\.yml$
+showcase/
