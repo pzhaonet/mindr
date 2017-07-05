@@ -25,5 +25,7 @@ a vector of strings showing outline of a markdown document or book.
 Extract headers of markdown or rmarkdown files as an outline.
 }
 \examples{
-outline()
+folder <- system.file("examples/md", package = "mindr")
+outline(folder = folder)
+outline(folder = folder, remove_curly_bracket = TRUE)
 }

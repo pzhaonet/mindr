@@ -1,0 +1,15 @@
+{
+  "name": "markmap",
+  "homepage": "https://github.com/dundalek/markmap",
+  "version": "0.3.3",
+  "_release": "0.3.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.3",
+    "commit": "2a4fd2cfdd1663a017a058167d6be9902b2d8727"
+  },
+  "_source": "https://github.com/dundalek/markmap.git",
+  "_target": "^0.3.3",
+  "_originalSource": "dundalek/markmap",
+  "_direct": true
+}

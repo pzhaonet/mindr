@@ -25,5 +25,7 @@ a mindmap file, which can be viewed by common mindmap software, such as 'FreeMin
 Convert markdown or rmarkdown files to mindmap files.
 }
 \examples{
-md2mm()
+folder <- system.file("examples/md", package = "mindr")
+md2mm(folder = folder)
+md2mm(folder = folder, remove_curly_bracket = TRUE)
 }

@@ -24,66 +24,74 @@ devtools::install_github("pzhaonet/mindr")
 
 ### Convert (a) markdown file(s) into a mindmap 
 
-Create a folder named `mm` in the working directory (`getwd()`), and drop some markdown or rmarkdown files into `mm/`. Run: 
+Run: 
 
 ```R
-mindr::md2mm()
+library('mindr')
+example(md2mm)
 ```
+then you will get a demo mind map file `mindr.mm` in the working directory (`getwd()`). Open it with any mind-map (brainstorm) software, and you will get a mind map.
 
-then you will get a `mm.mm` file. Open it with any mind-map (brainstorm) software, and you will get a mind map.
+To create a mind map from your own markdown files, create a folder named `mm` in the working directory (`getwd()`), and drop some markdown or rmarkdown files into `mm/`. Run:
+
+```R
+md2mm()
+```
 
 Plenty of cross-platform mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)), among which [freemind](http://freemind.sourceforge.net/wiki/index.php/Download) and [Xmind](http://www.xmind.net/download/win/) are highly recommended. If you would not like to install any of them, you could open the `.mm` file with the online webware '[mindmeister](https://www.mindmeister.com/)' in your web browser.
 
-If you don't know what is markdown, just copy the following texts and paste them into a text file, and follow the steps described previously.
-
-```markdown
-# Introduction 
-## What is 'bookdown' 
-## What is 'bookdownplus' 
-## Why 'bookdownplus' 
-## Giants' Shoulders 
-# Quick Start 
-## Preparation 
-## Installation of 'bookdownplus' 
-## How to use 
-## More output formats
-## More templates
-## A magic trick
-## Recommendations
-# Basic 
-## Markdown Syntax 
-### What is Markdown 
-### Basic syntax 
-### Chapters 
-### Figures and tables 
-### References 
-### Theorems, lemma, definitions, etc. 
-### Export Word document 
-### Equations numbering 
-```
+If you don't know what is markdown, here is [a demo file](https://github.com/pzhaonet/mindr/blob/master/inst/examples/md/bookdownplus1.md).
 
 Actually this is a new way to draw a mind map!
 
 ### Convert (a) mind map(s) into a markdown file 
 
-Drop some mindmap files (.mm) into `mm/`. Run: 
+Run: 
 
 ```R
-mindr::mm2md()
+library('mindr')
+example(mm2md)
 ```
 
-then you will get a `mm.md` markdown file.
+then you will get a demo markdown file `mindr.md`in the working directory (`getwd()`). 
+
+To create a markdown file from your own mind map files, create a folder named `mm` in the working directory (`getwd()`), and drop some .mm files into `mm/`. Run:
+
+```R
+mm2md()
+```
+
+### Create Interactive Web MindMap with the JavaScript 'markmap' Library
+
+Run: 
+
+```R
+example(markmap)
+```
+
+then you will see a demo interactive mind map in the viewer of your R session. 
+
+To create your own interactive mind map, create a folder named `mm` in the working directory (`getwd()`), and drop some .mm files into `mm/`. Run:
+
+```R
+markmap()
+```
 
 ### Extract the outline from (a) markdown files
 
-Drop some markdown or rmarkdown files into `mm/`. Run: 
+Run: 
 
 ```R
-mindr::outline()
+library('mindr')
+example(outline)
 ```
+then you will get a demo outline file `outline.md` in the working directory (`getwd()`). 
 
-then you will get an `outline.md` file with headers in it as an outline.
+To extract the outline from your own markdown files, create a folder named `mm` in the working directory (`getwd()`), and drop some markdown or rmarkdown files into `mm/`. Run:
 
+```R
+outline()
+```
 
 Have fun!
 
@@ -101,6 +109,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2017-07-05. **v1.0.6**. [Rmarkmap](https://github.com/seifer08ms/Rmarkmap) added. Run `example(markmap)`.
 - 2017-07-03. **v1.0.5**. Better backup.
 - 2017-06-19. **v1.0.4**. Released on [CRAN](https://cran.r-project.org/web/packages/mindr)!
 - 2017-06-02. **V1.0.0**. Backup existing files before overwritten. Submitted to CRAN.

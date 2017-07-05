@@ -22,5 +22,6 @@ a vector of strings showing outline of a markdown document or book.
 Convert a mind map (.mm) into markdown headers.
 }
 \examples{
-mm2md()
+folder <- system.file("examples/mm", package = "mindr")
+mm2md(folder = folder)
 }

@@ -1,0 +1,14 @@
+dependencies:
+  - name: d3
+    version: 3.5.17
+    src: htmlwidgets/lib/d3
+    script: d3.min.js
+  - name: markmap
+    version: 0.3.3
+    src: htmlwidgets/lib/markmap-0.3.3
+    script:
+      - view.mindmap.js
+      - plugins/parsemd.min.js
+    stylesheet:
+      - view.mindmap.css
+
