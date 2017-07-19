@@ -33,7 +33,7 @@ a categorical colors including 'category10','category20','category20b' and 'cate
 \item{...}{other options.}
 }
 \description{
-Options for markmap creation
+This function is taken from \url{https://github.com/seifer08ms/Rmarkmap}.
 }
 \details{
 Currently,markmap have 'default' and 'colorful' themes.
@@ -46,14 +46,16 @@ Currently,markmap have 'default' and 'colorful' themes.
 }}
 
 \examples{
-md <- system.file("examples/test.md", package = "Rmarkmap")
-markmap(md, options = markmapOption(preset = "colorful"))  # 'colorful' theme
-
-# more options for self-defined markmap
-markmap(md, options = markmapOption(color = "category20b", linkShape = "bracket"))
-
-markmap(md, options = markmapOption(color = "category20b", linkShape = "diagonal", 
-    renderer = "basic"))
+folder <- system.file('examples/md', package = 'mindr')
+markmap(folder = folder, remove_curly_bracket = TRUE,
+  options = markmapOption(preset = 'colorful')) # 'colorful' theme
+markmap(folder = folder, remove_curly_bracket = TRUE,
+  options = markmapOption(color = 'category20b',
+    linkShape = 'bracket')) # 'colorful' theme
+markmap(folder = folder, remove_curly_bracket = TRUE,
+  options = markmapOption(color = 'category20b',
+    linkShape = 'diagonal',
+    renderer = 'basic')) # 'colorful' theme
 }
 \seealso{
 \url{https://github.com/dundalek/markmap/blob/master/view.mindmap.js} for details.

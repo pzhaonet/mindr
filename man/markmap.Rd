@@ -8,21 +8,23 @@ markmap(folder = "mm", remove_curly_bracket = FALSE, width = NULL, height = NULL
     elementId = NULL, options = markmapOption())
 }
 \arguments{
+\item{folder}{character. The folder which contains the input file(s).}
+
+\item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
+
 \item{width}{the width of the markmap}
 
 \item{height}{the height of the markmap}
 
-\item{options}{the markmap options}
+\item{elementId}{character.}
 
-\item{path}{the path of markdown file}
+\item{options}{the markmap options}
 }
 \value{
 A HTML widget object rendered from a given document.
 }
 \description{
-This function creates a markmap widget using htmlwidgets.
-The widget can be rendered on HTML pages generated from
-R Markdown,Shiny,or other applications.
+This function, modified from \url{https://github.com/seifer08ms/Rmarkmap}, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
 }
 \examples{
 folder <- system.file("examples/md", package = "mindr")

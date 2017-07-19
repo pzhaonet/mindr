@@ -1,6 +1,6 @@
 Package: mindr
-Version: 1.0.6
-Date: 2017-07-05
+Version: 1.1.0
+Date: 2017-07-19
 Title: Convert Files Between Markdown or Rmarkdown Files and Mindmaps
 Author: Peng Zhao
 Maintainer: Peng Zhao <pzhao@pzhao.net>
@@ -11,7 +11,6 @@ Description: Convert Markdown ('.md') or Rmarkdown ('.Rmd') files into FreeMind 
 License: GPL
 URL: https://github.com/pzhaonet/mindr
 BugReports: https://github.com/pzhaonet/mindr/issues
-VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 NeedsCompilation: no

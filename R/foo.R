@@ -125,20 +125,22 @@ outline <- function(folder = 'mm',
 
 #' Create a markmap widget
 #'
-#' This function creates a markmap widget using htmlwidgets.
-#' The widget can be rendered on HTML pages generated from
-#' R Markdown,Shiny,or other applications.
-#' @param path the path of markdown file
+#' This function, modified from <https://github.com/seifer08ms/Rmarkmap>, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
+#'
+#' @param folder character. The folder which contains the input file(s).
+#' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
 #' @param width the width of the markmap
 #' @param height the height of the markmap
+#' @param elementId character.
 #' @param options the markmap options
+#'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
+#' @export
 #' @examples
 #' folder <- system.file('examples/md', package = 'mindr')
 #' markmap(folder = folder)
 #' markmap(folder = folder, remove_curly_bracket = TRUE)
-#' @export
 markmap <- function(folder = 'mm',
                     remove_curly_bracket = FALSE,
                     width = NULL, height = NULL, elementId = NULL, options = markmapOption()) {
@@ -171,6 +173,9 @@ markmap <- function(folder = 'mm',
 
 }
 #' Options for markmap creation
+#'
+#' This function is taken from <https://github.com/seifer08ms/Rmarkmap>.
+
 #' @param preset the name of built-in theme for markmap. If present, any other parameters will be ignored.
 #' @param nodeHeight the height of nodes in the markmap.
 #' @param nodeWidth the width of nodes in the markmap.
@@ -188,74 +193,77 @@ markmap <- function(folder = 'mm',
 #' 'colorful' themes have three different parameters from default themes:
 #'  {nodeHeight: 10, renderer: 'basic',color: 'category20'}
 #' @seealso \url{https://github.com/dundalek/markmap/blob/master/view.mindmap.js} for details.
-#' @examples
-#' md<-system.file('examples/test.md',package = 'Rmarkmap')
-#' markmap(md,options = markmapOption(preset = 'colorful')) # 'colorful' theme
-#'
-#' # more options for self-defined markmap
-#' markmap(md,options = markmapOption(color='category20b',linkShape='bracket'))
-#'
-#' markmap(md,options = markmapOption(color='category20b',linkShape='diagonal',renderer = 'basic'))
 #' @export
-markmapOption <- function(preset=NULL,nodeHeight=20,
-                          nodeWidth=180,
-                          spacingVertical=10,
-                          spacingHorizontal=120,
-                          duration=750,
-                          layout='tree',
-                          color='gray',#
-                          linkShape='diagonal',
-                          renderer='boxed',...){
-  filterNULL<-function (x) {
+#' @examples
+#' folder <- system.file('examples/md', package = 'mindr')
+#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#'   options = markmapOption(preset = 'colorful')) # 'colorful' theme
+#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#'   options = markmapOption(color = 'category20b',
+#'     linkShape = 'bracket')) # 'colorful' theme
+#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#'   options = markmapOption(color = 'category20b',
+#'     linkShape = 'diagonal',
+#'     renderer = 'basic')) # 'colorful' theme
+markmapOption <- function(preset = NULL, nodeHeight = 20,
+                          nodeWidth = 180,
+                          spacingVertical = 10,
+                          spacingHorizontal = 120,
+                          duration = 750,
+                          layout = 'tree',
+                          color = 'gray',#
+                          linkShape = 'diagonal',
+                          renderer = 'boxed',...){
+  filterNULL <- function (x) {
     if (length(x) == 0 || !is.list(x))
       return(x)
     x[!unlist(lapply(x, is.null))]
   }
-  if(!is.null(preset)&&(preset=='default'|preset=='colorful')){
-    filterNULL(list(preset=preset,autoFit=TRUE))
+  if(!is.null(preset) && (preset == 'default' | preset == 'colorful')){
+    filterNULL(list(preset = preset, autoFit = TRUE))
   }else{
-    if (is.null(layout)||(layout!='tree')){
+    if (is.null(layout) || (layout!='tree')){
       warning('Currenly, only tree layout is supported. Changing to tree layout...')
       layout = 'tree'
     }
-    filterNULL(list(nodeHeight=nodeHeight,
-                    nodeWidth=nodeWidth,
-                    spacingVertical=spacingVertical,
-                    spacingHorizontal=spacingHorizontal,
-                    duration=duration,
-                    layout='tree',
-                    color=color,
-                    linkShape=linkShape,
-                    renderer=renderer,
-                    autoFit=TRUE,
+    filterNULL(list(nodeHeight = nodeHeight,
+                    nodeWidth = nodeWidth,
+                    spacingVertical = spacingVertical,
+                    spacingHorizontal = spacingHorizontal,
+                    duration = duration,
+                    layout = 'tree',
+                    color = color,
+                    linkShape = linkShape,
+                    renderer = renderer,
+                    autoFit = TRUE,
                     ...))
   }
-
 }
-#'
-#'
 #' Shiny bindings for markmap
 #'
-#' Output and render functions for using markmap within Shiny
-#' applications and interactive Rmd documents.
+#' Output function for using markmap within Shiny applications and interactive Rmd documents. This function is taken from <https://github.com/seifer08ms/Rmarkmap>.
 #'
+#' @param width Must be a valid CSS unit (like \code{'100\%'}, \code{'400px'}, \code{'auto'}) or a number, which will be coerced to a string and have \code{'px'} appended.
+#' @param height See 'width'.
 #' @param outputId output variable to read from
-#' @param width,height Must be a valid CSS unit (like \code{'100\%'},
-#'   \code{'400px'}, \code{'auto'}) or a number, which will be coerced to a
-#'   string and have \code{'px'} appended.
-#' @param expr An expression that generates a markmap
-#' @param env The environment in which to evaluate \code{expr}.
-#' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
-#'   is useful if you want to save an expression in a variable.
-#' #'
-#' @rdname markmap-shiny
 #'
+# @rdname markmap-shiny
 #' @export
+#'
 markmapOutput <- function(outputId, width = '100%', height = '400px'){
   htmlwidgets::shinyWidgetOutput(outputId, 'markmap', width, height, package = 'mindr')
 }
-#' @rdname markmap-shiny
+#' Shiny bindings for markmap
+#'
+#' Render function for using markmap within Shiny applications and interactive Rmd documents. This function is taken from <https://github.com/seifer08ms/Rmarkmap>.
+#'
+#' @param expr An expression that generates a markmap
+#' @param env The environment in which to evaluate \code{expr}.
+#' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This is useful if you want to save an expression in a variable.
+#'
+# @rdname markmap-shiny
 #' @export
+#'
 renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, markmapOutput, env, quoted = TRUE)

@@ -71,6 +71,12 @@ example(markmap)
 
 then you will see a demo interactive mind map in the viewer of your R session. 
 
+More themes can be seen if you run:
+
+```R
+example(markmapOption)
+```
+
 To create your own interactive mind map, create a folder named `mm` in the working directory (`getwd()`), and drop some .mm files into `mm/`. Run:
 
 ```R
@@ -109,14 +115,15 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2017-07-19. **v1.1.0**. On CRAN. See [CHANGES IN mindr VERSION 1.1](https://github.com/pzhaonet/mindr/releases/tag/v1.1).
 - 2017-07-05. **v1.0.6**. [Rmarkmap](https://github.com/seifer08ms/Rmarkmap) added. Run `example(markmap)`.
 - 2017-07-03. **v1.0.5**. Better backup.
 - 2017-06-19. **v1.0.4**. Released on [CRAN](https://cran.r-project.org/web/packages/mindr)!
-- 2017-06-02. **V1.0.0**. Backup existing files before overwritten. Submitted to CRAN.
-- 2017-05-21. **V0.2.0**. Rename functions.
-- 2017-05-21. **V0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
-- 2017-05-20. **V0.0.1**. Can Save the outline.
-- 2017-05-19. **V0.0.0**. A very preliminary version.
+- 2017-06-02. **v1.0.0**. Backup existing files before overwritten. Submitted to CRAN.
+- 2017-05-21. **v0.2.0**. Rename functions.
+- 2017-05-21. **v0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
+- 2017-05-20. **v0.0.1**. Can Save the outline.
+- 2017-05-19. **v0.0.0**. A very preliminary version.
 
 # License
 
