@@ -19,18 +19,19 @@ md2mm <- function(title = 'my title',
                   backup = TRUE) {
   if (dir.exists(folder)) {
     header <- outline(folder, remove_curly_bracket, savefile = FALSE)
-    ncc <- sapply(header, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
-    mmtext <- substr(header, ncc + 2, nchar(header))
-    mm <- '<map version="1.0.1">'
-    mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
-    diffncc <- diff(ncc)
-    for (i in 1:length(diffncc)) {
-      if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
-      if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
-      if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
-    }
-    mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
-    mm[length(ncc) + 3] <- '</node></map>'
+    mm <- mdtxt2mmtxt(title = title, mmtxt = header)
+    # ncc <- sapply(header, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
+    # mmtext <- substr(header, ncc + 2, nchar(header))
+    # mm <- '<map version="1.0.1">'
+    # mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
+    # diffncc <- diff(ncc)
+    # for (i in 1:length(diffncc)) {
+    #   if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
+    #   if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
+    #   if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+    # }
+    # mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
+    # mm[length(ncc) + 3] <- '</node></map>'
     savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
     # if (backup & file.exists(paste0(savefilename, '.mm'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
     #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
@@ -267,4 +268,74 @@ markmapOutput <- function(outputId, width = '100%', height = '400px'){
 renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, markmapOutput, env, quoted = TRUE)
+}
+
+#' Convert markdown text to mindmap text.
+#'
+#' @param title character. The title of the output file.
+#' @param mmtxt character. The markdown text to convert.
+#'
+#' @return a mindmap text.
+#' @export
+#' @examples
+#' mdtxt2mmtxt(mmtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
+mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
+    ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
+    mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt))
+    mm <- '<map version="1.0.1">'
+    mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
+    diffncc <- diff(ncc)
+    for (i in 1:length(diffncc)) {
+      if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
+      if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
+      if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+    }
+    mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
+    mm[length(ncc) + 3] <- '</node></map>'
+    return(mm)
+}
+
+#' Convert a directory tree to a mindmap file.
+#'
+#' @param tree character. The directory tree.
+#' @param savefilename character. Valid when savefile == TRUE.
+#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
+#'
+#' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
+#' @export
+#' @examples
+#' et2 <- c('/Root name',
+#' '/Path A',
+#' '/Path A/Product A',
+#' '/Path A/Product A/Process A',
+#' '/Path A/Product A/Process A/Step A',
+#' '/Path A/Product A/Process A/Step A/Record 1',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses/Object 1',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses/Object 1/Type: data source',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses/Object 1/Version: 3',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses/Object 2',
+#' '/Path A/Product A/Process A/Step A/Record 1/Analyses/Object 3',
+#' '/Path A/Product A/Process A/Step A/Record 1/Setup Parts',
+#' '/Path A/Product A/Process A/Step A/Record 1/Setup Parts/Par 1',
+#' '/Path A/Product A/Process A/Step A/Record 1/Setup Parts/Par 2',
+#' '/Path A/Product A/Process A/Step A/Record 1/Setup Parts/Par 3',
+#' '/Path B',
+#' '/Path C')
+#' tree2mm(et2)
+tree2mm <- function(tree,
+                    savefilename = 'mindr',
+                    backup = TRUE) {
+  tree_title <- gsub('/', '', tree[1])
+  tree_node <- sapply(strsplit(tree[-1], '/'), function(x) x[length(x)])
+  tree_pre <- strrep('#', sapply(gregexpr('/', tree[-1]), length))
+  tree_new <- paste(tree_pre, tree_node)
+
+  mm <- mdtxt2mmtxt(title = tree_title, mmtxt = tree_new)
+
+  savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
+  # if (backup & file.exists(paste0(savefilename, '.mm'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
+  #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+  # }
+  writeLines(text = mm, savefilename, useBytes = TRUE)
 }

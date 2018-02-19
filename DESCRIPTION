@@ -1,6 +1,6 @@
 Package: mindr
-Version: 1.1.0
-Date: 2017-07-19
+Version: 1.1.1
+Date: 2018-02-19
 Title: Convert Files Between Markdown or Rmarkdown Files and Mindmaps
 Author: Peng Zhao
 Maintainer: Peng Zhao <pzhao@pzhao.net>
