@@ -300,6 +300,7 @@ mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
 #' @param tree character. The directory tree.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
+#' @param n_root numeric. Which element is the root of the tree.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -325,17 +326,13 @@ mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
 #' tree2mm(et2)
 tree2mm <- function(tree,
                     savefilename = 'mindr',
-                    backup = TRUE) {
-  tree_title <- gsub('/', '', tree[1])
-  tree_node <- sapply(strsplit(tree[-1], '/'), function(x) x[length(x)])
-  tree_pre <- strrep('#', sapply(gregexpr('/', tree[-1]), length))
+                    backup = TRUE,
+                    n_root = 1) {
+  tree_title <- gsub('/', '', tree[n_root])
+  tree_node <- sapply(strsplit(tree[-n_root], '/'), function(x) x[length(x)])
+  tree_pre <- strrep('#', sapply(gregexpr('/', tree[-n_root]), length))
   tree_new <- paste(tree_pre, tree_node)
-
   mm <- mdtxt2mmtxt(title = tree_title, mmtxt = tree_new)
-
   savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
-  # if (backup & file.exists(paste0(savefilename, '.mm'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
-  #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-  # }
   writeLines(text = mm, savefilename, useBytes = TRUE)
 }
