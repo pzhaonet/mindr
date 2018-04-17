@@ -4,7 +4,7 @@
 \alias{tree2mm}
 \title{Convert a directory tree to a mindmap file.}
 \usage{
-tree2mm(tree, savefilename = "mindr", backup = TRUE)
+tree2mm(tree, savefilename = "mindr", backup = TRUE, n_root = 1)
 }
 \arguments{
 \item{tree}{character. The directory tree.}
@@ -12,6 +12,8 @@ tree2mm(tree, savefilename = "mindr", backup = TRUE)
 \item{savefilename}{character. Valid when savefile == TRUE.}
 
 \item{backup}{logical. Whether the existing target file, if any, should be saved as backup.}
+
+\item{n_root}{numeric. Which element is the root of the tree.}
 }
 \value{
 a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (\url{http://freemind.sourceforge.net/wiki/index.php/Main_Page}) and 'XMind' (\url{http://www.xmind.net}).

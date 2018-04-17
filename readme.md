@@ -99,6 +99,16 @@ To extract the outline from your own markdown files, create a folder named `mm` 
 outline()
 ```
 
+### Convert a tibble dataframe column into amindmap
+
+Run: 
+
+```R
+library('mindr')
+example(tree2mm)
+```
+then you will get a demo outline file `mindr.md` in the working directory (`getwd()`). 
+
 Have fun!
 
 Still being developed. Feel free to give your feedback to me!
@@ -115,6 +125,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2018-04-17. **v1.1.1**. Support tribble dataframes.
 - 2017-07-19. **v1.1.0**. On CRAN. See [CHANGES IN mindr VERSION 1.1](https://github.com/pzhaonet/mindr/releases/tag/v1.1).
 - 2017-07-05. **v1.0.6**. [Rmarkmap](https://github.com/seifer08ms/Rmarkmap) added. Run `example(markmap)`.
 - 2017-07-03. **v1.0.5**. Better backup.
