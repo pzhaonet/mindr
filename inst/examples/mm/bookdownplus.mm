@@ -2,7 +2,7 @@
 <node TEXT="my title">
 <node TEXT="Introduction ">
 <node TEXT="What is 'bookdown' "></node>
-<node TEXT="What is 'bookdownplus' "></node>
+<node TEXT="What is 'bookdownplus' " LINK="https://github.com/pzhaonet/bookdownplus" ></node>
 <node TEXT="Why 'bookdownplus' "></node>
 <node TEXT="Giants' Shoulders "></node></node>
 <node TEXT="Quick Start ">

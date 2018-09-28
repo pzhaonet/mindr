@@ -1,6 +1,6 @@
 # Introduction {#introduction}
 ## What is 'bookdown' {#what_is__bookdown_}
-## What is 'bookdownplus' {#what_is__bookdownplus_}
+## What is ['bookdownplus'](https://github.com/pzhaonet/bookdownplus) {#what_is__bookdownplus_}
 ## Why 'bookdownplus' {#why__bookdownplus_}
 ## Giants' Shoulders {#giants__shoulders}
 # Quick Start {#quick_start}

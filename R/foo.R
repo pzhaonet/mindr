@@ -49,6 +49,13 @@ mm2md <- function(folder = 'mm',
   if (dir.exists(folder)) {
     mm <- NULL
     for (filename in dir(folder, full.names = TRUE)) mm <- c(mm, readLines(filename, encoding = 'UTF-8'))
+    # compitable for both versions: node ends with '/>' or '</node>'
+    mm <- gsub(pattern = '/>', '</node>', mm)
+    # keep links
+    loc_link <- grep('LINK="([^\"]*)"', mm)
+    links <- gsub('LINK="([^\"]*)"', '\\1', regmatches(mm, gregexpr('LINK="[^\"]*"', mm)))
+    for(i in loc_link) mm[i] <- gsub('TEXT="([^"]*)"', paste0('TEXT=\"[\\1](', links[i], ')\"'), mm[i])
+
     mm <- paste0(mm, collapse = '')
     node_begin <- unlist(gregexpr('<node', mm))
     node_end <- unlist(gregexpr('</node', mm))
@@ -56,7 +63,7 @@ mm2md <- function(folder = 'mm',
     node_loc <- c(node_begin, node_end)
     node_sign <- node_sign[order(node_loc)]
     node_level <- cumsum(node_sign)[node_sign == 1]
-    headers <- gsub('TEXT="([^>]*)">', '\\1', regmatches(mm, gregexpr('TEXT="[^>]*">', mm))[[1]])
+    headers <- gsub('TEXT="([^"]*)"', '\\1', regmatches(mm, gregexpr('TEXT="[^"]*"', mm))[[1]])
     md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
     if (savefile) {
@@ -281,6 +288,11 @@ renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
 mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
     ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
     mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt))
+
+    # get the hyperlinks
+    which_link <- grep(pattern = '\\[.*](.*)', mmtext)
+    mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
+    mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
     mm <- '<map version="1.0.1">'
     mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
     diffncc <- diff(ncc)
@@ -334,4 +346,61 @@ tree2mm <- function(tree,
   mm <- mdtxt2mmtxt(title = tree_title, mmtxt = tree_new)
   savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
   writeLines(text = mm, savefilename, useBytes = TRUE)
+}
+
+
+#' Convert a folder structure into a mindmap.
+#'
+#' @param savefilename character. Valid when savefile == TRUE.
+#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
+#' @param path character. the path of the folder.
+#' @param output a file with the folder structure.
+#'
+#' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
+#' @export
+#' @examples
+#' dir2(NA)
+dir2 <- function(path = getwd(),
+                 savefilename = 'mindr',
+                 output = c('mm', 'txt', 'md'),
+                 backup = TRUE) {
+  output <- match.arg(output)
+  if(is.na(path)) return(message('The path cannot be N!.'))
+  if (dir.exists(path)) {
+    if_files = FALSE
+    tree <- paste0('tree "', path, '" /A', ifelse(if_files, ' /f', ''))
+    mytree <- system(tree, intern = T)
+    if('txt' %in% output) {
+      if (backup & file.exists(paste0(savefilename, '.txt'))){
+        message(paste0(savefilename, '.txt already exits.'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      writeLines(mytree, paste0(savefilename, '.txt'), useBytes = TRUE)
+      message(paste(savefilename), '.txt is generated!')
+    }
+    md <- mytree[-(1:3)]
+    # headers <- sapply(mytree, function(x) strsplit(x, ifelse(grepl('+---', x), '+---', '\\---'))[[1]][2])
+    # attributes(headers) <- NULL
+    md <- gsub(pattern = '\\+---', '# ', md)
+    md <- gsub(pattern = '\\\\---', '# ', md)
+    md <- gsub(pattern = '\\|   ', '#', md)
+    md <- gsub(pattern = '    ', '#', md)
+    mm <- mdtxt2mmtxt(title = path, mmtxt = md)
+    if('md' %in% output){
+      if (backup & file.exists(paste0(savefilename, '.md'))){
+        message(paste0(savefilename, '.md already exits.'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      writeLines(text = md, paste0(savefilename, '.md'), useBytes = TRUE)
+      message(paste(savefilename), '.md is generated!')
+    }
+    if('mm' %in% output){
+      if (backup & file.exists(paste0(savefilename, '.mm'))){
+        message(paste0(savefilename, '.mm already exits.'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      writeLines(text = mm, paste0(savefilename, '.mm'), useBytes = TRUE)
+      message(paste(savefilename), '.mm is generated!')
+    }
+  } else {message(paste('The directory', path, 'does not exist!'))}
 }
