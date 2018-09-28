@@ -13,31 +13,21 @@
 #' md2mm(folder = folder)
 #' md2mm(folder = folder, remove_curly_bracket = TRUE)
 md2mm <- function(title = 'my title',
-                  folder = 'mm',
+                  folder = 'md',
                   remove_curly_bracket = FALSE,
                   savefilename = 'mindr',
                   backup = TRUE) {
   if (dir.exists(folder)) {
     header <- outline(folder, remove_curly_bracket, savefile = FALSE)
     mm <- mdtxt2mmtxt(title = title, mmtxt = header)
-    # ncc <- sapply(header, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
-    # mmtext <- substr(header, ncc + 2, nchar(header))
-    # mm <- '<map version="1.0.1">'
-    # mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
-    # diffncc <- diff(ncc)
-    # for (i in 1:length(diffncc)) {
-    #   if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
-    #   if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
-    #   if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
-    # }
-    # mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
-    # mm[length(ncc) + 3] <- '</node></map>'
-    savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
-    # if (backup & file.exists(paste0(savefilename, '.mm'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
-    #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-    # }
-    writeLines(text = mm, savefilename, useBytes = TRUE)
-  } else {print(paste('The directory', folder, 'does not exist!'))}
+    # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
+    if (backup & file.exists(paste0(savefilename, '.mm'))){
+      message(paste0(savefilename, '.mm already exits.'))
+      savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+    }
+    writeLines(text = mm, paste0(savefilename, '.mm'), useBytes = TRUE)
+    message(paste(savefilename), '.mm is generated!')
+  } else {message(paste('The directory', folder, 'does not exist!'))}
 }
 
 
@@ -70,12 +60,13 @@ mm2md <- function(folder = 'mm',
     md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
     if (savefile) {
-      savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.md')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.md')
-      # if (backup & file.exists(paste0(savefilename, '.md'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
-      #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      # }
-      # if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
-      writeLines(text = md, savefilename, useBytes = TRUE)
+      # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.md')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.md')
+      if (backup & file.exists(paste0(savefilename, '.md'))){
+        message(paste0(savefilename, '.md already exits.'))
+        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+      }
+      writeLines(text = md, paste0(savefilename, '.md'), useBytes = TRUE)
+      message(paste(savefilename), '.md is generated!')
     }
     return(md)
   } else {print(paste('The directory', folder, 'does not exist!'))}
@@ -122,8 +113,6 @@ outline <- function(folder = 'mm',
   } else {print(paste('The directory', folder, 'does not exist!'))}
 }
 
-####################################################
-
 #' Create a markmap widget
 #'
 #' This function, modified from <https://github.com/seifer08ms/Rmarkmap>, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
@@ -134,6 +123,7 @@ outline <- function(folder = 'mm',
 #' @param height the height of the markmap
 #' @param elementId character.
 #' @param options the markmap options
+#' @param input character, The format of theinput files
 #'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
@@ -142,18 +132,25 @@ outline <- function(folder = 'mm',
 #' folder <- system.file('examples/md', package = 'mindr')
 #' markmap(folder = folder)
 #' markmap(folder = folder, remove_curly_bracket = TRUE)
-markmap <- function(folder = 'mm',
+markmap <- function(input = c('.md', '.mm'),
+                    folder = NA,
                     remove_curly_bracket = FALSE,
                     width = NULL, height = NULL, elementId = NULL, options = markmapOption()) {
-  if (dir.exists(folder)) {
-    header <- outline(folder, remove_curly_bracket, savefile = FALSE)
-    data <-paste(header, collapse = '\n')
+  input <- match.arg(input)
+  if(!is.na(folder) & dir.exists(folder)) {
+    if(input == '.md'){
+      header <- outline(folder, remove_curly_bracket, savefile = FALSE)
+    } else if(input == '.mm'){
+      header <- mm2md(folder = folder, savefile = FALSE)
+    } else {
+      message('Please give a valid input.')
+    }
+    data <- paste(header, collapse = '\n')
     # forward options using x
     x = list(
       data = data,
       options = options
     )
-
 
     # create widget
     htmlwidgets::createWidget(
@@ -170,7 +167,9 @@ markmap <- function(folder = 'mm',
       package = 'mindr',
       elementId = elementId
     )
-  } else {print(paste('The directory', folder, 'does not exist!'))}
+  } else {
+    message(paste('Please give a valid path to the directory.'))
+    }
 
 }
 #' Options for markmap creation

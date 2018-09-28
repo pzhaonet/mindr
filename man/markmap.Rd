@@ -4,10 +4,12 @@
 \alias{markmap}
 \title{Create a markmap widget}
 \usage{
-markmap(folder = "mm", remove_curly_bracket = FALSE, width = NULL, height = NULL, 
-    elementId = NULL, options = markmapOption())
+markmap(input = c(".md", ".mm"), folder = NA, remove_curly_bracket = FALSE, 
+    width = NULL, height = NULL, elementId = NULL, options = markmapOption())
 }
 \arguments{
+\item{input}{character, The format of theinput files}
+
 \item{folder}{character. The folder which contains the input file(s).}
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}

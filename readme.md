@@ -125,6 +125,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2018-09-28. **v1.1.2**. Display .mm mind maps.
 - 2018-04-17. **v1.1.1**. Support tribble dataframes.
 - 2017-07-19. **v1.1.0**. On CRAN. See [CHANGES IN mindr VERSION 1.1](https://github.com/pzhaonet/mindr/releases/tag/v1.1).
 - 2017-07-05. **v1.0.6**. [Rmarkmap](https://github.com/seifer08ms/Rmarkmap) added. Run `example(markmap)`.
