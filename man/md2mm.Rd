@@ -4,13 +4,15 @@
 \alias{md2mm}
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
-md2mm(title = "my title", folder = "md", remove_curly_bracket = FALSE, 
-    savefilename = "mindr", backup = TRUE)
+md2mm(title = "my title", folder = "md", pattern = "*.[R]*md", 
+    remove_curly_bracket = FALSE, savefilename = "mindr", backup = TRUE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
 
 \item{folder}{character. The folder which contains the input file(s).}
+
+\item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 

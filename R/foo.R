@@ -3,6 +3,7 @@
 #' @param title character. The title of the output file.
 #' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
 #' @param folder character. The folder which contains the input file(s).
+#' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
 #'
@@ -14,11 +15,12 @@
 #' md2mm(folder = folder, remove_curly_bracket = TRUE)
 md2mm <- function(title = 'my title',
                   folder = 'md',
+                  pattern = '*.[R]*md',
                   remove_curly_bracket = FALSE,
                   savefilename = 'mindr',
                   backup = TRUE) {
   if (dir.exists(folder)) {
-    header <- outline(folder, remove_curly_bracket, savefile = FALSE)
+    header <- outline(folder, pattern, remove_curly_bracket, savefile = FALSE)
     mm <- mdtxt2mmtxt(title = title, mmtxt = header)
     # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
     if (backup & file.exists(paste0(savefilename, '.mm'))){
@@ -86,6 +88,7 @@ mm2md <- function(folder = 'mm',
 #' @param savefile logical. Whether to save the output as a markdown file.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backups.
+#' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #'
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @export
@@ -94,13 +97,14 @@ mm2md <- function(folder = 'mm',
 #' outline(folder = folder)
 #' outline(folder = folder, remove_curly_bracket = TRUE)
 outline <- function(folder = 'mm',
+                    pattern = '*.[R]*md',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
                     savefilename = 'outline',
                     backup = TRUE) {
   if (dir.exists(folder)) {
     md <- NULL
-    for (filename in dir(folder, full.names = TRUE)) md <- c(md, readLines(filename, encoding = 'UTF-8'))
+    for (filename in dir(folder, pattern = pattern, full.names = TRUE)) md <- c(md, readLines(filename, encoding = 'UTF-8'))
     headerloc <- grep('^#+', md)
     codeloc <- grep('^```', md)
     rmvcode <- function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])
@@ -176,7 +180,7 @@ markmap <- function(input = c('.md', '.mm'),
     )
   } else {
     message(paste('Please give a valid path to the directory.'))
-    }
+  }
 
 }
 #' Options for markmap creation
@@ -286,24 +290,26 @@ renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @examples
 #' mdtxt2mmtxt(mmtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
 mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
-    ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
-    mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt))
 
-    # get the hyperlinks
-    which_link <- grep(pattern = '\\[.*](.*)', mmtext)
-    mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
-    mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
-    mm <- '<map version="1.0.1">'
-    mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
-    diffncc <- diff(ncc)
-    for (i in 1:length(diffncc)) {
-      if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
-      if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
-      if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
-    }
-    mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
-    mm[length(ncc) + 3] <- '</node></map>'
-    return(mm)
+  mmtxt <- gsub(pattern = '&', '&amp;', mmtxt)
+  ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
+  mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt))
+
+  # get the hyperlinks
+  which_link <- grep(pattern = '\\[.*](.*)', mmtext)
+  mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
+  mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
+  mm <- '<map version="1.0.1">'
+  mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
+  diffncc <- diff(ncc)
+  for (i in 1:length(diffncc)) {
+    if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
+    if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
+    if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+  }
+  mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
+  mm[length(ncc) + 3] <- '</node></map>'
+  return(mm)
 }
 
 #' Convert a directory tree to a mindmap file.
