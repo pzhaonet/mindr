@@ -58,5 +58,5 @@ markmap(folder = folder, remove_curly_bracket = TRUE,
     renderer = 'basic')) # 'colorful' theme
 }
 \seealso{
-\url{https://github.com/dundalek/markmap/blob/master/view.mindmap.js} for details.
+\url{https://github.com/dundalek/markmap/blob/master/lib/view.mindmap.js} for details.
 }

@@ -203,7 +203,7 @@ markmap <- function(input = c('.md', '.mm'),
 #' @details Currently,markmap have 'default' and 'colorful' themes.
 #' 'colorful' themes have three different parameters from default themes:
 #'  {nodeHeight: 10, renderer: 'basic',color: 'category20'}
-#' @seealso \url{https://github.com/dundalek/markmap/blob/master/view.mindmap.js} for details.
+#' @seealso \url{https://github.com/dundalek/markmap/blob/master/lib/view.mindmap.js} for details.
 #' @export
 #' @examples
 #' folder <- system.file('examples/md', package = 'mindr')
@@ -371,7 +371,7 @@ dir2 <- function(path = getwd(),
                  output = c('mm', 'txt', 'md'),
                  backup = TRUE) {
   output <- match.arg(output)
-  if(is.na(path)) return(message('The path cannot be N!.'))
+  if(is.na(path)) return(message('The path cannot be NA!'))
   if (dir.exists(path)) {
     if_files = FALSE
     tree <- paste0('tree "', path, '" /A', ifelse(if_files, ' /f', ''))
