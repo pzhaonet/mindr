@@ -89,6 +89,7 @@ mm2md <- function(folder = 'mm',
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backups.
 #' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
+#' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #'
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @export
@@ -96,30 +97,61 @@ mm2md <- function(folder = 'mm',
 #' folder <- system.file('examples/md', package = 'mindr')
 #' outline(folder = folder)
 #' outline(folder = folder, remove_curly_bracket = TRUE)
-outline <- function(folder = 'mm',
+outline <- function(folder = 'md',
                     pattern = '*.[R]*md',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
                     savefilename = 'outline',
-                    backup = TRUE) {
+                    backup = TRUE,
+                    bookdown_style = TRUE) {
   if (dir.exists(folder)) {
+
+    # an internal function to remove the code blocks from md
+    rmvcode <- function(index, loc) {
+      sum(index > loc[seq(1, length(loc), by = 2)] &
+        index < loc[seq(2, length(loc), by = 2)])
+    }
+
+    # read data
     md <- NULL
-    for (filename in dir(folder, pattern = pattern, full.names = TRUE)) md <- c(md, readLines(filename, encoding = 'UTF-8'))
-    headerloc <- grep('^#+', md)
+    files <- dir(folder, pattern = pattern, full.names = TRUE)
+    ## bookdown style: if index.Rmd exists, read it first
+    if(bookdown_style){
+      first_file <- paste0(folder, '/index.Rmd')
+      if(first_file %in% files) files <- c(first_file, files[files != first_file])
+    }
+    for (filename in files) md <- c(md, readLines(filename, encoding = 'UTF-8'))
+    mdlength <- length(md)
+
+    # exclude the code blocks
+    codeloc2 <- grep('^````', md)
+    if (length(codeloc2) > 0) md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc2)]
     codeloc <- grep('^```', md)
-    rmvcode <- function(x) sum(x > codeloc[seq(1, length(codeloc), by = 2)] & x < codeloc[seq(2, length(codeloc), by = 2)])
-    # exclude the lines begining with # but in code
-    if (length(codeloc) > 0) headerloc <- headerloc[!sapply(headerloc, rmvcode) == 1]
+    if (length(codeloc) > 0) md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc)]
+
+    # get the outline
+    headerloc <- grep('^#+', md)
     header <- md[headerloc]
+
+    # remove the curly brackets
     if (remove_curly_bracket) header <- gsub(pattern = '\\{.*\\}', '', header)
+
+    # lower the levels after `# (PART)` and `# (APPENDIX)`
+    if(bookdown_style){
+      part_loc <- c(grep('^# \\(PART\\)', header), grep('^# \\(APPENDIX\\)', header), grep('^# References', header))
+      header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
+      header[part_loc] <- gsub(' \\(APPENDIX\\)', '', header[part_loc])
+      lower_loc <- (part_loc[1] + 1) : length(header)
+      lower_loc <- lower_loc[!lower_loc %in% part_loc]
+      header[lower_loc] <- paste0('#', header[lower_loc])
+    }
+
+    # save file
     if (savefile) {
       savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.md')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.md')
-      # if (backup & file.exists(paste0(savefilename, '.md'))){ #file.copy(savefilename, to = paste0(savefilename, 'backup'))
-      #   savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      # }
-      # if (backup & file.exists(savefilename)) file.copy(savefilename, to = paste0(savefilename, 'backup'))
       writeLines(text = header, savefilename, useBytes = TRUE)
     }
+
     return(header)
   } else {print(paste('The directory', folder, 'does not exist!'))}
 }
@@ -150,7 +182,7 @@ markmap <- function(input = c('.md', '.mm'),
   input <- match.arg(input)
   if(!is.na(folder) & dir.exists(folder)) {
     if(input == '.md'){
-      header <- outline(folder, remove_curly_bracket, savefile = FALSE)
+      header <- outline(folder, remove_curly_bracket = remove_curly_bracket, savefile = FALSE)
     } else if(input == '.mm'){
       header <- mm2md(folder = folder, savefile = FALSE)
     } else {

@@ -4,8 +4,8 @@
 \alias{outline}
 \title{Extract headers of markdown or rmarkdown files as an outline.}
 \usage{
-outline(folder = "mm", pattern = "*.[R]*md", remove_curly_bracket = FALSE, 
-    savefile = TRUE, savefilename = "outline", backup = TRUE)
+outline(folder = "md", pattern = "*.[R]*md", remove_curly_bracket = FALSE, 
+    savefile = TRUE, savefilename = "outline", backup = TRUE, bookdown_style = TRUE)
 }
 \arguments{
 \item{folder}{character. The folder which contains the input file(s).}
@@ -19,6 +19,8 @@ outline(folder = "mm", pattern = "*.[R]*md", remove_curly_bracket = FALSE,
 \item{savefilename}{character. Valid when savefile == TRUE.}
 
 \item{backup}{logical. Whether the existing target file, if any, should be saved as backups.}
+
+\item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
 }
 \value{
 a vector of strings showing outline of a markdown document or book.
