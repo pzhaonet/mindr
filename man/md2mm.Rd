@@ -4,8 +4,8 @@
 \alias{md2mm}
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
-md2mm(title = "my title", folder = "md", pattern = "*.[R]*md", 
-    remove_curly_bracket = FALSE, savefilename = "mindr", backup = TRUE)
+md2mm(title = NA, folder = "md", pattern = "*.[R]*md", remove_curly_bracket = FALSE, 
+    savefilename = NA, backup = TRUE, bookdown_style = TRUE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
@@ -19,6 +19,8 @@ md2mm(title = "my title", folder = "md", pattern = "*.[R]*md",
 \item{savefilename}{character. Valid when savefile == TRUE.}
 
 \item{backup}{logical. Whether the existing target file, if any, should be saved as backup.}
+
+\item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
 }
 \value{
 a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (\url{http://freemind.sourceforge.net/wiki/index.php/Main_Page}) and 'XMind' (\url{http://www.xmind.net}).

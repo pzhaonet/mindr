@@ -6,6 +6,7 @@
 #' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
+#' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -13,14 +14,23 @@
 #' folder <- system.file('examples/md', package = 'mindr')
 #' md2mm(folder = folder)
 #' md2mm(folder = folder, remove_curly_bracket = TRUE)
-md2mm <- function(title = 'my title',
+md2mm <- function(title = NA,
                   folder = 'md',
                   pattern = '*.[R]*md',
                   remove_curly_bracket = FALSE,
-                  savefilename = 'mindr',
-                  backup = TRUE) {
+                  savefilename = NA,
+                  backup = TRUE,
+                  bookdown_style = TRUE) {
   if (dir.exists(folder)) {
-    header <- outline(folder, pattern, remove_curly_bracket, savefile = FALSE)
+    header <- outline(folder = folder,
+                      pattern = pattern,
+                      remove_curly_bracket = remove_curly_bracket,
+                      savefile = FALSE,
+                      bookdown_style = bookdown_style)
+    foldername <- strsplit(folder, '[/\\]')[[1]]
+    foldername <- foldername[length(foldername)]
+    if(is.na(title)) title <- foldername
+    if(is.na(savefilename)) savefilename <- foldername
     mm <- mdtxt2mmtxt(title = title, mmtxt = header)
     # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
     if (backup & file.exists(paste0(savefilename, '.mm'))){
@@ -105,7 +115,6 @@ outline <- function(folder = 'md',
                     backup = TRUE,
                     bookdown_style = TRUE) {
   if (dir.exists(folder)) {
-
     # an internal function to remove the code blocks from md
     rmvcode <- function(index, loc) {
       sum(index > loc[seq(1, length(loc), by = 2)] &
@@ -139,11 +148,13 @@ outline <- function(folder = 'md',
     # lower the levels after `# (PART)` and `# (APPENDIX)`
     if(bookdown_style){
       part_loc <- c(grep('^# \\(PART\\)', header), grep('^# \\(APPENDIX\\)', header), grep('^# References', header))
-      header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
-      header[part_loc] <- gsub(' \\(APPENDIX\\)', '', header[part_loc])
-      lower_loc <- (part_loc[1] + 1) : length(header)
-      lower_loc <- lower_loc[!lower_loc %in% part_loc]
-      header[lower_loc] <- paste0('#', header[lower_loc])
+      if(length(part_loc) > 0) {
+        header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
+        header[part_loc] <- gsub(' \\(APPENDIX\\)', '', header[part_loc])
+        lower_loc <- (part_loc[1] + 1) : length(header)
+        lower_loc <- lower_loc[!lower_loc %in% part_loc]
+        header[lower_loc] <- paste0('#', header[lower_loc])
+      }
     }
 
     # save file
@@ -167,6 +178,7 @@ outline <- function(folder = 'md',
 #' @param elementId character.
 #' @param options the markmap options
 #' @param input character, The format of theinput files
+#' @param root character. a string displayed as the root of the mind map
 #'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
@@ -175,14 +187,24 @@ outline <- function(folder = 'md',
 #' folder <- system.file('examples/md', package = 'mindr')
 #' markmap(folder = folder)
 #' markmap(folder = folder, remove_curly_bracket = TRUE)
-markmap <- function(input = c('.md', '.mm'),
+markmap <- function(root = NA,
+                    input = c('.md', '.mm'),
                     folder = NA,
                     remove_curly_bracket = FALSE,
-                    width = NULL, height = NULL, elementId = NULL, options = markmapOption()) {
+                    width = NULL,
+                    height = NULL,
+                    elementId = NULL,
+                    options = markmapOption(),
+                    bookdown_style = TRUE) {
   input <- match.arg(input)
   if(!is.na(folder) & dir.exists(folder)) {
     if(input == '.md'){
-      header <- outline(folder, remove_curly_bracket = remove_curly_bracket, savefile = FALSE)
+      header <- outline(folder = folder,
+                        remove_curly_bracket = remove_curly_bracket,
+                        savefile = FALSE,
+                        bookdown_style = bookdown_style)
+      header <- paste0('#', header)
+      header <- c(paste('#', ifelse(is.na(root), folder, root)), header)
     } else if(input == '.mm'){
       header <- mm2md(folder = folder, savefile = FALSE)
     } else {

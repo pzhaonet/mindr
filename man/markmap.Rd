@@ -4,10 +4,13 @@
 \alias{markmap}
 \title{Create a markmap widget}
 \usage{
-markmap(input = c(".md", ".mm"), folder = NA, remove_curly_bracket = FALSE, 
-    width = NULL, height = NULL, elementId = NULL, options = markmapOption())
+markmap(root = NA, input = c(".md", ".mm"), folder = NA, remove_curly_bracket = FALSE, 
+    width = NULL, height = NULL, elementId = NULL, options = markmapOption(), 
+    bookdown_style = TRUE)
 }
 \arguments{
+\item{root}{character. a string displayed as the root of the mind map}
+
 \item{input}{character, The format of theinput files}
 
 \item{folder}{character. The folder which contains the input file(s).}
