@@ -24,6 +24,8 @@ markmap(root = NA, input = c(".md", ".mm"), folder = NA, remove_curly_bracket = 
 \item{elementId}{character.}
 
 \item{options}{the markmap options}
+
+\item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
 }
 \value{
 A HTML widget object rendered from a given document.

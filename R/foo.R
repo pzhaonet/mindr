@@ -179,6 +179,7 @@ outline <- function(folder = 'md',
 #' @param options the markmap options
 #' @param input character, The format of theinput files
 #' @param root character. a string displayed as the root of the mind map
+#' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
