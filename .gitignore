@@ -1,5 +1,6 @@
 .Rproj.user/
 .Rbuildignore
+.Rhistory
 
 # Windows image file caches
 Thumbs.db
