@@ -54,7 +54,7 @@ rename2 <- function(filename, connect = '-'){
 writeLines2 <- function(text, filename, backup = TRUE){
   newname <- filename
   if (backup & file.exists(filename)){
-    newname <- rename2(filename2)
+    newname <- rename2(filename)
   }
   writeLines(text = text, newname, useBytes = TRUE)
   message(newname, ' was generated!')
@@ -78,5 +78,15 @@ rmvcode <- function(index, loc) {
 #'
 #' @return integer. the index of the headings in the given strings.
 get_heading <- function(pattern = '^#+ ', text){
+  return(grep(pattern = pattern, x = text))
+}
+
+#' get the body out of given strings
+#'
+#' @param pattern The definition of the body text
+#' @param text the given strings
+#'
+#' @return integer. the index of the body text in the given strings.
+get_body <- function(pattern = '^#[^ ]*', text){
   return(grep(pattern = pattern, x = text))
 }

@@ -336,22 +336,22 @@ renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' Convert markdown text to mindmap text.
 #'
 #' @param title character. The title of the output file.
-#' @param mmtxt character. The markdown text to convert.
+#' @param mdtxt character. The markdown text to convert.
 #' @param keep_eq logical. whether to keep LaTeX equations.
 #'
 #' @return a mindmap text.
 #' @export
 #' @examples
-#' mdtxt2mmtxt(mmtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
-mdtxt2mmtxt <- function(title = 'my title', mmtxt = '', keep_eq = FALSE) {
+#' mdtxt2mmtxt(mdtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
+mdtxt2mmtxt <- function(title = 'my title', mdtxt = '', keep_eq = FALSE) {
   j <- 1
-  mmtxt2 <- mmtxt[j]
-  for(i in 2:length(mmtxt)) {
-    if(grepl('^#+', mmtxt[i])) {
+  mmtxt2 <- mdtxt[j]
+  for(i in 2:length(mdtxt)) {
+    if(grepl('^#+', mdtxt[i])) {
       j <- j + 1
-      mmtxt2[j] <- mmtxt[i]
+      mmtxt2[j] <- mdtxt[i]
       } else {
-        mmtxt2[j] <- paste(mmtxt2[j], mmtxt[i])
+        mmtxt2[j] <- paste(mmtxt2[j], mdtxt[i])
       }
   }
 
@@ -473,4 +473,106 @@ dir2 <- function(path = getwd(),
                   useBytes = TRUE)
     }
   } else {message(paste('The directory', path, 'does not exist!'))}
+}
+
+#' Convert .R scripts into a .md/.Rmd file
+#'
+#' @param path the path of the folder which contains the .R scripts
+#' @param filepattern the pattern of the script file names
+#' @param savefilename the destinated file name
+#' @param backup logical. whether backup the existent file
+#' @param heading the indicator of the headings
+#' @param body the indicator of the body text
+#'
+#' @return a markdown file
+#' @export
+#' @examples r2md()
+r2md <- function(path = '.',
+                 filepattern = '*.R$',
+                 savefilename = NA,
+                 backup = TRUE,
+                 heading = ' --------$',
+                 body = '^#[^[:blank:]#]+'
+) {
+  if (dir.exists(path)) {
+    # read data
+    rtext <- NULL
+    files <- dir(path, pattern = filepattern, full.names = TRUE)
+    for (filename in files) rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
+
+    # find the indeces of the headings, the body texts, and the code blocks
+    headerloc <- get_heading(text = rtext)
+    bodyloc <- get_body(pattern = body, text = rtext)
+    codeloc <- grep(pattern = '^[^#]', x = rtext)
+
+    # process the code blocks
+    codeloc_diff <- diff(codeloc)
+    codeloc_begin <- codeloc[c(1, which(codeloc_diff > 1) + 1)]
+    codeloc_end <- codeloc[c(which(codeloc_diff > 1), length(codeloc))]
+    rtext[codeloc_begin] <- paste('```{r}', rtext[codeloc_begin], sep = '\n')
+    rtext[codeloc_end] <- paste(rtext[codeloc_end], '```', sep = '\n')
+
+    # process the headings
+    ## remove the heading marker
+    rtext[headerloc] <- gsub(pattern = heading, '', rtext[headerloc])
+
+    # process the body text
+    rtext[bodyloc] <- gsub(pattern = '^#', '', rtext[bodyloc])
+
+    # write
+    foldername <- get_foldername(path)
+    if(is.na(savefilename)) savefilename <- paste0(foldername, '.md')
+
+    writeLines2(text = rtext, savefilename, backup = backup)
+  } else {message(paste('The directory', folder, 'does not exist!'))}
+}
+
+#' Convert .md or .Rmd files into a .R script
+#'
+#' @param path the path of the folder which contains the .Rmd or .md files
+#' @param filepattern the pattern of the file names
+#' @param savefilename the destinated file name
+#' @param backup logical. whether backup the existent file
+#' @param heading the indicator of the headings
+#' @param body the indicator of the body text
+#'
+#' @return a .R script
+#' @export
+#' @examples md2r()
+md2r <- function(path = '.',
+                 filepattern = '*.[R]*md$',
+                 savefilename = NA,
+                 backup = TRUE,
+                 heading = ' --------',
+                 body = '#'
+) {
+  if (dir.exists(path)) {
+    # read data
+    rtext <- NULL
+    files <- dir(path, pattern = filepattern, full.names = TRUE)
+    for (filename in files) rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
+
+    # find the indeces of the headings, the body texts, and the code blocks
+    headerloc <- get_heading(text = rtext)
+    codemarkloc <- grep('^```', rtext)
+    codeloc <- get_eqloc(eq_begin = codemarkloc[seq(1, length(codemarkloc), by = 2)],
+                         eq_end = codemarkloc[seq(2, length(codemarkloc), by = 2)])
+    allloc <- 1:length(rtext)
+    bodyloc <- allloc[-c(headerloc, codemarkloc, codeloc)]
+
+    # process the headings
+    rtext[headerloc] <- paste(rtext[headerloc], heading)
+
+    # process the body text
+    rtext[bodyloc] <- paste0(body, rtext[bodyloc])
+
+    # process the codes
+    rtext <- rtext[-codemarkloc]
+
+    # write
+    foldername <- get_foldername(path)
+    if(is.na(savefilename)) savefilename <- paste0(foldername, '.R')
+
+    writeLines2(text = rtext, savefilename, backup = backup)
+  } else {message(paste('The directory', folder, 'does not exist!'))}
 }
