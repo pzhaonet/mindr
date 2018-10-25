@@ -4,12 +4,14 @@
 \alias{mdtxt2mmtxt}
 \title{Convert markdown text to mindmap text.}
 \usage{
-mdtxt2mmtxt(title = "my title", mmtxt = "")
+mdtxt2mmtxt(title = "my title", mmtxt = "", keep_eq = FALSE)
 }
 \arguments{
 \item{title}{character. The title of the output file.}
 
 \item{mmtxt}{character. The markdown text to convert.}
+
+\item{keep_eq}{logical. whether to keep LaTeX equations.}
 }
 \value{
 a mindmap text.

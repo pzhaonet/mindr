@@ -7,6 +7,7 @@
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
+#' @param keep_eq logical. whether to keep LaTeX equations.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -16,29 +17,24 @@
 #' md2mm(folder = folder, remove_curly_bracket = TRUE)
 md2mm <- function(title = NA,
                   folder = 'md',
-                  pattern = '*.[R]*md',
+                  pattern = '*.[R]*md$',
                   remove_curly_bracket = FALSE,
                   savefilename = NA,
                   backup = TRUE,
-                  bookdown_style = TRUE) {
+                  bookdown_style = TRUE,
+                  keep_eq = FALSE) {
   if (dir.exists(folder)) {
     header <- outline(folder = folder,
                       pattern = pattern,
                       remove_curly_bracket = remove_curly_bracket,
                       savefile = FALSE,
-                      bookdown_style = bookdown_style)
-    foldername <- strsplit(folder, '[/\\]')[[1]]
-    foldername <- foldername[length(foldername)]
+                      bookdown_style = bookdown_style,
+                      keep_eq = keep_eq)
+    foldername <- get_foldername(folder)
     if(is.na(title)) title <- foldername
-    if(is.na(savefilename)) savefilename <- foldername
+    if(is.na(savefilename)) savefilename <- paste0(foldername, '.mm')
     mm <- mdtxt2mmtxt(title = title, mmtxt = header)
-    # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
-    if (backup & file.exists(paste0(savefilename, '.mm'))){
-      message(paste0(savefilename, '.mm already exits.'))
-      savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-    }
-    writeLines(text = mm, paste0(savefilename, '.mm'), useBytes = TRUE)
-    message(paste(savefilename), '.mm is generated!')
+    writeLines2(text = mm, filename = savefilename, backup = backup)
   } else {message(paste('The directory', folder, 'does not exist!'))}
 }
 
@@ -56,7 +52,7 @@ md2mm <- function(title = NA,
 #' mm2md(folder = folder)
 mm2md <- function(folder = 'mm',
                   savefile = TRUE,
-                  savefilename = 'mindr',
+                  savefilename = 'mindr.md',
                   backup = TRUE) {
   if (dir.exists(folder)) {
     mm <- NULL
@@ -79,13 +75,7 @@ mm2md <- function(folder = 'mm',
     md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
     if (savefile) {
-      # savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.md')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.md')
-      if (backup & file.exists(paste0(savefilename, '.md'))){
-        message(paste0(savefilename, '.md already exits.'))
-        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      }
-      writeLines(text = md, paste0(savefilename, '.md'), useBytes = TRUE)
-      message(paste(savefilename), '.md is generated!')
+      writeLines2(text = md, filename = savefilename, backup = backup)
     }
     return(md)
   } else {print(paste('The directory', folder, 'does not exist!'))}
@@ -100,6 +90,7 @@ mm2md <- function(folder = 'mm',
 #' @param backup logical. Whether the existing target file, if any, should be saved as backups.
 #' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
+#' @param keep_eq logical. whether to keep LaTeX equations.
 #'
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @export
@@ -111,15 +102,11 @@ outline <- function(folder = 'md',
                     pattern = '*.[R]*md',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
-                    savefilename = 'outline',
+                    savefilename = 'outline.md',
                     backup = TRUE,
-                    bookdown_style = TRUE) {
+                    bookdown_style = TRUE,
+                    keep_eq = FALSE) {
   if (dir.exists(folder)) {
-    # an internal function to remove the code blocks from md
-    rmvcode <- function(index, loc) {
-      sum(index > loc[seq(1, length(loc), by = 2)] &
-        index < loc[seq(2, length(loc), by = 2)])
-    }
 
     # read data
     md <- NULL
@@ -139,11 +126,23 @@ outline <- function(folder = 'md',
     if (length(codeloc) > 0) md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc)]
 
     # get the outline
-    headerloc <- grep('^#+', md)
-    header <- md[headerloc]
+    headerloc <- get_heading(text = md)
 
     # remove the curly brackets
-    if (remove_curly_bracket) header <- gsub(pattern = '\\{.*\\}', '', header)
+    if (remove_curly_bracket) md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
+
+    # remove the heading marker, which is eight '-' at the end of a heading
+    md[headerloc] <- gsub(pattern = ' --------$', '', md[headerloc])
+
+    # extract equations
+    if(keep_eq){
+      eq_begin <- grep('^\\$\\$', md)
+      eq_end <- grep('\\$\\$$', md)
+      eq_loc <- get_eqloc(eq_begin, eq_end)
+      headerloc <- c(headerloc, eq_loc)
+      headerloc <- headerloc[order(headerloc)]
+    }
+    header <- md[headerloc]
 
     # lower the levels after `# (PART)` and `# (APPENDIX)`
     if(bookdown_style){
@@ -159,8 +158,7 @@ outline <- function(folder = 'md',
 
     # save file
     if (savefile) {
-      savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.md')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.md')
-      writeLines(text = header, savefilename, useBytes = TRUE)
+      writeLines2(text = header, savefilename, backup = backup, useBytes = TRUE)
     }
 
     return(header)
@@ -339,31 +337,46 @@ renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
 #'
 #' @param title character. The title of the output file.
 #' @param mmtxt character. The markdown text to convert.
+#' @param keep_eq logical. whether to keep LaTeX equations.
 #'
 #' @return a mindmap text.
 #' @export
 #' @examples
 #' mdtxt2mmtxt(mmtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
-mdtxt2mmtxt <- function(title = 'my title', mmtxt = '') {
+mdtxt2mmtxt <- function(title = 'my title', mmtxt = '', keep_eq = FALSE) {
+  j <- 1
+  mmtxt2 <- mmtxt[j]
+  for(i in 2:length(mmtxt)) {
+    if(grepl('^#+', mmtxt[i])) {
+      j <- j + 1
+      mmtxt2[j] <- mmtxt[i]
+      } else {
+        mmtxt2[j] <- paste(mmtxt2[j], mmtxt[i])
+      }
+  }
 
-  mmtxt <- gsub(pattern = '&', '&amp;', mmtxt)
-  ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1]))
-  mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt))
+  mmtxt <- gsub(pattern = '&', '&amp;', mmtxt2)
+  ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1])) # level of the headings
+  mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt)) # heading text
 
   # get the hyperlinks
   which_link <- grep(pattern = '\\[.*](.*)', mmtext)
   mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
   mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
-  mm <- '<map version="1.0.1">'
+  mm <- rep('', length(mmtxt) + 3)
+  mm[1] <- '<map version="1.0.1">'
+
   mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
   diffncc <- diff(ncc)
-  for (i in 1:length(diffncc)) {
+  for (i in 1:(length(mmtxt) - 1)) {
     if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
     if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
     if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+    mm[i+2] <- gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 2])
+    mm[i+2] <- gsub('\\$\\$([^$]+)\\$\\$', '<hook EQUATION="\\1" NAME="plugins/latex/LatexNodeHook.properties"/>', mm[i + 2])
   }
-  mm[length(ncc) + 2] <- paste0('<node TEXT="', mmtext[length(ncc)], '">', paste0(rep('</node>', ncc[length(ncc)]), collapse = ''))
-  mm[length(ncc) + 3] <- '</node></map>'
+  mm[length(mmtxt) + 2] <- paste0('<node TEXT="', mmtext[length(mmtxt)], '">', paste0(rep('</node>', ncc[length(mmtxt)]), collapse = ''))
+  mm[length(mmtxt) + 3] <- '</node></map>'
   return(mm)
 }
 
@@ -448,20 +461,16 @@ dir2 <- function(path = getwd(),
     md <- gsub(pattern = '    ', '#', md)
     mm <- mdtxt2mmtxt(title = path, mmtxt = md)
     if('md' %in% output){
-      if (backup & file.exists(paste0(savefilename, '.md'))){
-        message(paste0(savefilename, '.md already exits.'))
-        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      }
-      writeLines(text = md, paste0(savefilename, '.md'), useBytes = TRUE)
-      message(paste(savefilename), '.md is generated!')
+      writeLines2(text = md,
+                  filename = paste0(savefilename, 'md'),
+                  backup = backup,
+                  useBytes = TRUE)
     }
     if('mm' %in% output){
-      if (backup & file.exists(paste0(savefilename, '.mm'))){
-        message(paste0(savefilename, '.mm already exits.'))
-        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      }
-      writeLines(text = mm, paste0(savefilename, '.mm'), useBytes = TRUE)
-      message(paste(savefilename), '.mm is generated!')
+      writeLines2(text = md,
+                  filename = paste0(savefilename, 'mm'),
+                  backup = backup,
+                  useBytes = TRUE)
     }
   } else {message(paste('The directory', path, 'does not exist!'))}
 }
