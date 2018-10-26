@@ -125,7 +125,8 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
-- 2018-10-21. **v1.1.6**. Support LaTeX equation.
+- 2018-10-26. **v1.1.7**. Conversion between .R scripts and .Rmd documents.
+- 2018-10-21. **v1.1.6**. Support LaTeX equations.
 - 2018-10-11. **v1.1.5**. Improve the support for bookdown projects. Bugs fixed.
 - 2018-09-28. **v1.1.2**. Display .mm mind maps. Keep hyperlinks. `dir2()` for creating mindmaps from folder structure.
 - 2018-04-17. **v1.1.1**. Support tribble dataframes.
@@ -141,7 +142,7 @@ Still being developed. Feel free to give your feedback to me!
 
 # License
 
-Copyright 2017 [Peng Zhao](http://pzhao.org).
+Copyright 2018 [Peng Zhao](http://pzhao.org).
 
-Released under the GPL license.
+Released under the MIT license.
 

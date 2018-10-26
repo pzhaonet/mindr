@@ -33,7 +33,7 @@ md2mm <- function(title = NA,
     foldername <- get_foldername(folder)
     if(is.na(title)) title <- foldername
     if(is.na(savefilename)) savefilename <- paste0(foldername, '.mm')
-    mm <- mdtxt2mmtxt(title = title, mmtxt = header)
+    mm <- mdtxt2mmtxt(title = title, mdtxt = header)
     writeLines2(text = mm, filename = savefilename, backup = backup)
   } else {message(paste('The directory', folder, 'does not exist!'))}
 }
