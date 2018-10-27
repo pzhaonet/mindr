@@ -481,7 +481,6 @@ dir2 <- function(path = getwd(),
 #' @param filepattern the pattern of the script file names
 #' @param savefilename the destinated file name
 #' @param backup logical. whether backup the existent file
-#' @param heading the indicator of the headings
 #' @param body the indicator of the body text
 #'
 #' @return a markdown file
@@ -491,8 +490,7 @@ r2md <- function(path = '.',
                  filepattern = '*.R$',
                  savefilename = NA,
                  backup = TRUE,
-                 heading = ' --------$',
-                 body = '^#[^[:blank:]#]+'
+                 body = "#' "
 ) {
   if (dir.exists(path)) {
     # read data
@@ -502,6 +500,7 @@ r2md <- function(path = '.',
 
     # find the indeces of the headings, the body texts, and the code blocks
     headerloc <- get_heading(text = rtext)
+    if(body != '^#[^[:blank:]#]+') body <- paste0('^', body)
     bodyloc <- get_body(pattern = body, text = rtext)
     codeloc <- grep(pattern = '^[^#]', x = rtext)
 
@@ -514,10 +513,13 @@ r2md <- function(path = '.',
 
     # process the headings
     ## remove the heading marker
-    rtext[headerloc] <- gsub(pattern = heading, '', rtext[headerloc])
+    rtext[headerloc] <- gsub(pattern = '[#-]{4,}$', '', rtext[headerloc])
 
     # process the body text
-    rtext[bodyloc] <- gsub(pattern = '^#', '', rtext[bodyloc])
+    bodypattern <- ifelse(body == '^#[^[:blank:]#]+',
+                          '^#',
+                          paste0('^', body))
+    rtext[bodyloc] <- gsub(pattern = bodypattern, '', rtext[bodyloc])
 
     # write
     foldername <- get_foldername(path)
