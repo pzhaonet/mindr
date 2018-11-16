@@ -4,7 +4,7 @@
 \alias{markmap}
 \title{Create a markmap widget}
 \usage{
-markmap(root = NA, input = c(".md", ".mm"), folder = NA, remove_curly_bracket = FALSE, 
+markmap(root = NA, input = c(".md", ".mm"), path = ".", remove_curly_bracket = FALSE, 
     width = NULL, height = NULL, elementId = NULL, options = markmapOption(), 
     bookdown_style = TRUE)
 }
@@ -13,7 +13,7 @@ markmap(root = NA, input = c(".md", ".mm"), folder = NA, remove_curly_bracket = 
 
 \item{input}{character, The format of theinput files}
 
-\item{folder}{character. The folder which contains the input file(s).}
+\item{path}{character. The path of the folder which contains the input file(s).}
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 
@@ -34,7 +34,7 @@ A HTML widget object rendered from a given document.
 This function, modified from \url{https://github.com/seifer08ms/Rmarkmap}, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
 }
 \examples{
-folder <- system.file("examples/md", package = "mindr")
-markmap(folder = folder)
-markmap(folder = folder, remove_curly_bracket = TRUE)
+path <- system.file("examples/md", package = "mindr")
+markmap(path = path)
+markmap(path = path, remove_curly_bracket = TRUE)
 }

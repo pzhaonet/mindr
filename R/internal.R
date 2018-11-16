@@ -81,6 +81,26 @@ get_heading <- function(pattern = '^#+ ', text){
   return(grep(pattern = pattern, x = text))
 }
 
+#' get the headings out of given strings
+#'
+#' @param pattern The definition of the headings
+#' @param text the given strings
+#'
+#' @return integer. the index of the headings in the given strings.
+get_heading2 <- function(pattern = '^#= #+ ', text){
+  return(grep(pattern = pattern, x = text))
+}
+
+#' get the headings out of given strings
+#'
+#' @param pattern The definition of the headings
+#' @param text the given strings
+#'
+#' @return integer. the index of the headings in the given strings.
+get_heading3 <- function(pattern = "^#' #+ ", text){
+  return(grep(pattern = pattern, x = text))
+}
+
 #' get the body out of given strings
 #'
 #' @param pattern The definition of the body text

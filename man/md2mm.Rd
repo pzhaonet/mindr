@@ -4,15 +4,15 @@
 \alias{md2mm}
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
-md2mm(title = NA, folder = "md", pattern = "*.[R]*md$", remove_curly_bracket = FALSE, 
+md2mm(pattern = "*.[R]*md$", title = NA, path = ".", remove_curly_bracket = FALSE, 
     savefilename = NA, backup = TRUE, bookdown_style = TRUE, keep_eq = FALSE)
 }
 \arguments{
+\item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
+
 \item{title}{character. The title of the output file.}
 
-\item{folder}{character. The folder which contains the input file(s).}
-
-\item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
+\item{path}{character. The path of the folder which contains the input file(s).}
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 
@@ -31,7 +31,7 @@ a mindmap file, which can be viewed by common mindmap software, such as 'FreeMin
 Convert markdown or rmarkdown files to mindmap files.
 }
 \examples{
-folder <- system.file("examples/md", package = "mindr")
-md2mm(folder = folder)
-md2mm(folder = folder, remove_curly_bracket = TRUE)
+path <- system.file("examples/md", package = "mindr")
+md2mm(path = path)
+md2mm(path = path, remove_curly_bracket = TRUE)
 }

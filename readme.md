@@ -125,6 +125,7 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2018-11-10. **v1.1.8**. Adapted to the roxygen style when conversion between .R scripts and .Rmd documents.
 - 2018-10-26. **v1.1.7**. Conversion between .R scripts and .Rmd documents.
 - 2018-10-21. **v1.1.6**. Support LaTeX equations.
 - 2018-10-11. **v1.1.5**. Improve the support for bookdown projects. Bugs fixed.
@@ -139,6 +140,11 @@ Still being developed. Feel free to give your feedback to me!
 - 2017-05-21. **v0.1.0**. Bidirectional! Now mind maps can be converted to markdown.
 - 2017-05-20. **v0.0.1**. Can Save the outline.
 - 2017-05-19. **v0.0.0**. A very preliminary version.
+
+## To do
+
+- import knitr::purl() and knitr::spin()
+- convert md/Rmd/mm into slides.
 
 # License
 

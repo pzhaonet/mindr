@@ -4,12 +4,12 @@
 \alias{r2md}
 \title{Convert .R scripts into a .md/.Rmd file}
 \usage{
-r2md(path = ".", filepattern = "*.R$", savefilename = NA, backup = TRUE, body = "#' ")
+r2md(filepattern = "*.R$", path = ".", savefilename = NA, backup = TRUE, body = "#' ")
 }
 \arguments{
-\item{path}{the path of the folder which contains the .R scripts}
-
 \item{filepattern}{the pattern of the script file names}
+
+\item{path}{the path of the folder which contains the .R scripts}
 
 \item{savefilename}{the destinated file name}
 

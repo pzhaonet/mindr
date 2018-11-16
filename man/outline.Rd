@@ -4,14 +4,13 @@
 \alias{outline}
 \title{Extract headers of markdown or rmarkdown files as an outline.}
 \usage{
-outline(folder = "md", pattern = "*.[R]*md", remove_curly_bracket = FALSE, 
-    savefile = TRUE, savefilename = "outline.md", backup = TRUE, bookdown_style = TRUE, 
-    keep_eq = FALSE)
+outline(pattern = "*.[R]*md", path = ".", remove_curly_bracket = FALSE, savefile = TRUE, 
+    savefilename = "outline.md", backup = TRUE, bookdown_style = TRUE, keep_eq = FALSE)
 }
 \arguments{
-\item{folder}{character. The folder which contains the input file(s).}
-
 \item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
+
+\item{path}{character. The path of the folder which contains the input file(s).}
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 
@@ -32,7 +31,7 @@ a vector of strings showing outline of a markdown document or book.
 Extract headers of markdown or rmarkdown files as an outline.
 }
 \examples{
-folder <- system.file("examples/md", package = "mindr")
-outline(folder = folder)
-outline(folder = folder, remove_curly_bracket = TRUE)
+path <- system.file("examples/md", package = "mindr")
+outline(path = path)
+outline(path = path, remove_curly_bracket = TRUE)
 }

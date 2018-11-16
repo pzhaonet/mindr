@@ -46,13 +46,13 @@ Currently,markmap have 'default' and 'colorful' themes.
 }}
 
 \examples{
-folder <- system.file('examples/md', package = 'mindr')
-markmap(folder = folder, remove_curly_bracket = TRUE,
+path <- system.file('examples/md', package = 'mindr')
+markmap(path = path, remove_curly_bracket = TRUE,
   options = markmapOption(preset = 'colorful')) # 'colorful' theme
-markmap(folder = folder, remove_curly_bracket = TRUE,
+markmap(path = path, remove_curly_bracket = TRUE,
   options = markmapOption(color = 'category20b',
     linkShape = 'bracket')) # 'colorful' theme
-markmap(folder = folder, remove_curly_bracket = TRUE,
+markmap(path = path, remove_curly_bracket = TRUE,
   options = markmapOption(color = 'category20b',
     linkShape = 'diagonal',
     renderer = 'basic')) # 'colorful' theme

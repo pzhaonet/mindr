@@ -2,7 +2,7 @@
 #'
 #' @param title character. The title of the output file.
 #' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
-#' @param folder character. The folder which contains the input file(s).
+#' @param path character. The path of the folder which contains the input file(s).
 #' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
@@ -12,78 +12,103 @@
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
 #' @examples
-#' folder <- system.file('examples/md', package = 'mindr')
-#' md2mm(folder = folder)
-#' md2mm(folder = folder, remove_curly_bracket = TRUE)
-md2mm <- function(title = NA,
-                  folder = 'md',
-                  pattern = '*.[R]*md$',
+#' path <- system.file('examples/md', package = 'mindr')
+#' md2mm(path = path)
+#' md2mm(path = path, remove_curly_bracket = TRUE)
+md2mm <- function(pattern = '*.[R]*md$',
+                  title = NA,
+                  path = '.',
                   remove_curly_bracket = FALSE,
                   savefilename = NA,
                   backup = TRUE,
                   bookdown_style = TRUE,
                   keep_eq = FALSE) {
-  if (dir.exists(folder)) {
-    header <- outline(folder = folder,
-                      pattern = pattern,
-                      remove_curly_bracket = remove_curly_bracket,
-                      savefile = FALSE,
-                      bookdown_style = bookdown_style,
-                      keep_eq = keep_eq)
-    foldername <- get_foldername(folder)
-    if(is.na(title)) title <- foldername
-    if(is.na(savefilename)) savefilename <- paste0(foldername, '.mm')
+  if (dir.exists(path)) {
+    header <- outline(
+      path = path,
+      pattern = pattern,
+      remove_curly_bracket = remove_curly_bracket,
+      savefile = FALSE,
+      bookdown_style = bookdown_style,
+      keep_eq = keep_eq
+    )
+    foldername <- get_foldername(path)
+    if (is.na(title))
+      title <- foldername
+    if (is.na(savefilename))
+      savefilename <- paste0(foldername, '.mm')
     mm <- mdtxt2mmtxt(title = title, mdtxt = header)
-    writeLines2(text = mm, filename = savefilename, backup = backup)
-  } else {message(paste('The directory', folder, 'does not exist!'))}
+    writeLines2(text = mm,
+                filename = savefilename,
+                backup = backup)
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
 }
 
 
 #' Convert a mind map (.mm) into markdown headers.
 #'
-#' @param folder character. The folder which contains the input file(s).
+#' @param path character. The path of the folder which contains the input file(s).
 #' @param savefile logical. Whether to save the output as a markdown file.
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backups.
+#' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
+#'
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @export
 #' @examples
-#' folder <- system.file('examples/mm', package = 'mindr')
-#' mm2md(folder = folder)
-mm2md <- function(folder = 'mm',
+#' path <- system.file('examples/mm', package = 'mindr')
+#' mm2md(path = path)
+mm2md <- function(pattern = '*.mm$',
+                  path = '.',
                   savefile = TRUE,
                   savefilename = 'mindr.md',
                   backup = TRUE) {
-  if (dir.exists(folder)) {
+  if (dir.exists(path)) {
     mm <- NULL
-    for (filename in dir(folder, full.names = TRUE)) mm <- c(mm, readLines(filename, encoding = 'UTF-8'))
+    for (filename in dir(path, pattern = pattern, full.names = TRUE))
+      mm <- c(mm, readLines(filename, encoding = 'UTF-8'))
     # compitable for both versions: node ends with '/>' or '</node>'
     mm <- gsub(pattern = '/>', '</node>', mm)
     # keep links
     loc_link <- grep('LINK="([^\"]*)"', mm)
-    links <- gsub('LINK="([^\"]*)"', '\\1', regmatches(mm, gregexpr('LINK="[^\"]*"', mm)))
-    for(i in loc_link) mm[i] <- gsub('TEXT="([^"]*)"', paste0('TEXT=\"[\\1](', links[i], ')\"'), mm[i])
+    links <-
+      gsub('LINK="([^\"]*)"', '\\1', regmatches(mm, gregexpr('LINK="[^\"]*"', mm)))
+    for (i in loc_link)
+      mm[i] <-
+      gsub('TEXT="([^"]*)"',
+           paste0('TEXT=\"[\\1](', links[i], ')\"'),
+           mm[i])
 
     mm <- paste0(mm, collapse = '')
     node_begin <- unlist(gregexpr('<node', mm))
     node_end <- unlist(gregexpr('</node', mm))
-    node_sign <- c(rep(1, length(node_begin)), rep(-1, length(node_end)))
+    node_sign <-
+      c(rep(1, length(node_begin)), rep(-1, length(node_end)))
     node_loc <- c(node_begin, node_end)
     node_sign <- node_sign[order(node_loc)]
     node_level <- cumsum(node_sign)[node_sign == 1]
-    headers <- gsub('TEXT="([^"]*)"', '\\1', regmatches(mm, gregexpr('TEXT="[^"]*"', mm))[[1]])
-    md <- paste(sapply(node_level - 1, function(x) paste0(rep('#', x), collapse = '')), headers)
+    headers <-
+      gsub('TEXT="([^"]*)"', '\\1', regmatches(mm, gregexpr('TEXT="[^"]*"', mm))[[1]])
+    md <-
+      paste(sapply(node_level - 1, function(x)
+        paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
     if (savefile) {
-      writeLines2(text = md, filename = savefilename, backup = backup)
+      writeLines2(text = md,
+                  filename = savefilename,
+                  backup = backup)
     }
     return(md)
-  } else {print(paste('The directory', folder, 'does not exist!'))}
+  } else {
+    print(paste('The directory', path, 'does not exist!'))
+  }
 }
 
 #' Extract headers of markdown or rmarkdown files as an outline.
 #'
-#' @param folder character. The folder which contains the input file(s).
+#' @param path character. The path of the folder which contains the input file(s).
 #' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
 #' @param savefile logical. Whether to save the output as a markdown file.
 #' @param savefilename character. Valid when savefile == TRUE.
@@ -95,47 +120,51 @@ mm2md <- function(folder = 'mm',
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @export
 #' @examples
-#' folder <- system.file('examples/md', package = 'mindr')
-#' outline(folder = folder)
-#' outline(folder = folder, remove_curly_bracket = TRUE)
-outline <- function(folder = 'md',
-                    pattern = '*.[R]*md',
+#' path <- system.file('examples/md', package = 'mindr')
+#' outline(path = path)
+#' outline(path = path, remove_curly_bracket = TRUE)
+outline <- function(pattern = '*.[R]*md',
+                    path = '.',
                     remove_curly_bracket = FALSE,
                     savefile = TRUE,
                     savefilename = 'outline.md',
                     backup = TRUE,
                     bookdown_style = TRUE,
                     keep_eq = FALSE) {
-  if (dir.exists(folder)) {
-
+  if (dir.exists(path)) {
     # read data
     md <- NULL
-    files <- dir(folder, pattern = pattern, full.names = TRUE)
+    files <- dir(path, pattern = pattern, full.names = TRUE)
     ## bookdown style: if index.Rmd exists, read it first
-    if(bookdown_style){
-      first_file <- paste0(folder, '/index.Rmd')
-      if(first_file %in% files) files <- c(first_file, files[files != first_file])
+    if (bookdown_style) {
+      first_file <- paste0(path, '/index.Rmd')
+      if (first_file %in% files)
+        files <- c(first_file, files[files != first_file])
     }
-    for (filename in files) md <- c(md, readLines(filename, encoding = 'UTF-8'))
+    for (filename in files)
+      md <- c(md, readLines(filename, encoding = 'UTF-8'))
     mdlength <- length(md)
 
     # exclude the code blocks
     codeloc2 <- grep('^````', md)
-    if (length(codeloc2) > 0) md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc2)]
+    if (length(codeloc2) > 0)
+      md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc2)]
     codeloc <- grep('^```', md)
-    if (length(codeloc) > 0) md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc)]
+    if (length(codeloc) > 0)
+      md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc)]
 
     # get the outline
     headerloc <- get_heading(text = md)
 
     # remove the curly brackets
-    if (remove_curly_bracket) md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
+    if (remove_curly_bracket)
+      md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
 
     # remove the heading marker, which is eight '-' at the end of a heading
     md[headerloc] <- gsub(pattern = ' --------$', '', md[headerloc])
 
     # extract equations
-    if(keep_eq){
+    if (keep_eq) {
       eq_begin <- grep('^\\$\\$', md)
       eq_end <- grep('\\$\\$$', md)
       eq_loc <- get_eqloc(eq_begin, eq_end)
@@ -145,12 +174,18 @@ outline <- function(folder = 'md',
     header <- md[headerloc]
 
     # lower the levels after `# (PART)` and `# (APPENDIX)`
-    if(bookdown_style){
-      part_loc <- c(grep('^# \\(PART\\)', header), grep('^# \\(APPENDIX\\)', header), grep('^# References', header))
-      if(length(part_loc) > 0) {
+    if (bookdown_style) {
+      part_loc <-
+        c(
+          grep('^# \\(PART\\)', header),
+          grep('^# \\(APPENDIX\\)', header),
+          grep('^# References', header)
+        )
+      if (length(part_loc) > 0) {
         header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
-        header[part_loc] <- gsub(' \\(APPENDIX\\)', '', header[part_loc])
-        lower_loc <- (part_loc[1] + 1) : length(header)
+        header[part_loc] <-
+          gsub(' \\(APPENDIX\\)', '', header[part_loc])
+        lower_loc <- (part_loc[1] + 1):length(header)
         lower_loc <- lower_loc[!lower_loc %in% part_loc]
         header[lower_loc] <- paste0('#', header[lower_loc])
       }
@@ -158,18 +193,24 @@ outline <- function(folder = 'md',
 
     # save file
     if (savefile) {
-      writeLines2(text = header, savefilename, backup = backup, useBytes = TRUE)
+      writeLines2(
+        text = header,
+        savefilename,
+        backup = backup
+      )
     }
 
     return(header)
-  } else {print(paste('The directory', folder, 'does not exist!'))}
+  } else {
+    print(paste('The directory', path, 'does not exist!'))
+  }
 }
 
 #' Create a markmap widget
 #'
 #' This function, modified from <https://github.com/seifer08ms/Rmarkmap>, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
 #'
-#' @param folder character. The folder which contains the input file(s).
+#' @param path character. The path of the folder which contains the input file(s).
 #' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
 #' @param width the width of the markmap
 #' @param height the height of the markmap
@@ -183,12 +224,12 @@ outline <- function(folder = 'md',
 #' @return A HTML widget object rendered from a given document.
 #' @export
 #' @examples
-#' folder <- system.file('examples/md', package = 'mindr')
-#' markmap(folder = folder)
-#' markmap(folder = folder, remove_curly_bracket = TRUE)
+#' path <- system.file('examples/md', package = 'mindr')
+#' markmap(path = path)
+#' markmap(path = path, remove_curly_bracket = TRUE)
 markmap <- function(root = NA,
                     input = c('.md', '.mm'),
-                    folder = NA,
+                    path = '.',
                     remove_curly_bracket = FALSE,
                     width = NULL,
                     height = NULL,
@@ -196,25 +237,26 @@ markmap <- function(root = NA,
                     options = markmapOption(),
                     bookdown_style = TRUE) {
   input <- match.arg(input)
-  if(!is.na(folder) & dir.exists(folder)) {
-    if(input == '.md'){
-      header <- outline(folder = folder,
-                        remove_curly_bracket = remove_curly_bracket,
-                        savefile = FALSE,
-                        bookdown_style = bookdown_style)
+  if (!is.na(path) & dir.exists(path)) {
+    if (input == '.md') {
+      header <- outline(
+        path = path,
+        remove_curly_bracket = remove_curly_bracket,
+        savefile = FALSE,
+        bookdown_style = bookdown_style
+      )
       header <- paste0('#', header)
-      header <- c(paste('#', ifelse(is.na(root), folder, root)), header)
-    } else if(input == '.mm'){
-      header <- mm2md(folder = folder, savefile = FALSE)
+      header <-
+        c(paste('#', ifelse(is.na(root), path, root)), header)
+    } else if (input == '.mm') {
+      header <- mm2md(path = path, savefile = FALSE)
     } else {
       message('Please give a valid input.')
     }
     data <- paste(header, collapse = '\n')
     # forward options using x
-    x = list(
-      data = data,
-      options = options
-    )
+    x = list(data = data,
+             options = options)
 
     # create widget
     htmlwidgets::createWidget(
@@ -259,48 +301,55 @@ markmap <- function(root = NA,
 #' @seealso \url{https://github.com/dundalek/markmap/blob/master/lib/view.mindmap.js} for details.
 #' @export
 #' @examples
-#' folder <- system.file('examples/md', package = 'mindr')
-#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#' path <- system.file('examples/md', package = 'mindr')
+#' markmap(path = path, remove_curly_bracket = TRUE,
 #'   options = markmapOption(preset = 'colorful')) # 'colorful' theme
-#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#' markmap(path = path, remove_curly_bracket = TRUE,
 #'   options = markmapOption(color = 'category20b',
 #'     linkShape = 'bracket')) # 'colorful' theme
-#' markmap(folder = folder, remove_curly_bracket = TRUE,
+#' markmap(path = path, remove_curly_bracket = TRUE,
 #'   options = markmapOption(color = 'category20b',
 #'     linkShape = 'diagonal',
 #'     renderer = 'basic')) # 'colorful' theme
-markmapOption <- function(preset = NULL, nodeHeight = 20,
+markmapOption <- function(preset = NULL,
+                          nodeHeight = 20,
                           nodeWidth = 180,
                           spacingVertical = 10,
                           spacingHorizontal = 120,
                           duration = 750,
                           layout = 'tree',
-                          color = 'gray',#
+                          color = 'gray',
                           linkShape = 'diagonal',
-                          renderer = 'boxed',...){
+                          renderer = 'boxed',
+                          ...) {
   filterNULL <- function (x) {
     if (length(x) == 0 || !is.list(x))
       return(x)
     x[!unlist(lapply(x, is.null))]
   }
-  if(!is.null(preset) && (preset == 'default' | preset == 'colorful')){
+  if (!is.null(preset) &&
+      (preset == 'default' | preset == 'colorful')) {
     filterNULL(list(preset = preset, autoFit = TRUE))
-  }else{
-    if (is.null(layout) || (layout!='tree')){
+  } else{
+    if (is.null(layout) || (layout != 'tree')) {
       warning('Currenly, only tree layout is supported. Changing to tree layout...')
       layout = 'tree'
     }
-    filterNULL(list(nodeHeight = nodeHeight,
-                    nodeWidth = nodeWidth,
-                    spacingVertical = spacingVertical,
-                    spacingHorizontal = spacingHorizontal,
-                    duration = duration,
-                    layout = 'tree',
-                    color = color,
-                    linkShape = linkShape,
-                    renderer = renderer,
-                    autoFit = TRUE,
-                    ...))
+    filterNULL(
+      list(
+        nodeHeight = nodeHeight,
+        nodeWidth = nodeWidth,
+        spacingVertical = spacingVertical,
+        spacingHorizontal = spacingHorizontal,
+        duration = duration,
+        layout = 'tree',
+        color = color,
+        linkShape = linkShape,
+        renderer = renderer,
+        autoFit = TRUE,
+        ...
+      )
+    )
   }
 }
 #' Shiny bindings for markmap
@@ -314,9 +363,12 @@ markmapOption <- function(preset = NULL, nodeHeight = 20,
 # @rdname markmap-shiny
 #' @export
 #'
-markmapOutput <- function(outputId, width = '100%', height = '400px'){
-  htmlwidgets::shinyWidgetOutput(outputId, 'markmap', width, height, package = 'mindr')
-}
+markmapOutput <-
+  function(outputId,
+           width = '100%',
+           height = '400px') {
+    htmlwidgets::shinyWidgetOutput(outputId, 'markmap', width, height, package = 'mindr')
+  }
 #' Shiny bindings for markmap
 #'
 #' Render function for using markmap within Shiny applications and interactive Rmd documents. This function is taken from <https://github.com/seifer08ms/Rmarkmap>.
@@ -328,10 +380,15 @@ markmapOutput <- function(outputId, width = '100%', height = '400px'){
 # @rdname markmap-shiny
 #' @export
 #'
-renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
-  if (!quoted) { expr <- substitute(expr) } # force quoted
-  htmlwidgets::shinyRenderWidget(expr, markmapOutput, env, quoted = TRUE)
-}
+renderMarkmap <-
+  function(expr,
+           env = parent.frame(),
+           quoted = FALSE) {
+    if (!quoted) {
+      expr <- substitute(expr)
+    } # force quoted
+    htmlwidgets::shinyRenderWidget(expr, markmapOutput, env, quoted = TRUE)
+  }
 
 #' Convert markdown text to mindmap text.
 #'
@@ -343,42 +400,61 @@ renderMarkmap <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @export
 #' @examples
 #' mdtxt2mmtxt(mdtxt = c('# Chapter 1', '## Section 1.1', '## Section 1.2'))
-mdtxt2mmtxt <- function(title = 'my title', mdtxt = '', keep_eq = FALSE) {
-  j <- 1
-  mmtxt2 <- mdtxt[j]
-  for(i in 2:length(mdtxt)) {
-    if(grepl('^#+', mdtxt[i])) {
-      j <- j + 1
-      mmtxt2[j] <- mdtxt[i]
+mdtxt2mmtxt <-
+  function(title = 'my title',
+           mdtxt = '',
+           keep_eq = FALSE) {
+    j <- 1
+    mmtxt2 <- mdtxt[j]
+    for (i in 2:length(mdtxt)) {
+      if (grepl('^#+', mdtxt[i])) {
+        j <- j + 1
+        mmtxt2[j] <- mdtxt[i]
       } else {
         mmtxt2[j] <- paste(mmtxt2[j], mdtxt[i])
       }
+    }
+
+    mmtxt <- gsub(pattern = '&', '&amp;', mmtxt2)
+    ncc <-
+      sapply(mmtxt, function(x)
+        nchar(strsplit(x, split = ' ')[[1]][1])) # level of the headings
+    mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt)) # heading text
+
+    # get the hyperlinks
+    which_link <- grep(pattern = '\\[.*](.*)', mmtext)
+    mmtext[which_link] <-
+      gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
+    mmtext[which_link] <-
+      gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
+    mm <- rep('', length(mmtxt) + 3)
+    mm[1] <- '<map version="1.0.1">'
+
+    mm[2] <-
+      paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
+    diffncc <- diff(ncc)
+    for (i in 1:(length(mmtxt) - 1)) {
+      if (diffncc[i] == 1)
+        mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '">')
+      if (diffncc[i] == 0)
+        mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
+      if (diffncc[i] < 0)
+        mm[i + 2] <-
+          paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+      mm[i + 2] <-
+        gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 2])
+      mm[i + 2] <-
+        gsub(
+          '\\$\\$([^$]+)\\$\\$',
+          '<hook EQUATION="\\1" NAME="plugins/latex/LatexNodeHook.properties"/>',
+          mm[i + 2]
+        )
+    }
+    mm[length(mmtxt) + 2] <-
+      paste0('<node TEXT="', mmtext[length(mmtxt)], '">', paste0(rep('</node>', ncc[length(mmtxt)]), collapse = ''))
+    mm[length(mmtxt) + 3] <- '</node></map>'
+    return(mm)
   }
-
-  mmtxt <- gsub(pattern = '&', '&amp;', mmtxt2)
-  ncc <- sapply(mmtxt, function(x) nchar(strsplit(x, split = ' ')[[1]][1])) # level of the headings
-  mmtext <- substr(mmtxt, ncc + 2, nchar(mmtxt)) # heading text
-
-  # get the hyperlinks
-  which_link <- grep(pattern = '\\[.*](.*)', mmtext)
-  mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
-  mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
-  mm <- rep('', length(mmtxt) + 3)
-  mm[1] <- '<map version="1.0.1">'
-
-  mm[2] <- paste0('<node TEXT="', title, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
-  diffncc <- diff(ncc)
-  for (i in 1:(length(mmtxt) - 1)) {
-    if (diffncc[i] == 1) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">')
-    if (diffncc[i] == 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
-    if (diffncc[i] < 0) mm[i+2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
-    mm[i+2] <- gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 2])
-    mm[i+2] <- gsub('\\$\\$([^$]+)\\$\\$', '<hook EQUATION="\\1" NAME="plugins/latex/LatexNodeHook.properties"/>', mm[i + 2])
-  }
-  mm[length(mmtxt) + 2] <- paste0('<node TEXT="', mmtext[length(mmtxt)], '">', paste0(rep('</node>', ncc[length(mmtxt)]), collapse = ''))
-  mm[length(mmtxt) + 3] <- '</node></map>'
-  return(mm)
-}
 
 #' Convert a directory tree to a mindmap file.
 #'
@@ -414,11 +490,22 @@ tree2mm <- function(tree,
                     backup = TRUE,
                     n_root = 1) {
   tree_title <- gsub('/', '', tree[n_root])
-  tree_node <- sapply(strsplit(tree[-n_root], '/'), function(x) x[length(x)])
-  tree_pre <- strrep('#', sapply(gregexpr('/', tree[-n_root]), length))
+  tree_node <-
+    sapply(strsplit(tree[-n_root], '/'), function(x)
+      x[length(x)])
+  tree_pre <-
+    strrep('#', sapply(gregexpr('/', tree[-n_root]), length))
   tree_new <- paste(tree_pre, tree_node)
-  mm <- mdtxt2mmtxt(title = tree_title, mmtxt = tree_new)
-  savefilename <- paste0(savefilename, ifelse(backup & file.exists(paste0(savefilename, '.mm')), paste0('-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')), ''), '.mm')
+  mm <- mdtxt2mmtxt(title = tree_title, mdtxt = tree_new)
+  savefilename <-
+    paste0(savefilename,
+           ifelse(backup &
+                    file.exists(paste0(
+                      savefilename, '.mm'
+                    )), paste0(
+                      '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')
+                    ), ''),
+           '.mm')
   writeLines(text = mm, savefilename, useBytes = TRUE)
 }
 
@@ -439,15 +526,20 @@ dir2 <- function(path = getwd(),
                  output = c('mm', 'txt', 'md'),
                  backup = TRUE) {
   output <- match.arg(output)
-  if(is.na(path)) return(message('The path cannot be NA!'))
+  if (is.na(path))
+    return(message('The path cannot be NA!'))
   if (dir.exists(path)) {
     if_files = FALSE
-    tree <- paste0('tree "', path, '" /A', ifelse(if_files, ' /f', ''))
+    tree <-
+      paste0('tree "', path, '" /A', ifelse(if_files, ' /f', ''))
     mytree <- system(tree, intern = T)
-    if('txt' %in% output) {
-      if (backup & file.exists(paste0(savefilename, '.txt'))){
+    if ('txt' %in% output) {
+      if (backup & file.exists(paste0(savefilename, '.txt'))) {
         message(paste0(savefilename, '.txt already exits.'))
-        savefilename <- paste0(savefilename, '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+        savefilename <-
+          paste0(savefilename,
+                 '-',
+                 format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
       }
       writeLines(mytree, paste0(savefilename, '.txt'), useBytes = TRUE)
       message(paste(savefilename), '.txt is generated!')
@@ -459,20 +551,24 @@ dir2 <- function(path = getwd(),
     md <- gsub(pattern = '\\\\---', '# ', md)
     md <- gsub(pattern = '\\|   ', '#', md)
     md <- gsub(pattern = '    ', '#', md)
-    mm <- mdtxt2mmtxt(title = path, mmtxt = md)
-    if('md' %in% output){
-      writeLines2(text = md,
-                  filename = paste0(savefilename, 'md'),
-                  backup = backup,
-                  useBytes = TRUE)
+    mm <- mdtxt2mmtxt(title = path, mdtxt = md)
+    if ('md' %in% output) {
+      writeLines2(
+        text = md,
+        filename = paste0(savefilename, '.md'),
+        backup = backup
+      )
     }
-    if('mm' %in% output){
-      writeLines2(text = md,
-                  filename = paste0(savefilename, 'mm'),
-                  backup = backup,
-                  useBytes = TRUE)
+    if ('mm' %in% output) {
+      writeLines2(
+        text = mm,
+        filename = paste0(savefilename, '.mm'),
+        backup = backup
+      )
     }
-  } else {message(paste('The directory', path, 'does not exist!'))}
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
 }
 
 #' Convert .R scripts into a .md/.Rmd file
@@ -486,47 +582,56 @@ dir2 <- function(path = getwd(),
 #' @return a markdown file
 #' @export
 #' @examples r2md()
-r2md <- function(path = '.',
-                 filepattern = '*.R$',
+r2md <- function(filepattern = '*.R$',
+                 path = '.',
                  savefilename = NA,
                  backup = TRUE,
-                 body = "#' "
-) {
+                 body = "#' ") {
   if (dir.exists(path)) {
     # read data
     rtext <- NULL
     files <- dir(path, pattern = filepattern, full.names = TRUE)
-    for (filename in files) rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
+    for (filename in files)
+      rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
 
     # find the indeces of the headings, the body texts, and the code blocks
     headerloc <- get_heading(text = rtext)
-    if(body != '^#[^[:blank:]#]+') body <- paste0('^', body)
+    if (body != '^#[^[:blank:]#]+')
+      body <- paste0('^', body)
     bodyloc <- get_body(pattern = body, text = rtext)
     codeloc <- grep(pattern = '^[^#]', x = rtext)
 
     # process the code blocks
     codeloc_diff <- diff(codeloc)
     codeloc_begin <- codeloc[c(1, which(codeloc_diff > 1) + 1)]
-    codeloc_end <- codeloc[c(which(codeloc_diff > 1), length(codeloc))]
-    rtext[codeloc_begin] <- paste('```{r}', rtext[codeloc_begin], sep = '\n')
-    rtext[codeloc_end] <- paste(rtext[codeloc_end], '```', sep = '\n')
+    codeloc_end <-
+      codeloc[c(which(codeloc_diff > 1), length(codeloc))]
+    rtext[codeloc_begin] <-
+      paste('```{r}', rtext[codeloc_begin], sep = '\n')
+    rtext[codeloc_end] <-
+      paste(rtext[codeloc_end], '```', sep = '\n')
 
     # process the headings
     ## remove the heading marker
-    rtext[headerloc] <- gsub(pattern = '[#-]{4,}$', '', rtext[headerloc])
+    rtext[headerloc] <-
+      gsub(pattern = '[#-]{4,}$', '', rtext[headerloc])
 
     # process the body text
     bodypattern <- ifelse(body == '^#[^[:blank:]#]+',
                           '^#',
                           paste0('^', body))
-    rtext[bodyloc] <- gsub(pattern = bodypattern, '', rtext[bodyloc])
+    rtext[bodyloc] <-
+      gsub(pattern = bodypattern, '', rtext[bodyloc])
 
     # write
     foldername <- get_foldername(path)
-    if(is.na(savefilename)) savefilename <- paste0(foldername, '.md')
+    if (is.na(savefilename))
+      savefilename <- paste0(foldername, '.md')
 
     writeLines2(text = rtext, savefilename, backup = backup)
-  } else {message(paste('The directory', folder, 'does not exist!'))}
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
 }
 
 #' Convert .md or .Rmd files into a .R script
@@ -541,24 +646,25 @@ r2md <- function(path = '.',
 #' @return a .R script
 #' @export
 #' @examples md2r()
-md2r <- function(path = '.',
-                 filepattern = '*.[R]*md$',
+md2r <- function(filepattern = '*.[R]*md$',
+                 path = '.',
                  savefilename = NA,
                  backup = TRUE,
                  heading = ' --------',
-                 body = '#'
-) {
+                 body = '#') {
   if (dir.exists(path)) {
     # read data
     rtext <- NULL
     files <- dir(path, pattern = filepattern, full.names = TRUE)
-    for (filename in files) rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
+    for (filename in files)
+      rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
 
     # find the indeces of the headings, the body texts, and the code blocks
     headerloc <- get_heading(text = rtext)
     codemarkloc <- grep('^```', rtext)
-    codeloc <- get_eqloc(eq_begin = codemarkloc[seq(1, length(codemarkloc), by = 2)],
-                         eq_end = codemarkloc[seq(2, length(codemarkloc), by = 2)])
+    codeloc <-
+      get_eqloc(eq_begin = codemarkloc[seq(1, length(codemarkloc), by = 2)],
+                eq_end = codemarkloc[seq(2, length(codemarkloc), by = 2)])
     allloc <- 1:length(rtext)
     bodyloc <- allloc[-c(headerloc, codemarkloc, codeloc)]
 
@@ -573,8 +679,203 @@ md2r <- function(path = '.',
 
     # write
     foldername <- get_foldername(path)
-    if(is.na(savefilename)) savefilename <- paste0(foldername, '.R')
+    if (is.na(savefilename))
+      savefilename <- paste0(foldername, '.R')
 
     writeLines2(text = rtext, savefilename, backup = backup)
-  } else {message(paste('The directory', folder, 'does not exist!'))}
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
+}
+
+#' Convert .R scripts into a .Rmd file
+#'
+#' @param path the path of the folder which contains the .R scripts
+#' @param filepattern the pattern of the script file names
+#' @param savefilename the destinated file name
+#'
+#' @return an R markdown file
+#' @export
+#' @examples
+#' path <- system.file('examples/r', package = 'mindr')
+#' r2rmd(path = path)
+r2rmd <- function(filepattern = '*.R$',
+                  path = '.',
+                  savefilename = NA) {
+  if (dir.exists(path)) {
+    # read data
+    rtext <- NULL
+    files <- dir(path, pattern = filepattern, full.names = TRUE)
+    for (filename in files)
+      rtext <- c(rtext, readLines(filename, encoding = 'UTF-8'))
+
+    # find the indeces of the headings, the body texts, and the code blocks
+    headerloc <- get_heading2(text = rtext)
+
+    # process the headings
+    ## remove the heading marker
+    rtext[headerloc] <-
+      gsub(pattern = '[#-]{4,}$', '', rtext[headerloc])
+    ## consistency with the roxygen style
+    rtext[headerloc] <-
+      gsub(pattern = '^#=', "#'", rtext[headerloc])
+
+    # write
+    if (is.na(savefilename)) {
+      foldername <- get_foldername(path)
+      savefilename <- paste0(foldername, '.Rmd')
+    }
+    tempfile <- 'mindr-r2rmd-temp.R'
+    writeLines(text = rtext, tempfile)
+    knitr::spin(hair = tempfile, knit = FALSE)
+    file.rename(paste0(tempfile, 'md'), savefilename)
+    file.remove(tempfile)
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
+}
+
+#' Convert .md or .Rmd files into a .R script
+#'
+#' @param path the path of the folder which contains the .Rmd or .md files
+#' @param filepattern the pattern of the file names
+#' @param savefilename the destinated file name
+#' @param backup logical. whether backup the existent file
+#' @param heading the indicator of the headings
+#' @param chunkheading logical. whether treat chunk options as headings (ending with ----)
+#'
+#' @return a .R script
+#' @export
+#' @examples
+#' path <- system.file('examples/r', package = 'mindr')
+#' rmd2r(path = path)
+rmd2r <- function(filepattern = '*.[R]*md$',
+                  path = '.',
+                  savefilename = NA,
+                  backup = TRUE,
+                  heading = ' --------',
+                  chunkheading = FALSE) {
+  if (dir.exists(path)) {
+    # read data
+    rmdtext <- NULL
+    files <- dir(path, pattern = filepattern, full.names = TRUE)
+    for (filename in files)
+      rmdtext <- c(rmdtext, readLines(filename, encoding = 'UTF-8'))
+
+    # convert the .R scripts into .Rmd with knitr::purl()
+    tempfile <- 'mindr-rmd2r-temp.R'
+    writeLines(text = rmdtext, tempfile)
+    knitr::purl(tempfile, documentation = 2)
+    rtext <- readLines(tempfile, encoding = 'UTF-8')
+    file.remove(tempfile)
+
+    # processing the headings
+    rtext <-
+      gsub(pattern = "^#'( #+ .*)$",
+           replacement = paste0("#=\\1", heading),
+           rtext)
+
+    # process the inline codes
+    rtext <-
+      gsub(pattern = "^(#' .*)`r ([^`]*)`", replacement = "\\1{{\\2}}", rtext)
+
+    # process the chunk options
+      rtext <-
+        gsub(pattern = "^## ----(.*[^-]+)([-]+)$", replacement = ifelse(chunkheading, "#+ \\1\\2", "#+ \\1"), rtext)
+      rtext <- gsub(pattern = "^## -*$", replacement = "", rtext)
+      rtext <- rtext[rtext != '']
+      rtext[rtext == "#' "] <- ''
+
+    # write
+    foldername <- get_foldername(path)
+    if (is.na(savefilename))
+      savefilename <- paste0(foldername, '.R')
+
+    writeLines2(text = rtext, savefilename, backup = backup)
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
+}
+
+#' Convert .R scripts into a .mm file
+#'
+#' @param path the path of the folder which contains the .R scripts
+#' @param filepattern the pattern of the script file names
+#' @param savefilename the destinated file name
+#'
+#' @return an R markdown file
+#' @export
+#' @examples
+#' path <- system.file('examples/r', package = 'mindr')
+#' r2mm(path = path)
+r2mm <- function(filepattern = '*.R$',
+                 path = '.',
+                 title = NA,
+                 savefilename = NA) {
+  if (dir.exists(path)) {
+    foldername <- get_foldername(path)
+    savefilename_rmd <- ifelse(is.na(savefilename),
+                               paste0(foldername, '.Rmd'),
+                               paste0(savefilename, '.Rmd'))
+    r2rmd(filepattern = filepattern,
+          path = path,
+          savefilename = savefilename_rmd)
+    md2mm(
+      title = title,
+      path = '.',
+      pattern = savefilename_rmd,
+      remove_curly_bracket = TRUE,
+      savefilename = paste0(savefilename, '.mm'),
+      backup = TRUE,
+      bookdown_style = TRUE,
+      keep_eq = FALSE
+    )
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
+}
+
+#' Convert .mm into a .R script
+#'
+#' @param path the path of the folder which contains the .Rmd or .md files
+#' @param filepattern the pattern of the file names
+#' @param savefilename the destinated file name
+#' @param backup logical. whether backup the existent file
+#' @param heading the indicator of the headings
+#'
+#' @return a .R script
+#' @export
+#' @examples
+#' path <- system.file('examples/mm', package = 'mindr')
+#' mm2r(path = path)
+mm2r <- function(filepattern = '*.mm$',
+                 path = '.',
+                 savefilename = NA,
+                 backup = TRUE,
+                 heading = ' --------') {
+  if (dir.exists(path)) {
+    foldername <- get_foldername(path)
+    savefilename_md <- ifelse(is.na(savefilename),
+                              paste0(foldername, '.md'),
+                              paste0(savefilename, '.md'))
+    mm2md(
+      pattern = filepattern,
+      path = path,
+      savefile = TRUE,
+      savefilename = savefilename_md,
+      backup = TRUE
+    )
+    newmd <- readLines(savefilename_md, encoding = 'UTF-8')
+    newmd <- c('```{r}\n```', newmd)
+    writeLines(newmd, savefilename_md, useBytes = TRUE)
+    rmd2r(
+      filepattern = savefilename_md,
+      path = '.',
+      savefilename = paste0(savefilename, '.R'),
+      backup = TRUE,
+      heading = ' --------'
+    )
+  } else {
+    message(paste('The directory', path, 'does not exist!'))
+  }
 }
