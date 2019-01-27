@@ -4,13 +4,15 @@
 \alias{rmd2r}
 \title{Convert .md or .Rmd files into a .R script}
 \usage{
-rmd2r(filepattern = "*.[R]*md$", path = ".", savefilename = NA, backup = TRUE, 
-    heading = " --------", chunkheading = FALSE)
+rmd2r(filepattern = "*.[R]*md$", path = ".", savefile = TRUE, savefilename = NA, 
+    backup = TRUE, heading = " --------", chunkheading = FALSE)
 }
 \arguments{
 \item{filepattern}{the pattern of the file names}
 
 \item{path}{the path of the folder which contains the .Rmd or .md files}
+
+\item{savefile}{logical. Whether to save the output as a file.}
 
 \item{savefilename}{the destinated file name}
 

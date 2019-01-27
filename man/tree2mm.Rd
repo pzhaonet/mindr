@@ -4,10 +4,12 @@
 \alias{tree2mm}
 \title{Convert a directory tree to a mindmap file.}
 \usage{
-tree2mm(tree, savefilename = "mindr", backup = TRUE, n_root = 1)
+tree2mm(tree, savefile = TRUE, savefilename = "mindr", backup = TRUE, n_root = 1)
 }
 \arguments{
 \item{tree}{character. The directory tree.}
+
+\item{savefile}{logical. Whether to save the output as a file.}
 
 \item{savefilename}{character. Valid when savefile == TRUE.}
 

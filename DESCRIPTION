@@ -1,18 +1,20 @@
 Package: mindr
-Version: 1.1.8
-Date: 2018-11-16
+Version: 1.2.0
+Date: 2019-01-25
 Title: Convert Files Between Markdown or Rmarkdown Files and Mindmaps
 Author: Peng Zhao
 Maintainer: Peng Zhao <pzhao@pzhao.net>
 Depends: R (>= 3.0.0)
 Imports: 
   htmlwidgets,
-  knitr
+  knitr,
+  jsonlite,
+  data.tree
 Suggests:
-Description: Convert Markdown ('.md') or Rmarkdown ('.Rmd') files into FreeMind mindmap ('.mm') files, and vice versa. FreeMind mindmap ('.mm') files can be opened by or imported to common mindmap software such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
+Description: Convert Markdown ('.md') or Rmarkdown ('.Rmd') files into mindmap widgets or files ('.mm'), and vice versa. FreeMind mindmap ('.mm') files can be opened by or imported to common mindmap software such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 License: MIT + file LICENSE
 URL: https://github.com/pzhaonet/mindr
 BugReports: https://github.com/pzhaonet/mindr/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 NeedsCompilation: no

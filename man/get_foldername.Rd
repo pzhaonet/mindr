@@ -15,6 +15,3 @@ The folder name
 \description{
 Get the folder name of a given complete path
 }
-\examples{
-get_foldername("c:/dropbox/temp")
-}

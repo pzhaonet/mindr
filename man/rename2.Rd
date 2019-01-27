@@ -17,6 +17,3 @@ a new file name
 \description{
 Rename a file automatically with a time stamp
 }
-\examples{
-rename2("md.mm.m3", connect = "")
-}

@@ -99,15 +99,6 @@ To extract the outline from your own markdown files, create a folder named `mm` 
 outline()
 ```
 
-### Convert a tibble dataframe column into amindmap
-
-Run: 
-
-```R
-library('mindr')
-example(tree2mm)
-```
-then you will get a demo outline file `mindr.md` in the working directory (`getwd()`). 
 
 Have fun!
 
@@ -125,6 +116,8 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+- 2019-01-25. **v1.2.0**. universal function `mm()`.
+- 2018-12-16. **v1.1.9**. Added an option of 'pandoc' to extract headings.
 - 2018-11-10. **v1.1.8**. Adapted to the roxygen style when conversion between .R scripts and .Rmd documents.
 - 2018-10-26. **v1.1.7**. Conversion between .R scripts and .Rmd documents.
 - 2018-10-21. **v1.1.6**. Support LaTeX equations.

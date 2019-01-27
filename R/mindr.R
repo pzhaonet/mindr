@@ -8,6 +8,8 @@
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #' @param keep_eq logical. whether to keep LaTeX equations.
+#' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
+#' @param savefile logical. Whether to save the output as a file.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -19,18 +21,22 @@ md2mm <- function(pattern = '*.[R]*md$',
                   title = NA,
                   path = '.',
                   remove_curly_bracket = FALSE,
+                  savefile = TRUE,
                   savefilename = NA,
                   backup = TRUE,
                   bookdown_style = TRUE,
-                  keep_eq = FALSE) {
+                  keep_eq = FALSE,
+                  method = c('regexpr', 'pandoc')) {
   if (dir.exists(path)) {
+    method <- match.arg(method)
     header <- outline(
       path = path,
       pattern = pattern,
       remove_curly_bracket = remove_curly_bracket,
       savefile = FALSE,
       bookdown_style = bookdown_style,
-      keep_eq = keep_eq
+      keep_eq = keep_eq,
+      method = method
     )
     foldername <- get_foldername(path)
     if (is.na(title))
@@ -38,9 +44,10 @@ md2mm <- function(pattern = '*.[R]*md$',
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.mm')
     mm <- mdtxt2mmtxt(title = title, mdtxt = header)
-    writeLines2(text = mm,
-                filename = savefilename,
-                backup = backup)
+    if(savefile) writeLines2(text = mm,
+                             filename = savefilename,
+                             backup = backup)
+    return(mm)
   } else {
     message(paste('The directory', path, 'does not exist!'))
   }
@@ -95,6 +102,8 @@ mm2md <- function(pattern = '*.mm$',
       paste(sapply(node_level - 1, function(x)
         paste0(rep('#', x), collapse = '')), headers)
     md[1] <- paste('Title:', md[1])
+    md <- gsub('&amp;', '&', md)
+    md <- gsub('&quot;', '"', md)
     if (savefile) {
       writeLines2(text = md,
                   filename = savefilename,
@@ -116,8 +125,10 @@ mm2md <- function(pattern = '*.mm$',
 #' @param pattern an optional regular expression for filtering the input files. See `help(dir)`.
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #' @param keep_eq logical. whether to keep LaTeX equations.
+#' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
 #'
 #' @return a vector of strings showing outline of a markdown document or book.
+#' @import jsonlite
 #' @export
 #' @examples
 #' path <- system.file('examples/md', package = 'mindr')
@@ -130,8 +141,10 @@ outline <- function(pattern = '*.[R]*md',
                     savefilename = 'outline.md',
                     backup = TRUE,
                     bookdown_style = TRUE,
-                    keep_eq = FALSE) {
+                    keep_eq = FALSE,
+                    method = c('regexpr', 'pandoc')) {
   if (dir.exists(path)) {
+    method <- match.arg(method)
     # read data
     md <- NULL
     files <- dir(path, pattern = pattern, full.names = TRUE)
@@ -145,52 +158,64 @@ outline <- function(pattern = '*.[R]*md',
       md <- c(md, readLines(filename, encoding = 'UTF-8'))
     mdlength <- length(md)
 
-    # exclude the code blocks
-    codeloc2 <- grep('^````', md)
-    if (length(codeloc2) > 0)
-      md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc2)]
-    codeloc <- grep('^```', md)
-    if (length(codeloc) > 0)
-      md <- md[!sapply(1:mdlength, rmvcode, loc = codeloc)]
+    if(method =='pandoc') {
+      temptxt <- 'mimdrtemp.tmp'
+      writeLines(md, temptxt, useBytes = TRUE)
+      md <- system2('pandoc', c('-f', 'markdown', '-t', 'json', temptxt), stdout = TRUE)
+      file.remove(temptxt)
+      md <- jsonlite::fromJSON(txt = md)
+      md <- md$blocks$c
+      header <- paste(
+        sapply(sapply(md, function(x) x[[1]][1]), function(x) paste(rep('#', x), collapse = '')),
+        sapply(md, function(x) x[[2]][[1]][1])
+      )
+    } else {
+      # exclude the code blocks
+      codeloc2 <- grep('^````', md)
+      if (length(codeloc2) > 0)
+        md <- md[!sapply(1:mdlength, function(x) rmvcode(index = x, loc = codeloc2))]
+      codeloc <- grep('^```', md)
+      if (length(codeloc) > 0)
+        md <- md[!sapply(1:mdlength, function(x) rmvcode(index = x, loc = codeloc))]
 
-    # get the outline
-    headerloc <- get_heading(text = md)
+      # get the outline
+      headerloc <- get_heading(text = md)
 
-    # remove the curly brackets
-    if (remove_curly_bracket)
-      md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
+      # remove the curly brackets
+      if (remove_curly_bracket)
+        md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
 
-    # remove the heading marker, which is eight '-' at the end of a heading
-    md[headerloc] <- gsub(pattern = ' --------$', '', md[headerloc])
+      # remove the heading marker, which is eight '-' at the end of a heading
+      md[headerloc] <- gsub(pattern = ' --------$', '', md[headerloc])
 
-    # extract equations
-    if (keep_eq) {
-      eq_begin <- grep('^\\$\\$', md)
-      eq_end <- grep('\\$\\$$', md)
-      eq_loc <- get_eqloc(eq_begin, eq_end)
-      headerloc <- c(headerloc, eq_loc)
-      headerloc <- headerloc[order(headerloc)]
-    }
-    header <- md[headerloc]
+      # extract equations
+      if (keep_eq) {
+        eq_begin <- grep('^\\$\\$', md)
+        eq_end <- grep('\\$\\$$', md)
+        eq_loc <- get_eqloc(eq_begin, eq_end)
+        headerloc <- c(headerloc, eq_loc)
+        headerloc <- headerloc[order(headerloc)]
+      }
+      header <- md[headerloc]
 
-    # lower the levels after `# (PART)` and `# (APPENDIX)`
-    if (bookdown_style) {
-      part_loc <-
-        c(
-          grep('^# \\(PART\\)', header),
-          grep('^# \\(APPENDIX\\)', header),
-          grep('^# References', header)
-        )
-      if (length(part_loc) > 0) {
-        header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
-        header[part_loc] <-
-          gsub(' \\(APPENDIX\\)', '', header[part_loc])
-        lower_loc <- (part_loc[1] + 1):length(header)
-        lower_loc <- lower_loc[!lower_loc %in% part_loc]
-        header[lower_loc] <- paste0('#', header[lower_loc])
+      # lower the levels after `# (PART)` and `# (APPENDIX)`
+      if (bookdown_style) {
+        part_loc <-
+          c(
+            grep('^# \\(PART\\)', header),
+            grep('^# \\(APPENDIX\\)', header),
+            grep('^# References', header)
+          )
+        if (length(part_loc) > 0) {
+          header[part_loc] <- gsub(' \\(PART\\)', '', header[part_loc])
+          header[part_loc] <-
+            gsub(' \\(APPENDIX\\)', '', header[part_loc])
+          lower_loc <- (part_loc[1] + 1):length(header)
+          lower_loc <- lower_loc[!lower_loc %in% part_loc]
+          header[lower_loc] <- paste0('#', header[lower_loc])
+        }
       }
     }
-
     # save file
     if (savefile) {
       writeLines2(
@@ -206,6 +231,8 @@ outline <- function(pattern = '*.[R]*md',
   }
 }
 
+
+
 #' Create a markmap widget
 #'
 #' This function, modified from <https://github.com/seifer08ms/Rmarkmap>, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
@@ -219,6 +246,7 @@ outline <- function(pattern = '*.[R]*md',
 #' @param input character, The format of theinput files
 #' @param root character. a string displayed as the root of the mind map
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
+#' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
 #'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
@@ -228,22 +256,25 @@ outline <- function(pattern = '*.[R]*md',
 #' markmap(path = path)
 #' markmap(path = path, remove_curly_bracket = TRUE)
 markmap <- function(root = NA,
-                    input = c('.md', '.mm'),
+                    input = c('.md', '.Rmd', '.mm'),
                     path = '.',
                     remove_curly_bracket = FALSE,
                     width = NULL,
                     height = NULL,
                     elementId = NULL,
-                    options = markmapOption(),
-                    bookdown_style = TRUE) {
+                    options = markmapOption(preset = 'colorful'),
+                    bookdown_style = TRUE,
+                    method = c('regexpr', 'pandoc')) {
   input <- match.arg(input)
   if (!is.na(path) & dir.exists(path)) {
     if (input == '.md') {
+      method <- match.arg(method)
       header <- outline(
         path = path,
         remove_curly_bracket = remove_curly_bracket,
         savefile = FALSE,
-        bookdown_style = bookdown_style
+        bookdown_style = bookdown_style,
+        method = method
       )
       header <- paste0('#', header)
       header <-
@@ -276,8 +307,8 @@ markmap <- function(root = NA,
   } else {
     message(paste('Please give a valid path to the directory.'))
   }
-
 }
+
 #' Options for markmap creation
 #'
 #' This function is taken from <https://github.com/seifer08ms/Rmarkmap>.
@@ -416,6 +447,7 @@ mdtxt2mmtxt <-
     }
 
     mmtxt <- gsub(pattern = '&', '&amp;', mmtxt2)
+    mmtxt <- gsub(pattern = '"', '&quot;', mmtxt)
     ncc <-
       sapply(mmtxt, function(x)
         nchar(strsplit(x, split = ' ')[[1]][1])) # level of the headings
@@ -462,6 +494,7 @@ mdtxt2mmtxt <-
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
 #' @param n_root numeric. Which element is the root of the tree.
+#' @param savefile logical. Whether to save the output as a file.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -486,6 +519,7 @@ mdtxt2mmtxt <-
 #' '/Path C')
 #' tree2mm(et2)
 tree2mm <- function(tree,
+                    savefile = TRUE,
                     savefilename = 'mindr',
                     backup = TRUE,
                     n_root = 1) {
@@ -497,79 +531,21 @@ tree2mm <- function(tree,
     strrep('#', sapply(gregexpr('/', tree[-n_root]), length))
   tree_new <- paste(tree_pre, tree_node)
   mm <- mdtxt2mmtxt(title = tree_title, mdtxt = tree_new)
-  savefilename <-
-    paste0(savefilename,
-           ifelse(backup &
-                    file.exists(paste0(
-                      savefilename, '.mm'
-                    )), paste0(
-                      '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')
-                    ), ''),
-           '.mm')
-  writeLines(text = mm, savefilename, useBytes = TRUE)
-}
-
-
-#' Convert a folder structure into a mindmap.
-#'
-#' @param savefilename character. Valid when savefile == TRUE.
-#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
-#' @param path character. the path of the folder.
-#' @param output a file with the folder structure.
-#'
-#' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
-#' @export
-#' @examples
-#' dir2(NA)
-dir2 <- function(path = getwd(),
-                 savefilename = 'mindr',
-                 output = c('mm', 'txt', 'md'),
-                 backup = TRUE) {
-  output <- match.arg(output)
-  if (is.na(path))
-    return(message('The path cannot be NA!'))
-  if (dir.exists(path)) {
-    if_files = FALSE
-    tree <-
-      paste0('tree "', path, '" /A', ifelse(if_files, ' /f', ''))
-    mytree <- system(tree, intern = T)
-    if ('txt' %in% output) {
-      if (backup & file.exists(paste0(savefilename, '.txt'))) {
-        message(paste0(savefilename, '.txt already exits.'))
-        savefilename <-
-          paste0(savefilename,
-                 '-',
-                 format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
-      }
-      writeLines(mytree, paste0(savefilename, '.txt'), useBytes = TRUE)
-      message(paste(savefilename), '.txt is generated!')
-    }
-    md <- mytree[-(1:3)]
-    # headers <- sapply(mytree, function(x) strsplit(x, ifelse(grepl('+---', x), '+---', '\\---'))[[1]][2])
-    # attributes(headers) <- NULL
-    md <- gsub(pattern = '\\+---', '# ', md)
-    md <- gsub(pattern = '\\\\---', '# ', md)
-    md <- gsub(pattern = '\\|   ', '#', md)
-    md <- gsub(pattern = '    ', '#', md)
-    mm <- mdtxt2mmtxt(title = path, mdtxt = md)
-    if ('md' %in% output) {
-      writeLines2(
-        text = md,
-        filename = paste0(savefilename, '.md'),
-        backup = backup
-      )
-    }
-    if ('mm' %in% output) {
-      writeLines2(
-        text = mm,
-        filename = paste0(savefilename, '.mm'),
-        backup = backup
-      )
-    }
-  } else {
-    message(paste('The directory', path, 'does not exist!'))
+  if(savefile){
+    savefilename <-
+      paste0(savefilename,
+             ifelse(backup &
+                      file.exists(paste0(
+                        savefilename, '.mm'
+                      )), paste0(
+                        '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')
+                      ), ''),
+             '.mm')
+    writeLines(text = mm, savefilename, useBytes = TRUE)
   }
+  return(mm)
 }
+
 
 #' Convert .R scripts into a .md/.Rmd file
 #'
@@ -645,7 +621,9 @@ r2md <- function(filepattern = '*.R$',
 #'
 #' @return a .R script
 #' @export
-#' @examples md2r()
+#' @examples
+#' path <- system.file('examples/md', package = 'mindr')
+#' md2r(path = path)
 md2r <- function(filepattern = '*.[R]*md$',
                  path = '.',
                  savefilename = NA,
@@ -662,7 +640,9 @@ md2r <- function(filepattern = '*.[R]*md$',
     # find the indeces of the headings, the body texts, and the code blocks
     headerloc <- get_heading(text = rtext)
     codemarkloc <- grep('^```', rtext)
-    codeloc <-
+
+    codeloc <- NULL
+    if(length(codemarkloc) > 0) codeloc <-
       get_eqloc(eq_begin = codemarkloc[seq(1, length(codemarkloc), by = 2)],
                 eq_end = codemarkloc[seq(2, length(codemarkloc), by = 2)])
     allloc <- 1:length(rtext)
@@ -693,6 +673,7 @@ md2r <- function(filepattern = '*.[R]*md$',
 #' @param path the path of the folder which contains the .R scripts
 #' @param filepattern the pattern of the script file names
 #' @param savefilename the destinated file name
+#' @param savefile logical. Whether to save the output as a file.
 #'
 #' @return an R markdown file
 #' @export
@@ -700,6 +681,7 @@ md2r <- function(filepattern = '*.[R]*md$',
 #' path <- system.file('examples/r', package = 'mindr')
 #' r2rmd(path = path)
 r2rmd <- function(filepattern = '*.R$',
+                  savefile = TRUE,
                   path = '.',
                   savefilename = NA) {
   if (dir.exists(path)) {
@@ -730,8 +712,11 @@ r2rmd <- function(filepattern = '*.R$',
     knitr::spin(hair = tempfile, knit = FALSE)
     file.rename(paste0(tempfile, 'md'), savefilename)
     file.remove(tempfile)
+    md <- readLines(savefilename, encoding = 'UTF-8')
+    if(!savefile) file.remove(savefilename)
+    return(md)
   } else {
-    message(paste('The directory', path, 'does not exist!'))
+    return(message(paste('The directory', path, 'does not exist!')))
   }
 }
 
@@ -743,6 +728,7 @@ r2rmd <- function(filepattern = '*.R$',
 #' @param backup logical. whether backup the existent file
 #' @param heading the indicator of the headings
 #' @param chunkheading logical. whether treat chunk options as headings (ending with ----)
+#' @param savefile logical. Whether to save the output as a file.
 #'
 #' @return a .R script
 #' @export
@@ -751,6 +737,7 @@ r2rmd <- function(filepattern = '*.R$',
 #' rmd2r(path = path)
 rmd2r <- function(filepattern = '*.[R]*md$',
                   path = '.',
+                  savefile = TRUE,
                   savefilename = NA,
                   backup = TRUE,
                   heading = ' --------',
@@ -764,7 +751,7 @@ rmd2r <- function(filepattern = '*.[R]*md$',
 
     # convert the .R scripts into .Rmd with knitr::purl()
     tempfile <- 'mindr-rmd2r-temp.R'
-    writeLines(text = rmdtext, tempfile)
+    writeLines(text = rmdtext, tempfile, useBytes = TRUE)
     knitr::purl(tempfile, documentation = 2)
     rtext <- readLines(tempfile, encoding = 'UTF-8')
     file.remove(tempfile)
@@ -780,18 +767,18 @@ rmd2r <- function(filepattern = '*.[R]*md$',
       gsub(pattern = "^(#' .*)`r ([^`]*)`", replacement = "\\1{{\\2}}", rtext)
 
     # process the chunk options
-      rtext <-
-        gsub(pattern = "^## ----(.*[^-]+)([-]+)$", replacement = ifelse(chunkheading, "#+ \\1\\2", "#+ \\1"), rtext)
-      rtext <- gsub(pattern = "^## -*$", replacement = "", rtext)
-      rtext <- rtext[rtext != '']
-      rtext[rtext == "#' "] <- ''
+    rtext <-
+      gsub(pattern = "^## ----(.*[^-]+)([-]+)$", replacement = ifelse(chunkheading, "#+ \\1\\2", "#+ \\1"), rtext)
+    rtext <- gsub(pattern = "^## -*$", replacement = "", rtext)
+    rtext <- rtext[rtext != '']
+    rtext[rtext == "#' "] <- ''
 
     # write
     foldername <- get_foldername(path)
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.R')
-
-    writeLines2(text = rtext, savefilename, backup = backup)
+    if(savefile) writeLines2(text = rtext, savefilename, backup = backup)
+    return(rtext)
   } else {
     message(paste('The directory', path, 'does not exist!'))
   }
@@ -802,8 +789,10 @@ rmd2r <- function(filepattern = '*.[R]*md$',
 #' @param path the path of the folder which contains the .R scripts
 #' @param filepattern the pattern of the script file names
 #' @param savefilename the destinated file name
+#' @param title title of the mindmap
+#' @param savefile logical. Whether to save the output as a file.
 #'
-#' @return an R markdown file
+#' @return an mindmap file
 #' @export
 #' @examples
 #' path <- system.file('examples/r', package = 'mindr')
@@ -811,6 +800,7 @@ rmd2r <- function(filepattern = '*.[R]*md$',
 r2mm <- function(filepattern = '*.R$',
                  path = '.',
                  title = NA,
+                 savefile = TRUE,
                  savefilename = NA) {
   if (dir.exists(path)) {
     foldername <- get_foldername(path)
@@ -825,11 +815,13 @@ r2mm <- function(filepattern = '*.R$',
       path = '.',
       pattern = savefilename_rmd,
       remove_curly_bracket = TRUE,
+      savefile = savefile,
       savefilename = paste0(savefilename, '.mm'),
       backup = TRUE,
       bookdown_style = TRUE,
       keep_eq = FALSE
     )
+    file.remove(savefilename_rmd)
   } else {
     message(paste('The directory', path, 'does not exist!'))
   }
@@ -842,6 +834,7 @@ r2mm <- function(filepattern = '*.R$',
 #' @param savefilename the destinated file name
 #' @param backup logical. whether backup the existent file
 #' @param heading the indicator of the headings
+#' @param savefile logical. Whether to save the output as a file.
 #'
 #' @return a .R script
 #' @export
@@ -850,6 +843,7 @@ r2mm <- function(filepattern = '*.R$',
 #' mm2r(path = path)
 mm2r <- function(filepattern = '*.mm$',
                  path = '.',
+                 savefile = TRUE,
                  savefilename = NA,
                  backup = TRUE,
                  heading = ' --------') {
@@ -871,6 +865,7 @@ mm2r <- function(filepattern = '*.mm$',
     rmd2r(
       filepattern = savefilename_md,
       path = '.',
+      savefile = savefile,
       savefilename = paste0(savefilename, '.R'),
       backup = TRUE,
       heading = ' --------'
@@ -879,3 +874,313 @@ mm2r <- function(filepattern = '*.mm$',
     message(paste('The directory', path, 'does not exist!'))
   }
 }
+
+#' Convert between .R, .Rmd, .mm according to the given file names, and create a markmap widget
+#' @details
+#' For LinUx OS and mac OS, the 'tree' command must be pre-installed before using 'show_files = FALSE'.
+#' - Linux: `sudo apt-get install tree`
+#' - mac: install [Homebrew](https://brew.sh/) first. Then in the terminal: `brew install tree`.
+#' @param remove_curly_bracket logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' <https://github.com/rstudio/bookdown> project).
+#' @param width the width of the markmap
+#' @param height the height of the markmap
+#' @param elementId character.
+#' @param options the markmap options
+#' @param root character. a string displayed as the root of the mind map
+#' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
+#' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
+#' @param from character. The path of the input file, or the input markdown text, or the path to the directory. Dependent on 'type'.
+#' @param to character. The path of the output file.
+#' @param type character. The type of the input. If type == 'dir' and the OS is LinUx, the 'tree' command must be pre-installed: `sudo apt-get install tree`.
+#' @param show_files logical. Whether to show files in a directory. Only valid when type == 'dir'.
+#' @param widget_name The file name of the html widget to save.
+#'
+#' @import htmlwidgets
+#' @return A HTML widget object rendered from a given document.
+#' @export
+#' @examples
+#' \dontrun{
+#' ### text -> widget
+#' input <- c('# Chapter 1', '## Section 1.1', '## Section 1.2', '# Chapter 2')
+#' mm(from = input, type = 'text', root = 'mindr')
+#'
+#' ### directory -> widget
+#' input <- paste0(.libPaths(), '/mindr')[1]
+#' mm(from = input, type = 'dir')
+#' mm(from = input, type = 'dir', widget_name = 'mindrtest.html')
+
+#' ### directory -> mm
+#' mm(from = input, type = 'dir', to = 'test.mm')
+#' ### directory -> md
+#' mm(from = input, type = 'dir', to = 'test.md')
+#' ### directory -> txt
+#' mm(from = input, type = 'dir', to = 'test.txt')
+#'
+#' ### Rmd -> widget
+#' input <- system.file('examples/r/rmd2r.Rmd', package = 'mindr')
+#' mm(from = input, type = 'file', root = 'mindr')
+#' ### Rmd -> r
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.r')
+#' ### Rmd -> mm
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.mm')
+#'
+#' ### mm -> widget
+#' input <- system.file('examples/mm/bookdownplus.mm', package = 'mindr')
+#' mm(from = input, type = 'file', root = 'mindr')
+#' ### mm -> Rmd
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.Rmd')
+#' ### mm -> r
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.r')
+#'
+#' ### r -> widget
+#' input <- system.file('examples/r/r2rmd.R', package = 'mindr')
+#' mm(from = input, type = 'file', root = 'mindr')
+#' ### r -> Rmd
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.Rmd')
+#' ### r -> mm
+#' mm(from = input, type = 'file', root = 'mindr', to = 'test.mm')
+#'
+#' ### The outline of the book Learning R
+#' input <- system.file('examples/xuer/xuer.md', package = 'mindr')
+#' mm(from = input, type = 'file', root = 'Learning R', to = 'learningr.mm')
+#' }
+#'
+mm <- function(from = NULL,
+               to = NULL,
+               type = c('file', 'text', 'dir'),
+               root = NA,
+               show_files = TRUE,
+               remove_curly_bracket = TRUE,
+               bookdown_style = TRUE,
+               widget_name = NA,
+               width = NULL,
+               height = NULL,
+               elementId = NULL,
+               options = markmapOption(preset = 'colorful'),
+               method = c('regexpr', 'pandoc')) {
+  type <- match.arg(type)
+  method <- match.arg(method)
+  # input is text -------------------------------
+  if(type == 'text') {
+    header <- from
+  } else if(type == 'dir') {
+# input is dir ---------------------------------
+    return(tree(from = from, to = to, root = root, show_files = show_files, widget_name = widget_name,
+                width = width, height = height, elementId = elementId,
+                options = options))
+    # if(!is.null(to)) {
+    #   to_name <- basename(to)
+    #   to_dir <- dirname(to)
+    #   to_ext <- get_filename_ext(to_name)
+    #   header <- dir2(path = from, output = to_ext, savefile = TRUE, savefilename = to)
+    # }
+    # header <- dir2(path = from, output = 'md', savefile = FALSE)
+  } else if(type == 'file') {
+# input is a file --------------------------------------
+    # if(!file.exists(from)) return(message('The file', from, ' does not exist. Please give a valid path.'))
+    from_name <- basename(from)
+    from_dir <- dirname(from)
+    from_ext <- get_filename_ext(from_name)
+# from md ----------------------------------------------
+    if (from_ext == 'md' | from_ext == 'Rmd') {
+      header <- outline(
+        pattern = from_name,
+        path = from_dir,
+        remove_curly_bracket = remove_curly_bracket,
+        savefile = FALSE,
+        bookdown_style = bookdown_style,
+        method = method
+      )
+# to mm ------------------------------------------------
+      if(!is.null(to)) {
+        to_name <- basename(to)
+        to_dir <- dirname(to)
+        to_ext <- get_filename_ext(to_name)
+        if(to_ext == 'mm') {
+          md2mm(pattern = from_name, title = root, path = from_dir, remove_curly_bracket = remove_curly_bracket, savefile = TRUE, savefilename = to, bookdown_style = bookdown_style, method = method)
+        }
+# to r -------------------------------------------------
+        if(to_ext == 'R' | to_ext == 'r') {
+          rmd2r(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = to)
+        }
+      }
+    }
+
+# from mm ----------------------------------------------
+    if(from_ext == 'mm') {
+      if(is.null(to)) {
+        header <- mm2md(pattern = from_name, path = from_dir, savefile = FALSE)
+      } else{
+        to_name <- basename(to)
+        to_dir <- dirname(to)
+        to_ext <- get_filename_ext(to_name)
+# to md ------------------------------------------------
+        if(to_ext == 'Rmd' | to_ext == 'md'){
+          header <- mm2md(pattern = from_name, path = from_dir, savefile = TRUE, savefilename = to)
+        }
+# to r -------------------------------------------------
+        if(to_ext == 'R' | to_ext == 'r'){
+          mmtemp <- rename2(from_name)
+          header <- mm2md(pattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+          rmd2r(filepattern = mmtemp, savefilename = to)
+          file.remove(mmtemp)
+        }
+      }
+    }
+
+# from r -----------------------------------------------
+    if(from_ext == 'r' | from_ext == 'R') {
+      if(is.null(to)) {
+        mmtemp <- rename2(from_name)
+        header <- r2rmd(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+        header <- outline(
+          pattern = mmtemp,
+          remove_curly_bracket = remove_curly_bracket,
+          savefile = FALSE,
+          bookdown_style = bookdown_style,
+          method = method
+        )
+        file.remove(mmtemp)
+      } else{
+        to_name <- basename(to)
+        to_dir <- dirname(to)
+        to_ext <- get_filename_ext(to_name)
+# to rmd -----------------------------------------------
+        if(to_ext == 'Rmd' | to_ext == 'md'){
+          header <- r2rmd(filepattern = from_name, path = from_dir, savefilename = to)
+          header <- outline(
+            pattern = to_name,
+            path = to_dir,
+            remove_curly_bracket = remove_curly_bracket,
+            savefile = FALSE,
+            bookdown_style = bookdown_style,
+            method = method
+          )
+        }
+# to mm ------------------------------------------------
+        if(to_ext == 'mm'){
+          mmtemp <- rename2(from_name)
+          header <- r2rmd(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+          header <- outline(
+            pattern = mmtemp,
+            remove_curly_bracket = remove_curly_bracket,
+            savefile = FALSE,
+            bookdown_style = bookdown_style,
+            method = method
+          )
+          file.remove(mmtemp)
+          r2mm(filepattern = from_name, path = from_dir, title = root, savefilename = gsub('.mm$', '', to))
+        }
+      }
+    }
+  }
+  header <- paste0('#', header)
+  if(is.na(root)) header <- c('# root', header) else header <- c(paste('#', root), header)
+
+  # create html
+  data <- paste(header, collapse = '\n')
+  # forward options using x
+  x = list(data = data, options = options)
+  # create widget
+  tree_widget <- htmlwidgets::createWidget(
+    name = 'markmap',
+    x,
+    width = width,
+    height = height,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = '100%',
+      defaultHeight = 400,
+      padding = 0,
+      browser.fill = TRUE
+    ),
+    package = 'mindr',
+    elementId = elementId
+  )
+  if(!is.na(widget_name)) {
+    filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
+    htmlwidgets::saveWidget(tree_widget, filetemp)
+    file.copy(filetemp, widget_name)
+    file.remove(filetemp)
+  }
+  return(tree_widget)
+}
+
+
+#' Draw a mindmap of a directory
+#'
+#' @param width the width of the markmap
+#' @param height the height of the markmap
+#' @param elementId character.
+#' @param options the markmap options
+#' @param root character. a string displayed as the root of the mind map
+#' @param from character. TThe path to the directory.
+#' @param to character. The path of the output file.
+#' @param show_files logical. Whether to show files in a directory.
+#' @param widget_name The file name of the html widget to save.
+#'
+#' @import htmlwidgets
+#' @return A HTML widget object rendered from a given document.
+#' @export
+#' @examples
+#' \dontrun{
+#' tree()
+#' input <- system.file(package = 'mindr')
+#' tree(input)
+#' tree(input, root = 'mindr', show_files = TRUE)
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.mm')
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.md')
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.txt')
+#' }
+tree <- function(from = '.',
+               to = NULL,
+               root = NA,
+               show_files = FALSE,
+               widget_name = NA,
+               width = NULL,
+               height = NULL,
+               elementId = NULL,
+               options = markmapOption(preset = 'colorful')) {
+
+    # input is dir ---------------------------------
+    if(!is.null(to)) {
+      to_name <- basename(to)
+      to_dir <- dirname(to)
+      to_ext <- get_filename_ext(to_name)
+      header <- dir4(path = from, output = to_ext, savefile = TRUE, savefilename = to, dir_files = show_files)
+    }
+  header <- dir4(path = from, output = 'md', savefile = FALSE, dir_files = show_files)
+  header <- paste0('#', header)
+  if(is.na(root)) header <- c(paste('#', ifelse(from == '.', getwd(), from)), header) else header <- c(paste('#', root), header)
+
+  # create html
+  data <- paste(header, collapse = '\n')
+  # forward options using x
+  x = list(data = data, options = options)
+  # create widget
+  tree_widget <- htmlwidgets::createWidget(
+    name = 'markmap',
+    x,
+    width = width,
+    height = height,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = '100%',
+      defaultHeight = 400,
+      padding = 0,
+      browser.fill = TRUE
+    ),
+    package = 'mindr',
+    elementId = elementId
+  )
+  if(!is.na(widget_name)) {
+    filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
+    htmlwidgets::saveWidget(tree_widget, filetemp)
+    if(file.exists(widget_name)) {
+      message(widget_name, ' alread exists. ', filetemp, ' was generated instead.')
+    } else {
+      file.copy(filetemp, widget_name)
+      file.remove(filetemp)
+      message(widget_name, ' was generated.')
+    }
+  }
+  return(tree_widget)
+}
+

@@ -4,9 +4,10 @@
 \alias{markmap}
 \title{Create a markmap widget}
 \usage{
-markmap(root = NA, input = c(".md", ".mm"), path = ".", remove_curly_bracket = FALSE, 
-    width = NULL, height = NULL, elementId = NULL, options = markmapOption(), 
-    bookdown_style = TRUE)
+markmap(root = NA, input = c(".md", ".Rmd", ".mm"), path = ".", 
+    remove_curly_bracket = FALSE, width = NULL, height = NULL, elementId = NULL, 
+    options = markmapOption(preset = "colorful"), bookdown_style = TRUE, 
+    method = c("regexpr", "pandoc"))
 }
 \arguments{
 \item{root}{character. a string displayed as the root of the mind map}
@@ -26,6 +27,8 @@ markmap(root = NA, input = c(".md", ".mm"), path = ".", remove_curly_bracket = F
 \item{options}{the markmap options}
 
 \item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
+
+\item{method}{"regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.}
 }
 \value{
 A HTML widget object rendered from a given document.

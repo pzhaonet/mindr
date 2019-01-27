@@ -5,7 +5,8 @@
 \title{Convert markdown or rmarkdown files to mindmap files.}
 \usage{
 md2mm(pattern = "*.[R]*md$", title = NA, path = ".", remove_curly_bracket = FALSE, 
-    savefilename = NA, backup = TRUE, bookdown_style = TRUE, keep_eq = FALSE)
+    savefile = TRUE, savefilename = NA, backup = TRUE, bookdown_style = TRUE, 
+    keep_eq = FALSE, method = c("regexpr", "pandoc"))
 }
 \arguments{
 \item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
@@ -16,6 +17,8 @@ md2mm(pattern = "*.[R]*md$", title = NA, path = ".", remove_curly_bracket = FALS
 
 \item{remove_curly_bracket}{logical. Whether to remove {#ID} in the headers of the markdown file (usually in a 'bookdown' \url{https://github.com/rstudio/bookdown} project).}
 
+\item{savefile}{logical. Whether to save the output as a file.}
+
 \item{savefilename}{character. Valid when savefile == TRUE.}
 
 \item{backup}{logical. Whether the existing target file, if any, should be saved as backup.}
@@ -23,6 +26,8 @@ md2mm(pattern = "*.[R]*md$", title = NA, path = ".", remove_curly_bracket = FALS
 \item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
 
 \item{keep_eq}{logical. whether to keep LaTeX equations.}
+
+\item{method}{"regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.}
 }
 \value{
 a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (\url{http://freemind.sourceforge.net/wiki/index.php/Main_Page}) and 'XMind' (\url{http://www.xmind.net}).

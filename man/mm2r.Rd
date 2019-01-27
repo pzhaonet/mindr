@@ -4,13 +4,15 @@
 \alias{mm2r}
 \title{Convert .mm into a .R script}
 \usage{
-mm2r(filepattern = "*.mm$", path = ".", savefilename = NA, backup = TRUE, 
-    heading = " --------")
+mm2r(filepattern = "*.mm$", path = ".", savefile = TRUE, savefilename = NA, 
+    backup = TRUE, heading = " --------")
 }
 \arguments{
 \item{filepattern}{the pattern of the file names}
 
 \item{path}{the path of the folder which contains the .Rmd or .md files}
+
+\item{savefile}{logical. Whether to save the output as a file.}
 
 \item{savefilename}{the destinated file name}
 

@@ -17,6 +17,6 @@ $$f(k) = {n \choose k} p^{k} (1-p)^{n-k}$$
 $$\begin{array}{ccc}
 x_{11} & x_{12} & x_{13}\\
 x_{21} & x_{22} & x_{23}
-\end{array}​$$
+\end{array}$$
 
 ## Recommendations

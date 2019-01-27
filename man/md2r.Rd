@@ -27,5 +27,6 @@ a .R script
 Convert .md or .Rmd files into a .R script
 }
 \examples{
-md2r()
+path <- system.file("examples/md", package = "mindr")
+md2r(path = path)
 }

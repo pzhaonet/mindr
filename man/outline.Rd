@@ -5,7 +5,8 @@
 \title{Extract headers of markdown or rmarkdown files as an outline.}
 \usage{
 outline(pattern = "*.[R]*md", path = ".", remove_curly_bracket = FALSE, savefile = TRUE, 
-    savefilename = "outline.md", backup = TRUE, bookdown_style = TRUE, keep_eq = FALSE)
+    savefilename = "outline.md", backup = TRUE, bookdown_style = TRUE, keep_eq = FALSE, 
+    method = c("regexpr", "pandoc"))
 }
 \arguments{
 \item{pattern}{an optional regular expression for filtering the input files. See \code{help(dir)}.}
@@ -23,6 +24,8 @@ outline(pattern = "*.[R]*md", path = ".", remove_curly_bracket = FALSE, savefile
 \item{bookdown_style}{logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, \code{# (PART)}, \code{# (APPENDIX)} and \code{# References} as an upper level of normal \code{#} title}
 
 \item{keep_eq}{logical. whether to keep LaTeX equations.}
+
+\item{method}{"regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.}
 }
 \value{
 a vector of strings showing outline of a markdown document or book.
