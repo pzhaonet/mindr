@@ -23,11 +23,11 @@ get_foldername <- function(path){
   return(foldername[length(foldername)])
 }
 
-#' get the file name extention
+#' get the file name extension
 #'
 #' @param filename character, the file name
 #'
-#' @return character, the file name extention
+#' @return character, the file name extension
 get_filename_ext <- function(filename){
   filename_sep <- strsplit(filename, '\\.')[[1]]
   nfilename <- length(filename_sep)
@@ -254,32 +254,32 @@ dir4 <- function(path = getwd(),
   if (is.na(path))
     return(message('The path cannot be NA!'))
   if (dir.exists(path)) {
-    os <- Sys.info()['sysname']
+    # os <- Sys.info()['sysname']
     ## windows ----
-    if(os == 'Windows') {
-      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
-      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
-      mytree <- system(tree, intern = T)
-      md <- mytree[-(1:3)]
-      ## dir_files
-      if(dir_files){
-        loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-        md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
-      }
-    } else {
+    # if(os == 'Windows') {
+    #   non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
+    #   tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
+    #   mytree <- system(tree, intern = T)
+    #   md <- mytree[-(1:3)]
+    #   ## dir_files
+    #   if(dir_files){
+    #     loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
+    #     md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
+    #   }
+    # } else {
       ## non windows ----
       # data.tree method ----
       non_ascii <- readLines(system.file('resource/non-ascii-datatree.txt', package = 'mindr'), encoding = 'UTF-8')
       if(path == '.') path <- getwd()
       if(path == '..') path <- dirname(getwd())
       if(dir_files) mydir <- list.files(path, full.names = TRUE, recursive = TRUE) else mydir <- list.dirs(path, full.names = TRUE, recursive = TRUE)
-      rootname <- dirname(mydir[1])
+      rootname <- path #dirname(mydir[1])
       root <- dirname(rootname)
       mydir <- gsub(paste0('^', root, '/'), '', mydir)
       mytree <- data.tree::as.Node(data.frame(pathString = mydir))
       md <- print(mytree)[, 1]
       md[1] <- rootname
-    }
+    # }
 
     # Both ----
     if ('txt' %in% output) {

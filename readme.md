@@ -136,12 +136,12 @@ Still being developed. Feel free to give your feedback to me!
 
 ## To do
 
-- import knitr::purl() and knitr::spin()
 - convert md/Rmd/mm into slides.
+- RStudio addin to convert selected text into a mindmap widget.
 
 # License
 
-Copyright 2018 [Peng Zhao](http://pzhao.org).
+Copyright 2019 [Peng Zhao](http://pzhao.org).
 
 Released under the MIT license.
 
