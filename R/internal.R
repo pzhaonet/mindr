@@ -254,19 +254,22 @@ dir4 <- function(path = getwd(),
   if (is.na(path))
     return(message('The path cannot be NA!'))
   if (dir.exists(path)) {
-    # os <- Sys.info()['sysname']
-    ## windows ----
-    # if(os == 'Windows') {
-    #   non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
-    #   tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
-    #   mytree <- system(tree, intern = T)
-    #   md <- mytree[-(1:3)]
-    #   ## dir_files
-    #   if(dir_files){
-    #     loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-    #     md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
-    #   }
-    # } else {
+    os <- Sys.info()['sysname']
+    # windows ----
+    if(os == 'Windows') {
+      oldlocale <- Sys.getlocale('LC_CTYPE')
+      on.exit(Sys.setlocale('LC_CTYPE', oldlocale))
+      Sys.setlocale('LC_CTYPE', 'Chinese')
+      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
+      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
+      mytree <- system(tree, intern = T, show.output.on.console = TRUE)
+      md <- mytree[-(1:3)]
+      ## dir_files
+      if(dir_files){
+        loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
+        md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
+      }
+    } else {
       ## non windows ----
       # data.tree method ----
       non_ascii <- readLines(system.file('resource/non-ascii-datatree.txt', package = 'mindr'), encoding = 'UTF-8')
@@ -279,7 +282,7 @@ dir4 <- function(path = getwd(),
       mytree <- data.tree::as.Node(data.frame(pathString = mydir))
       md <- print(mytree)[, 1]
       md[1] <- rootname
-    # }
+    }
 
     # Both ----
     if ('txt' %in% output) {
