@@ -27,6 +27,7 @@ md2mm <- function(pattern = '*.[R]*md$',
                   bookdown_style = TRUE,
                   keep_eq = FALSE,
                   method = c('regexpr', 'pandoc')) {
+  message('The md2mm() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     method <- match.arg(method)
     header <- outline(
@@ -73,6 +74,7 @@ mm2md <- function(pattern = '*.mm$',
                   savefile = TRUE,
                   savefilename = 'mindr.md',
                   backup = TRUE) {
+  message('The mm2md() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     mm <- NULL
     for (filename in dir(path, pattern = pattern, full.names = TRUE))
@@ -572,6 +574,7 @@ r2md <- function(filepattern = '*.R$',
                  savefilename = NA,
                  backup = TRUE,
                  body = "#' ") {
+  message('The r2md() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     # read data
     rtext <- NULL
@@ -639,6 +642,7 @@ md2r <- function(filepattern = '*.[R]*md$',
                  backup = TRUE,
                  heading = ' --------',
                  body = '#') {
+  message('The md2r() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     # read data
     rtext <- NULL
@@ -694,6 +698,7 @@ r2rmd <- function(filepattern = '*.R$',
                   savefile = TRUE,
                   path = '.',
                   savefilename = NA) {
+  message('The r2rmd() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     # read data
     rtext <- NULL
@@ -755,6 +760,7 @@ rmd2r <- function(filepattern = '*.[R]*md$',
                   backup = TRUE,
                   heading = ' --------',
                   chunkheading = FALSE) {
+  message('The rmd2r() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     # read data
     rmdtext <- NULL
@@ -820,6 +826,7 @@ r2mm <- function(filepattern = '*.R$',
                  title = NA,
                  savefile = TRUE,
                  savefilename = NA) {
+  message('The r2mm() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     foldername <- basename(path)
     savefilename_rmd <- ifelse(is.na(savefilename),
@@ -865,6 +872,7 @@ mm2r <- function(filepattern = '*.mm$',
                  savefilename = NA,
                  backup = TRUE,
                  heading = ' --------') {
+  message('The mm2r() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     foldername <- basename(path)
     savefilename_md <- ifelse(is.na(savefilename),
