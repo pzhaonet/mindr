@@ -4,11 +4,10 @@
 #' @param eq_end the end index of an equation
 #'
 #' @return a index vector
-get_eqloc <- function(eq_begin, eq_end) {
+get_eqloc <- function(eq_begin, eq_end){
   eq <- eq_begin[1]:eq_end[1]
-  if (length(eq_begin) > 1) {
-    for (i in 2:length(eq_begin))
-      eq <- c(eq, eq_begin[i]:eq_end[i])
+  if(length(eq_begin) > 1) {
+    for(i in 2:length(eq_begin)) eq <- c(eq, eq_begin[i]:eq_end[i])
   }
   return(eq)
 }
@@ -29,10 +28,10 @@ get_eqloc <- function(eq_begin, eq_end) {
 #' @param filename character, the file name
 #'
 #' @return character, the file name extension
-get_filename_ext <- function(filename) {
+get_filename_ext <- function(filename){
   filename_sep <- strsplit(filename, '\\.')[[1]]
   nfilename <- length(filename_sep)
-  if (nfilename == 1) {
+  if(nfilename == 1) {
     filename_ext <- ''
   } else {
     filename_ext <- filename_sep[nfilename]
@@ -47,21 +46,15 @@ get_filename_ext <- function(filename) {
 #'
 #' @return a new file name
 #'
-rename2 <- function(filename, connect = '-') {
+rename2 <- function(filename, connect = '-'){
   filename_sep <- strsplit(filename, '\\.')[[1]]
   nfilename <- length(filename_sep)
-  if (nfilename == 1) {
+  if(nfilename == 1) {
     filename2 <- c(filename_sep, '')
   } else {
-    filename2 <-
-      c(paste(filename_sep[-nfilename], collapse = '.'),
-        paste0('.', filename_sep[nfilename]))
+    filename2 <- c(paste(filename_sep[-nfilename], collapse = '.'), paste0('.', filename_sep[nfilename]))
   }
-  newname <-
-    paste0(filename2[1], connect, format(
-      Sys.time(),
-      paste('%Y', '%m', '%d', '%H', '%M', '%S', sep = connect)
-    ), filename2[2])
+  newname <- paste0(filename2[1], connect, format(Sys.time(), paste('%Y', '%m','%d', '%H', '%M', '%S', sep = connect)), filename2[2])
   return(newname)
 }
 
@@ -72,9 +65,9 @@ rename2 <- function(filename, connect = '-') {
 #' @param backup Logical.
 #'
 #' @return a txt file
-writeLines2 <- function(text, filename, backup = TRUE) {
+writeLines2 <- function(text, filename, backup = TRUE){
   newname <- filename
-  if (backup & file.exists(filename)) {
+  if (backup & file.exists(filename)){
     newname <- rename2(filename)
   }
   writeLines(text = text, newname, useBytes = TRUE)
@@ -98,7 +91,47 @@ rmvcode <- function(index, loc) {
 #' @param text the given strings
 #'
 #' @return integer. the index of the headings in the given strings.
-get_heading <- function(pattern = '^#+ ', text) {
+get_heading <- function(pattern = '^#+ ', text, include_list = FALSE){
+  newtext <- grep(pattern = pattern, x = text)
+  return(newtext)
+}
+
+#' convert list to heading
+#'
+#' @param text the given strings
+#'
+#' @return integer. the index of the headings in the given strings.
+list2heading <- function(text){
+    # convert list into headings
+    ## remove blank lines
+    text <- text[text != '']
+
+    ## get the heading level by counting # number
+    oldheadings <- gsub('^(#+) .+', '\\1', x = text)
+    oldheadings[!grepl('^(#+) .+', x = text)] <- NA
+    heading_level <- nchar(oldheadings)
+    heading_level <- na.omit(heading_level)[cumsum(!is.na(heading_level))]
+
+    list_loc <- grepl('^ *- .+', text)
+    oldlist <- gsub('^( *-) .+', '\\1', text)
+    oldlist_title <- gsub('^( *-) (.+)', '\\2', text)[list_loc]
+
+    oldlist[!list_loc] <- NA
+    list_level <- (nchar(oldlist) - 1)/2 + 1
+    list_level <- list_level + heading_level
+    list_level <- na.omit(list_level)
+    new_list_prefix <- sapply(list_level, function(x) paste(rep('#', x), collapse = ''))
+    text[list_loc] <- paste(new_list_prefix, oldlist_title)
+  return(text)
+}
+
+#' get the headings out of given strings
+#'
+#' @param pattern The definition of the headings
+#' @param text the given strings
+#'
+#' @return integer. the index of the headings in the given strings.
+get_heading2 <- function(pattern = '^#= #+ ', text){
   return(grep(pattern = pattern, x = text))
 }
 
@@ -108,17 +141,7 @@ get_heading <- function(pattern = '^#+ ', text) {
 #' @param text the given strings
 #'
 #' @return integer. the index of the headings in the given strings.
-get_heading2 <- function(pattern = '^#= #+ ', text) {
-  return(grep(pattern = pattern, x = text))
-}
-
-#' get the headings out of given strings
-#'
-#' @param pattern The definition of the headings
-#' @param text the given strings
-#'
-#' @return integer. the index of the headings in the given strings.
-get_heading3 <- function(pattern = "^#' #+ ", text) {
+get_heading3 <- function(pattern = "^#' #+ ", text){
   return(grep(pattern = pattern, x = text))
 }
 
@@ -128,7 +151,7 @@ get_heading3 <- function(pattern = "^#' #+ ", text) {
 #' @param text the given strings
 #'
 #' @return integer. the index of the body text in the given strings.
-get_body <- function(pattern = '^#[^ ]*', text) {
+get_body <- function(pattern = '^#[^ ]*', text){
   return(grep(pattern = pattern, x = text))
 }
 
@@ -138,13 +161,12 @@ get_body <- function(pattern = '^#[^ ]*', text) {
 #' @param mychar The character to check.
 #'
 #' @return character as title with '#' inserted.
-count_space <- function(mychar, sep) {
+count_space <- function(mychar, sep){
   mychar_new <- gsub(sep, '    ', mychar)
   spaces <- gsub('^( +).*', '\\1', mychar_new)
   title <- gsub('^( +)(.*)', '\\2', mychar_new)
-  if (title == '')
-    return('NULLLL')
-  paste(paste(rep('#', nchar(spaces) / 4), collapse = ''), title)
+  if(title == '') return('NULLLL')
+  paste(paste(rep('#', nchar(spaces)/4), collapse = ''), title)
 }
 
 #' Convert a folder structure into a mindmap by using the 'tree' command.
@@ -172,22 +194,15 @@ dir2 <- function(path = getwd(),
     return(message('The path cannot be NA!'))
   if (dir.exists(path)) {
     os <- Sys.info()['sysname']
-    if (os == 'Windows') {
-      non_ascii <-
-        readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'),
-                  encoding = 'UTF-8')
-      tree <-
-        paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
+    if(os == 'Windows') {
+      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
+      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
     } else{
-      non_ascii <-
-        readLines(system.file('resource/non-ascii-linux.txt', package = 'mindr'),
-                  encoding = 'UTF-8')
-      tree <-
-        paste0('tree "', path, '"', ifelse(dir_files, '', ' -d'))
+      non_ascii <- readLines(system.file('resource/non-ascii-linux.txt', package = 'mindr'), encoding = 'UTF-8')
+      tree <- paste0('tree "', path, '"', ifelse(dir_files, '', ' -d'))
     }
     mytree <- system(tree, intern = T)
-    for (i in c('\033\\[[[:digit:]]{2};[[:digit:]]{2}m', '\033\\[00m'))
-      mytree <- gsub(i, '', mytree)
+    for(i in c('\033\\[[[:digit:]]{2};[[:digit:]]{2}m', '\033\\[00m')) mytree <- gsub(i, '', mytree)
     if ('txt' %in% output) {
       if (backup & file.exists(paste0(savefilename, '.txt'))) {
         message(paste0(savefilename, '.txt already exits.'))
@@ -199,7 +214,7 @@ dir2 <- function(path = getwd(),
       writeLines(mytree, savefilename, useBytes = TRUE)
       message(paste(savefilename), ' was generated!')
     }
-    if (os == 'Windows') {
+    if(os == 'Windows') {
       md <- mytree[-(1:3)]
     } else {
       md <- mytree[-1]
@@ -208,11 +223,9 @@ dir2 <- function(path = getwd(),
     }
 
     ## dir_files
-    if (dir_files & os == 'Windows') {
+    if(dir_files & os == 'Windows'){
       loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-      md[loc_files] <-
-        unlist(sapply(md[loc_files], function(x)
-          count_space(x, sep = non_ascii[2])))
+      md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
     }
 
     md <- md[md != 'NULLLL']
@@ -223,34 +236,35 @@ dir2 <- function(path = getwd(),
 
     mm <- mdtxt2mmtxt(title = path, mdtxt = md)
     if ('md' %in% output) {
-      if (savefile)
-        writeLines2(text = md,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = md,
+        filename = savefilename,
+        backup = backup
+      )
       return(md)
     }
     if ('Rmd' %in% output) {
-      if (savefile)
-        writeLines2(text = md,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = md,
+        filename = savefilename,
+        backup = backup
+      )
       return(md)
     }
     if ('mm' %in% output) {
-      if (savefile)
-        writeLines2(text = mm,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = mm,
+        filename = savefilename,
+        backup = backup
+      )
       return(mm)
     }
   } else {
-    return(message(paste(
-      'The directory', path, 'does not exist!'
-    )))
+    return(message(paste('The directory', path, 'does not exist!')))
   }
 }
 
-#' Convert a folder structure into a mindmap.
+#' Convert a folder structure into a mindmap (using the data.tree package for non-windows os).
 #'
 #' @param savefilename character. Valid when savefile == TRUE.
 #' @param backup logical. Whether the existing target file, if any, should be saved as backup.
@@ -272,42 +286,26 @@ dir4 <- function(path = getwd(),
   if (dir.exists(path)) {
     os <- Sys.info()['sysname']
     # windows ----
-    if (os == 'Windows') {
+    if(os == 'Windows') {
       oldlocale <- Sys.getlocale('LC_CTYPE')
       on.exit(Sys.setlocale('LC_CTYPE', oldlocale))
       Sys.setlocale('LC_CTYPE', 'Chinese')
-      non_ascii <-
-        readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'),
-                  encoding = 'UTF-8')
-      tree <-
-        paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
-      mytree <-
-        system(tree,
-               intern = T,
-               show.output.on.console = TRUE)
+      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
+      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
+      mytree <- system(tree, intern = T, show.output.on.console = TRUE)
       md <- mytree[-(1:3)]
       ## dir_files
-      if (dir_files) {
+      if(dir_files){
         loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-        md[loc_files] <-
-          unlist(sapply(md[loc_files], function(x)
-            count_space(x, sep = non_ascii[2])))
+        md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
       }
     } else {
       ## non windows ----
       # data.tree method ----
-      non_ascii <-
-        readLines(system.file('resource/non-ascii-datatree.txt', package = 'mindr'),
-                  encoding = 'UTF-8')
-      if (path == '.')
-        path <- getwd()
-      if (path == '..')
-        path <- dirname(getwd())
-      if (dir_files)
-        mydir <-
-          list.files(path, full.names = TRUE, recursive = TRUE)
-      else
-        mydir <- list.dirs(path, full.names = TRUE, recursive = TRUE)
+      non_ascii <- readLines(system.file('resource/non-ascii-datatree.txt', package = 'mindr'), encoding = 'UTF-8')
+      if(path == '.') path <- getwd()
+      if(path == '..') path <- dirname(getwd())
+      if(dir_files) mydir <- list.files(path, full.names = TRUE, recursive = TRUE) else mydir <- list.dirs(path, full.names = TRUE, recursive = TRUE)
       rootname <- path #dirname(mydir[1])
       root <- dirname(rootname)
       mydir <- gsub(paste0('^', root, '/'), '', mydir)
@@ -338,29 +336,30 @@ dir4 <- function(path = getwd(),
 
     mm <- mdtxt2mmtxt(title = path, mdtxt = md)
     if ('md' %in% output) {
-      if (savefile)
-        writeLines2(text = md,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = md,
+        filename = savefilename,
+        backup = backup
+      )
       return(md)
     }
     if ('Rmd' %in% output) {
-      if (savefile)
-        writeLines2(text = md,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = md,
+        filename = savefilename,
+        backup = backup
+      )
       return(md)
     }
     if ('mm' %in% output) {
-      if (savefile)
-        writeLines2(text = mm,
-                    filename = savefilename,
-                    backup = backup)
+      if(savefile) writeLines2(
+        text = mm,
+        filename = savefilename,
+        backup = backup
+      )
       return(mm)
     }
   } else {
-    return(message(paste(
-      'The directory', path, 'does not exist!'
-    )))
+    return(message(paste('The directory', path, 'does not exist!')))
   }
 }

@@ -16,6 +16,7 @@
 #' @param type character. The type of the input. If type == 'dir' and the OS is LinUx, the 'tree' command must be pre-installed: `sudo apt-get install tree`.
 #' @param show_files logical. Whether to show files in a directory. Only valid when type == 'dir'.
 #' @param widget_name The file name of the html widget to save.
+#' @param include_list logical. whether to convert unnumbered lists into headings.
 #'
 #' @import htmlwidgets
 #' @return A HTML widget object rendered from a given document.
@@ -79,14 +80,17 @@ mm <- function(from = NULL,
                height = NULL,
                elementId = NULL,
                options = markmapOption(preset = 'colorful'),
-               method = c('regexpr', 'pandoc')) {
+               method = c('regexpr', 'pandoc'),
+               include_list = FALSE) {
   type <- match.arg(type)
   method <- match.arg(method)
-  # input is text -------------------------------
+
+  # 1. get clean headers for widgets, and convert files  ----
   if (type == 'text') {
+    # 1.1 input is text -------------------------------
     header <- from
   } else if (type == 'dir') {
-    # input is dir ---------------------------------
+    # 1.2 input is dir ---------------------------------
     return(
       tree(
         from = from,
@@ -108,12 +112,12 @@ mm <- function(from = NULL,
     # }
     # header <- dir2(path = from, output = 'md', savefile = FALSE)
   } else if (type == 'file') {
-    # input is a file --------------------------------------
+    # 1.3 input is a file --------------------------------------
     # if(!file.exists(from)) return(message('The file', from, ' does not exist. Please give a valid path.'))
     from_name <- basename(from)
     from_dir <- dirname(from)
     from_ext <- get_filename_ext(from_name)
-    # from md ----------------------------------------------
+    # 1.3.1 from md ----------------------------------------------
     if (from_ext == 'md' | from_ext == 'Rmd') {
       header <- outline(
         pattern = from_name,
@@ -121,7 +125,8 @@ mm <- function(from = NULL,
         remove_curly_bracket = remove_curly_bracket,
         savefile = FALSE,
         bookdown_style = bookdown_style,
-        method = method
+        method = method,
+        include_list = include_list
       )
       # to mm ------------------------------------------------
       if (!is.null(to)) {
@@ -137,7 +142,8 @@ mm <- function(from = NULL,
             savefile = TRUE,
             savefilename = to,
             bookdown_style = bookdown_style,
-            method = method
+            method = method,
+            include_list = include_list
           )
         }
         # to r -------------------------------------------------
@@ -152,7 +158,7 @@ mm <- function(from = NULL,
       }
     }
 
-    # from mm ----------------------------------------------
+    # 1.3.2 from mm ----------------------------------------------
     if (from_ext == 'mm') {
       if (is.null(to)) {
         header <-
@@ -189,7 +195,7 @@ mm <- function(from = NULL,
       }
     }
 
-    # from r -----------------------------------------------
+    # 1.3.3 from r -----------------------------------------------
     if (from_ext == 'r' | from_ext == 'R') {
       if (is.null(to)) {
         mmtemp <- rename2(from_name)
@@ -205,7 +211,8 @@ mm <- function(from = NULL,
           remove_curly_bracket = remove_curly_bracket,
           savefile = FALSE,
           bookdown_style = bookdown_style,
-          method = method
+          method = method,
+          include_list = include_list
         )
         file.remove(mmtemp)
       } else{
@@ -226,7 +233,8 @@ mm <- function(from = NULL,
             remove_curly_bracket = remove_curly_bracket,
             savefile = FALSE,
             bookdown_style = bookdown_style,
-            method = method
+            method = method,
+            include_list = include_list
           )
         }
         # to mm ------------------------------------------------
@@ -244,7 +252,8 @@ mm <- function(from = NULL,
             remove_curly_bracket = remove_curly_bracket,
             savefile = FALSE,
             bookdown_style = bookdown_style,
-            method = method
+            method = method,
+            include_list = include_list
           )
           file.remove(mmtemp)
           r2mm(
@@ -257,18 +266,18 @@ mm <- function(from = NULL,
       }
     }
   }
-  header <- paste0('#', header)
-  if (is.na(root))
-    header <-
-    c('# root', header)
-  else
-    header <- c(paste('#', root), header)
 
-  # create html
+  # 2 format the headers ----
+  header <- paste0('#', header)
+  if (is.na(root)) {
+    header <- c('# root', header)
+  } else {
+    header <- c(paste('#', root), header)
+    }
+
+  # 3 create widget ----
   data <- paste(header, collapse = '\n')
-  # forward options using x
   x = list(data = data, options = options)
-  # create widget
   tree_widget <- htmlwidgets::createWidget(
     name = 'markmap',
     x,
@@ -292,101 +301,3 @@ mm <- function(from = NULL,
   return(tree_widget)
 }
 
-
-#' Draw a mindmap of a directory
-#'
-#' @param width the width of the markmap
-#' @param height the height of the markmap
-#' @param elementId character.
-#' @param options the markmap options
-#' @param root character. a string displayed as the root of the mind map
-#' @param from character. TThe path to the directory.
-#' @param to character. The path of the output file.
-#' @param show_files logical. Whether to show files in a directory.
-#' @param widget_name The file name of the html widget to save.
-#'
-#' @import htmlwidgets
-#' @return A HTML widget object rendered from a given document.
-#' @export
-#' @examples
-#' \dontrun{
-#' tree()
-#' input <- system.file(package = 'mindr')
-#' tree(input)
-#' tree(input, root = 'mindr', show_files = TRUE)
-#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.mm')
-#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.md')
-#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.txt')
-#' }
-tree <- function(from = '.',
-                 to = NULL,
-                 root = NA,
-                 show_files = FALSE,
-                 widget_name = NA,
-                 width = NULL,
-                 height = NULL,
-                 elementId = NULL,
-                 options = markmapOption(preset = 'colorful')) {
-  # input is dir ---------------------------------
-  if (!is.null(to)) {
-    to_name <- basename(to)
-    to_dir <- dirname(to)
-    to_ext <- get_filename_ext(to_name)
-    header <-
-      dir4(
-        path = from,
-        output = to_ext,
-        savefile = TRUE,
-        savefilename = to,
-        dir_files = show_files
-      )
-  }
-  header <-
-    dir4(
-      path = from,
-      output = 'md',
-      savefile = FALSE,
-      dir_files = show_files
-    )
-  header <- paste0('#', header)
-  if (is.na(root))
-    header <-
-    c(paste('#', ifelse(from == '.', getwd(), from)), header)
-  else
-    header <- c(paste('#', root), header)
-
-  # create html
-  data <- paste(header, collapse = '\n')
-  # forward options using x
-  x = list(data = data, options = options)
-  # create widget
-  tree_widget <- htmlwidgets::createWidget(
-    name = 'markmap',
-    x,
-    width = width,
-    height = height,
-    sizingPolicy = htmlwidgets::sizingPolicy(
-      defaultWidth = '100%',
-      defaultHeight = 400,
-      padding = 0,
-      browser.fill = TRUE
-    ),
-    package = 'mindr',
-    elementId = elementId
-  )
-  if (!is.na(widget_name)) {
-    filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
-    htmlwidgets::saveWidget(tree_widget, filetemp)
-    if (file.exists(widget_name)) {
-      message(widget_name,
-              ' alread exists. ',
-              filetemp,
-              ' was generated instead.')
-    } else {
-      file.copy(filetemp, widget_name)
-      file.remove(filetemp)
-      message(widget_name, ' was generated.')
-    }
-  }
-  return(tree_widget)
-}

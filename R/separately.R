@@ -10,6 +10,7 @@
 #' @param keep_eq logical. whether to keep LaTeX equations.
 #' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
 #' @param savefile logical. Whether to save the output as a file.
+#' @param include_list logical. whether to convert unnumbered lists into headings.
 #'
 #' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
 #' @export
@@ -26,7 +27,8 @@ md2mm <- function(pattern = '*.[R]*md$',
                   backup = TRUE,
                   bookdown_style = TRUE,
                   keep_eq = FALSE,
-                  method = c('regexpr', 'pandoc')) {
+                  method = c('regexpr', 'pandoc'),
+                  include_list = FALSE) {
   message('The md2mm() function is to be deprecated soon. Please use mm() instead.')
   if (dir.exists(path)) {
     method <- match.arg(method)
@@ -37,7 +39,8 @@ md2mm <- function(pattern = '*.[R]*md$',
       savefile = FALSE,
       bookdown_style = bookdown_style,
       keep_eq = keep_eq,
-      method = method
+      method = method,
+      include_list = include_list
     )
     foldername <- basename(path)
     if (is.na(title))
@@ -129,6 +132,7 @@ mm2md <- function(pattern = '*.mm$',
 #' @param bookdown_style logical. whether the markdown files are in bookdown style, i.e. index.Rmd at the beginning, `# (PART)`, `# (APPENDIX)` and `# References` as an upper level of normal `#` title
 #' @param keep_eq logical. whether to keep LaTeX equations.
 #' @param method "regexpr" uses regular expressions, 'pandoc' uses pandoc to find the headings.
+#' @param include_list logical. whether to convert unnumbered lists into headings.
 #'
 #' @return a vector of strings showing outline of a markdown document or book.
 #' @import jsonlite
@@ -145,7 +149,8 @@ outline <- function(pattern = '*.[R]*md',
                     backup = TRUE,
                     bookdown_style = TRUE,
                     keep_eq = FALSE,
-                    method = c('regexpr', 'pandoc')) {
+                    method = c('regexpr', 'pandoc'),
+                    include_list = FALSE) {
   if (dir.exists(path)) {
     method <- match.arg(method)
     # read data
@@ -188,6 +193,9 @@ outline <- function(pattern = '*.[R]*md',
         md <-
         md[!sapply(1:mdlength, function(x)
           rmvcode(index = x, loc = codeloc))]
+
+      # convert list to heading
+      if(include_list) md <- list2heading(md)
 
       # get the outline
       headerloc <- get_heading(text = md)
@@ -935,7 +943,7 @@ tree <- function(from = '.',
                  height = NULL,
                  elementId = NULL,
                  options = markmapOption(preset = 'colorful')) {
-  # input is dir ---------------------------------
+  # save dir structure as a .md file
   if (!is.null(to)) {
     to_name <- basename(to)
     to_dir <- dirname(to)
@@ -949,6 +957,8 @@ tree <- function(from = '.',
         dir_files = show_files
       )
   }
+
+  # get header
   header <-
     dir4(
       path = from,
@@ -957,17 +967,15 @@ tree <- function(from = '.',
       dir_files = show_files
     )
   header <- paste0('#', header)
-  if (is.na(root))
-    header <-
-    c(paste('#', ifelse(from == '.', getwd(), from)), header)
-  else
+  if (is.na(root)){
+    header <- c(paste('#', ifelse(from == '.', getwd(), from)), header)
+  } else {
     header <- c(paste('#', root), header)
+  }
 
-  # create html
-  data <- paste(header, collapse = '\n')
-  # forward options using x
-  x = list(data = data, options = options)
   # create widget
+  data <- paste(header, collapse = '\n')
+  x = list(data = data, options = options)
   tree_widget <- htmlwidgets::createWidget(
     name = 'markmap',
     x,
