@@ -38,7 +38,7 @@ md2mm <- function(pattern = '*.[R]*md$',
       keep_eq = keep_eq,
       method = method
     )
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     if (is.na(title))
       title <- foldername
     if (is.na(savefilename))
@@ -600,7 +600,7 @@ r2md <- function(filepattern = '*.R$',
       gsub(pattern = bodypattern, '', rtext[bodyloc])
 
     # write
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.md')
 
@@ -658,7 +658,7 @@ md2r <- function(filepattern = '*.[R]*md$',
     rtext <- rtext[-codemarkloc]
 
     # write
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.R')
 
@@ -704,7 +704,7 @@ r2rmd <- function(filepattern = '*.R$',
 
     # write
     if (is.na(savefilename)) {
-      foldername <- get_foldername(path)
+      foldername <- basename(path)
       savefilename <- paste0(foldername, '.Rmd')
     }
     tempfile <- 'mindr-r2rmd-temp.R'
@@ -774,7 +774,7 @@ rmd2r <- function(filepattern = '*.[R]*md$',
     rtext[rtext == "#' "] <- ''
 
     # write
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.R')
     if(savefile) writeLines2(text = rtext, savefilename, backup = backup)
@@ -803,7 +803,7 @@ r2mm <- function(filepattern = '*.R$',
                  savefile = TRUE,
                  savefilename = NA) {
   if (dir.exists(path)) {
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     savefilename_rmd <- ifelse(is.na(savefilename),
                                paste0(foldername, '.Rmd'),
                                paste0(savefilename, '.Rmd'))
@@ -848,7 +848,7 @@ mm2r <- function(filepattern = '*.mm$',
                  backup = TRUE,
                  heading = ' --------') {
   if (dir.exists(path)) {
-    foldername <- get_foldername(path)
+    foldername <- basename(path)
     savefilename_md <- ifelse(is.na(savefilename),
                               paste0(foldername, '.md'),
                               paste0(savefilename, '.md'))

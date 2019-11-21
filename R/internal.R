@@ -12,16 +12,16 @@ get_eqloc <- function(eq_begin, eq_end){
   return(eq)
 }
 
-#' Get the folder name of a given complete path
-#'
-#' @param path The complete path
-#'
-#' @return The folder name
-#'
-get_foldername <- function(path){
-  foldername <- strsplit(path, '[/\\]')[[1]]
-  return(foldername[length(foldername)])
-}
+#' #' Get the folder name of a given complete path
+#' #'
+#' #' @param path The complete path
+#' #'
+#' #' @return The folder name
+#' #'
+#' get_foldername <- function(path){
+#'   foldername <- strsplit(path, '[/\\]')[[1]]
+#'   return(foldername[length(foldername)])
+#' }
 
 #' get the file name extension
 #'
