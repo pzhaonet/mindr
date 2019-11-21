@@ -44,9 +44,10 @@ md2mm <- function(pattern = '*.[R]*md$',
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.mm')
     mm <- mdtxt2mmtxt(title = title, mdtxt = header)
-    if(savefile) writeLines2(text = mm,
-                             filename = savefilename,
-                             backup = backup)
+    if (savefile)
+      writeLines2(text = mm,
+                  filename = savefilename,
+                  backup = backup)
     return(mm)
   } else {
     message(paste('The directory', path, 'does not exist!'))
@@ -158,35 +159,45 @@ outline <- function(pattern = '*.[R]*md',
       md <- c(md, readLines(filename, encoding = 'UTF-8'))
     mdlength <- length(md)
 
-    if(method =='pandoc') {
+    if (method == 'pandoc') {
       temptxt <- 'mimdrtemp.tmp'
       writeLines(md, temptxt, useBytes = TRUE)
-      md <- system2('pandoc', c('-f', 'markdown', '-t', 'json', temptxt), stdout = TRUE)
+      md <-
+        system2('pandoc',
+                c('-f', 'markdown', '-t', 'json', temptxt),
+                stdout = TRUE)
       file.remove(temptxt)
       md <- jsonlite::fromJSON(txt = md)
       md <- md$blocks$c
-      header <- paste(
-        sapply(sapply(md, function(x) x[[1]][1]), function(x) paste(rep('#', x), collapse = '')),
-        sapply(md, function(x) x[[2]][[1]][1])
-      )
+      header <- paste(sapply(sapply(md, function(x)
+        x[[1]][1]), function(x)
+          paste(rep('#', x), collapse = '')),
+        sapply(md, function(x)
+          x[[2]][[1]][1]))
     } else {
       # exclude the code blocks
       codeloc2 <- grep('^````', md)
       if (length(codeloc2) > 0)
-        md <- md[!sapply(1:mdlength, function(x) rmvcode(index = x, loc = codeloc2))]
+        md <-
+          md[!sapply(1:mdlength, function(x)
+            rmvcode(index = x, loc = codeloc2))]
       codeloc <- grep('^```', md)
       if (length(codeloc) > 0)
-        md <- md[!sapply(1:mdlength, function(x) rmvcode(index = x, loc = codeloc))]
+        md <-
+        md[!sapply(1:mdlength, function(x)
+          rmvcode(index = x, loc = codeloc))]
 
       # get the outline
       headerloc <- get_heading(text = md)
 
       # remove the curly brackets
       if (remove_curly_bracket)
-        md[headerloc] <- gsub(pattern = '\\{.*\\}', '', md[headerloc])
+        md[headerloc] <-
+        gsub(pattern = '\\{.*\\}', '', md[headerloc])
 
       # remove the heading marker, which is eight '-' at the end of a heading
-      md[headerloc] <- gsub(pattern = ' --------$', '', md[headerloc])
+      md[headerloc] <-
+        gsub(pattern = ' --------$', '', md[headerloc])
 
       # extract equations
       if (keep_eq) {
@@ -218,11 +229,9 @@ outline <- function(pattern = '*.[R]*md',
     }
     # save file
     if (savefile) {
-      writeLines2(
-        text = header,
-        savefilename,
-        backup = backup
-      )
+      writeLines2(text = header,
+                  savefilename,
+                  backup = backup)
     }
 
     return(header)
@@ -472,7 +481,7 @@ mdtxt2mmtxt <-
         mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
       if (diffncc[i] < 0)
         mm[i + 2] <-
-          paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>', -diffncc[i] + 1), collapse = ''))
+          paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>',-diffncc[i] + 1), collapse = ''))
       mm[i + 2] <-
         gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 2])
       mm[i + 2] <-
@@ -531,7 +540,7 @@ tree2mm <- function(tree,
     strrep('#', sapply(gregexpr('/', tree[-n_root]), length))
   tree_new <- paste(tree_pre, tree_node)
   mm <- mdtxt2mmtxt(title = tree_title, mdtxt = tree_new)
-  if(savefile){
+  if (savefile) {
     savefilename <-
       paste0(savefilename,
              ifelse(backup &
@@ -642,7 +651,8 @@ md2r <- function(filepattern = '*.[R]*md$',
     codemarkloc <- grep('^```', rtext)
 
     codeloc <- NULL
-    if(length(codemarkloc) > 0) codeloc <-
+    if (length(codemarkloc) > 0)
+      codeloc <-
       get_eqloc(eq_begin = codemarkloc[seq(1, length(codemarkloc), by = 2)],
                 eq_end = codemarkloc[seq(2, length(codemarkloc), by = 2)])
     allloc <- 1:length(rtext)
@@ -713,10 +723,13 @@ r2rmd <- function(filepattern = '*.R$',
     file.rename(paste0(tempfile, 'md'), savefilename)
     file.remove(tempfile)
     md <- readLines(savefilename, encoding = 'UTF-8')
-    if(!savefile) file.remove(savefilename)
+    if (!savefile)
+      file.remove(savefilename)
     return(md)
   } else {
-    return(message(paste('The directory', path, 'does not exist!')))
+    return(message(paste(
+      'The directory', path, 'does not exist!'
+    )))
   }
 }
 
@@ -768,7 +781,11 @@ rmd2r <- function(filepattern = '*.[R]*md$',
 
     # process the chunk options
     rtext <-
-      gsub(pattern = "^## ----(.*[^-]+)([-]+)$", replacement = ifelse(chunkheading, "#+ \\1\\2", "#+ \\1"), rtext)
+      gsub(
+        pattern = "^## ----(.*[^-]+)([-]+)$",
+        replacement = ifelse(chunkheading, "#+ \\1\\2", "#+ \\1"),
+        rtext
+      )
     rtext <- gsub(pattern = "^## -*$", replacement = "", rtext)
     rtext <- rtext[rtext != '']
     rtext[rtext == "#' "] <- ''
@@ -777,7 +794,8 @@ rmd2r <- function(filepattern = '*.[R]*md$',
     foldername <- basename(path)
     if (is.na(savefilename))
       savefilename <- paste0(foldername, '.R')
-    if(savefile) writeLines2(text = rtext, savefilename, backup = backup)
+    if (savefile)
+      writeLines2(text = rtext, savefilename, backup = backup)
     return(rtext)
   } else {
     message(paste('The directory', path, 'does not exist!'))

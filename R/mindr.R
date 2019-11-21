@@ -83,13 +83,23 @@ mm <- function(from = NULL,
   type <- match.arg(type)
   method <- match.arg(method)
   # input is text -------------------------------
-  if(type == 'text') {
+  if (type == 'text') {
     header <- from
-  } else if(type == 'dir') {
-# input is dir ---------------------------------
-    return(tree(from = from, to = to, root = root, show_files = show_files, widget_name = widget_name,
-                width = width, height = height, elementId = elementId,
-                options = options))
+  } else if (type == 'dir') {
+    # input is dir ---------------------------------
+    return(
+      tree(
+        from = from,
+        to = to,
+        root = root,
+        show_files = show_files,
+        widget_name = widget_name,
+        width = width,
+        height = height,
+        elementId = elementId,
+        options = options
+      )
+    )
     # if(!is.null(to)) {
     #   to_name <- basename(to)
     #   to_dir <- dirname(to)
@@ -97,13 +107,13 @@ mm <- function(from = NULL,
     #   header <- dir2(path = from, output = to_ext, savefile = TRUE, savefilename = to)
     # }
     # header <- dir2(path = from, output = 'md', savefile = FALSE)
-  } else if(type == 'file') {
-# input is a file --------------------------------------
+  } else if (type == 'file') {
+    # input is a file --------------------------------------
     # if(!file.exists(from)) return(message('The file', from, ' does not exist. Please give a valid path.'))
     from_name <- basename(from)
     from_dir <- dirname(from)
     from_ext <- get_filename_ext(from_name)
-# from md ----------------------------------------------
+    # from md ----------------------------------------------
     if (from_ext == 'md' | from_ext == 'Rmd') {
       header <- outline(
         pattern = from_name,
@@ -113,48 +123,83 @@ mm <- function(from = NULL,
         bookdown_style = bookdown_style,
         method = method
       )
-# to mm ------------------------------------------------
-      if(!is.null(to)) {
+      # to mm ------------------------------------------------
+      if (!is.null(to)) {
         to_name <- basename(to)
         to_dir <- dirname(to)
         to_ext <- get_filename_ext(to_name)
-        if(to_ext == 'mm') {
-          md2mm(pattern = from_name, title = root, path = from_dir, remove_curly_bracket = remove_curly_bracket, savefile = TRUE, savefilename = to, bookdown_style = bookdown_style, method = method)
+        if (to_ext == 'mm') {
+          md2mm(
+            pattern = from_name,
+            title = root,
+            path = from_dir,
+            remove_curly_bracket = remove_curly_bracket,
+            savefile = TRUE,
+            savefilename = to,
+            bookdown_style = bookdown_style,
+            method = method
+          )
         }
-# to r -------------------------------------------------
-        if(to_ext == 'R' | to_ext == 'r') {
-          rmd2r(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = to)
+        # to r -------------------------------------------------
+        if (to_ext == 'R' | to_ext == 'r') {
+          rmd2r(
+            filepattern = from_name,
+            path = from_dir,
+            savefile = TRUE,
+            savefilename = to
+          )
         }
       }
     }
 
-# from mm ----------------------------------------------
-    if(from_ext == 'mm') {
-      if(is.null(to)) {
-        header <- mm2md(pattern = from_name, path = from_dir, savefile = FALSE)
+    # from mm ----------------------------------------------
+    if (from_ext == 'mm') {
+      if (is.null(to)) {
+        header <-
+          mm2md(pattern = from_name,
+                path = from_dir,
+                savefile = FALSE)
       } else{
         to_name <- basename(to)
         to_dir <- dirname(to)
         to_ext <- get_filename_ext(to_name)
-# to md ------------------------------------------------
-        if(to_ext == 'Rmd' | to_ext == 'md'){
-          header <- mm2md(pattern = from_name, path = from_dir, savefile = TRUE, savefilename = to)
+        # to md ------------------------------------------------
+        if (to_ext == 'Rmd' | to_ext == 'md') {
+          header <-
+            mm2md(
+              pattern = from_name,
+              path = from_dir,
+              savefile = TRUE,
+              savefilename = to
+            )
         }
-# to r -------------------------------------------------
-        if(to_ext == 'R' | to_ext == 'r'){
+        # to r -------------------------------------------------
+        if (to_ext == 'R' | to_ext == 'r') {
           mmtemp <- rename2(from_name)
-          header <- mm2md(pattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+          header <-
+            mm2md(
+              pattern = from_name,
+              path = from_dir,
+              savefile = TRUE,
+              savefilename = mmtemp
+            )
           rmd2r(filepattern = mmtemp, savefilename = to)
           file.remove(mmtemp)
         }
       }
     }
 
-# from r -----------------------------------------------
-    if(from_ext == 'r' | from_ext == 'R') {
-      if(is.null(to)) {
+    # from r -----------------------------------------------
+    if (from_ext == 'r' | from_ext == 'R') {
+      if (is.null(to)) {
         mmtemp <- rename2(from_name)
-        header <- r2rmd(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+        header <-
+          r2rmd(
+            filepattern = from_name,
+            path = from_dir,
+            savefile = TRUE,
+            savefilename = mmtemp
+          )
         header <- outline(
           pattern = mmtemp,
           remove_curly_bracket = remove_curly_bracket,
@@ -167,9 +212,14 @@ mm <- function(from = NULL,
         to_name <- basename(to)
         to_dir <- dirname(to)
         to_ext <- get_filename_ext(to_name)
-# to rmd -----------------------------------------------
-        if(to_ext == 'Rmd' | to_ext == 'md'){
-          header <- r2rmd(filepattern = from_name, path = from_dir, savefilename = to)
+        # to rmd -----------------------------------------------
+        if (to_ext == 'Rmd' | to_ext == 'md') {
+          header <-
+            r2rmd(
+              filepattern = from_name,
+              path = from_dir,
+              savefilename = to
+            )
           header <- outline(
             pattern = to_name,
             path = to_dir,
@@ -179,10 +229,16 @@ mm <- function(from = NULL,
             method = method
           )
         }
-# to mm ------------------------------------------------
-        if(to_ext == 'mm'){
+        # to mm ------------------------------------------------
+        if (to_ext == 'mm') {
           mmtemp <- rename2(from_name)
-          header <- r2rmd(filepattern = from_name, path = from_dir, savefile = TRUE, savefilename = mmtemp)
+          header <-
+            r2rmd(
+              filepattern = from_name,
+              path = from_dir,
+              savefile = TRUE,
+              savefilename = mmtemp
+            )
           header <- outline(
             pattern = mmtemp,
             remove_curly_bracket = remove_curly_bracket,
@@ -191,13 +247,22 @@ mm <- function(from = NULL,
             method = method
           )
           file.remove(mmtemp)
-          r2mm(filepattern = from_name, path = from_dir, title = root, savefilename = gsub('.mm$', '', to))
+          r2mm(
+            filepattern = from_name,
+            path = from_dir,
+            title = root,
+            savefilename = gsub('.mm$', '', to)
+          )
         }
       }
     }
   }
   header <- paste0('#', header)
-  if(is.na(root)) header <- c('# root', header) else header <- c(paste('#', root), header)
+  if (is.na(root))
+    header <-
+    c('# root', header)
+  else
+    header <- c(paste('#', root), header)
 
   # create html
   data <- paste(header, collapse = '\n')
@@ -218,7 +283,7 @@ mm <- function(from = NULL,
     package = 'mindr',
     elementId = elementId
   )
-  if(!is.na(widget_name)) {
+  if (!is.na(widget_name)) {
     filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
     htmlwidgets::saveWidget(tree_widget, filetemp)
     file.copy(filetemp, widget_name)
@@ -254,25 +319,41 @@ mm <- function(from = NULL,
 #' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.txt')
 #' }
 tree <- function(from = '.',
-               to = NULL,
-               root = NA,
-               show_files = FALSE,
-               widget_name = NA,
-               width = NULL,
-               height = NULL,
-               elementId = NULL,
-               options = markmapOption(preset = 'colorful')) {
-
-    # input is dir ---------------------------------
-    if(!is.null(to)) {
-      to_name <- basename(to)
-      to_dir <- dirname(to)
-      to_ext <- get_filename_ext(to_name)
-      header <- dir4(path = from, output = to_ext, savefile = TRUE, savefilename = to, dir_files = show_files)
-    }
-  header <- dir4(path = from, output = 'md', savefile = FALSE, dir_files = show_files)
+                 to = NULL,
+                 root = NA,
+                 show_files = FALSE,
+                 widget_name = NA,
+                 width = NULL,
+                 height = NULL,
+                 elementId = NULL,
+                 options = markmapOption(preset = 'colorful')) {
+  # input is dir ---------------------------------
+  if (!is.null(to)) {
+    to_name <- basename(to)
+    to_dir <- dirname(to)
+    to_ext <- get_filename_ext(to_name)
+    header <-
+      dir4(
+        path = from,
+        output = to_ext,
+        savefile = TRUE,
+        savefilename = to,
+        dir_files = show_files
+      )
+  }
+  header <-
+    dir4(
+      path = from,
+      output = 'md',
+      savefile = FALSE,
+      dir_files = show_files
+    )
   header <- paste0('#', header)
-  if(is.na(root)) header <- c(paste('#', ifelse(from == '.', getwd(), from)), header) else header <- c(paste('#', root), header)
+  if (is.na(root))
+    header <-
+    c(paste('#', ifelse(from == '.', getwd(), from)), header)
+  else
+    header <- c(paste('#', root), header)
 
   # create html
   data <- paste(header, collapse = '\n')
@@ -293,11 +374,14 @@ tree <- function(from = '.',
     package = 'mindr',
     elementId = elementId
   )
-  if(!is.na(widget_name)) {
+  if (!is.na(widget_name)) {
     filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
     htmlwidgets::saveWidget(tree_widget, filetemp)
-    if(file.exists(widget_name)) {
-      message(widget_name, ' alread exists. ', filetemp, ' was generated instead.')
+    if (file.exists(widget_name)) {
+      message(widget_name,
+              ' alread exists. ',
+              filetemp,
+              ' was generated instead.')
     } else {
       file.copy(filetemp, widget_name)
       file.remove(filetemp)
@@ -306,4 +390,3 @@ tree <- function(from = '.',
   }
   return(tree_widget)
 }
-
