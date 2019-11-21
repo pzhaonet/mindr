@@ -900,3 +900,101 @@ mm2r <- function(filepattern = '*.mm$',
     message(paste('The directory', path, 'does not exist!'))
   }
 }
+
+#' Draw a mindmap of a directory
+#'
+#' @param width the width of the markmap
+#' @param height the height of the markmap
+#' @param elementId character.
+#' @param options the markmap options
+#' @param root character. a string displayed as the root of the mind map
+#' @param from character. TThe path to the directory.
+#' @param to character. The path of the output file.
+#' @param show_files logical. Whether to show files in a directory.
+#' @param widget_name The file name of the html widget to save.
+#'
+#' @import htmlwidgets
+#' @return A HTML widget object rendered from a given document.
+#' @export
+#' @examples
+#' \dontrun{
+#' tree()
+#' input <- system.file(package = 'mindr')
+#' tree(input)
+#' tree(input, root = 'mindr', show_files = TRUE)
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.mm')
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.md')
+#' tree(input, root = 'mindr', show_files = TRUE, to = 'mindr.txt')
+#' }
+tree <- function(from = '.',
+                 to = NULL,
+                 root = NA,
+                 show_files = FALSE,
+                 widget_name = NA,
+                 width = NULL,
+                 height = NULL,
+                 elementId = NULL,
+                 options = markmapOption(preset = 'colorful')) {
+  # input is dir ---------------------------------
+  if (!is.null(to)) {
+    to_name <- basename(to)
+    to_dir <- dirname(to)
+    to_ext <- get_filename_ext(to_name)
+    header <-
+      dir4(
+        path = from,
+        output = to_ext,
+        savefile = TRUE,
+        savefilename = to,
+        dir_files = show_files
+      )
+  }
+  header <-
+    dir4(
+      path = from,
+      output = 'md',
+      savefile = FALSE,
+      dir_files = show_files
+    )
+  header <- paste0('#', header)
+  if (is.na(root))
+    header <-
+    c(paste('#', ifelse(from == '.', getwd(), from)), header)
+  else
+    header <- c(paste('#', root), header)
+
+  # create html
+  data <- paste(header, collapse = '\n')
+  # forward options using x
+  x = list(data = data, options = options)
+  # create widget
+  tree_widget <- htmlwidgets::createWidget(
+    name = 'markmap',
+    x,
+    width = width,
+    height = height,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = '100%',
+      defaultHeight = 400,
+      padding = 0,
+      browser.fill = TRUE
+    ),
+    package = 'mindr',
+    elementId = elementId
+  )
+  if (!is.na(widget_name)) {
+    filetemp <- paste0('mindr-tree-', Sys.Date(), '.html')
+    htmlwidgets::saveWidget(tree_widget, filetemp)
+    if (file.exists(widget_name)) {
+      message(widget_name,
+              ' alread exists. ',
+              filetemp,
+              ' was generated instead.')
+    } else {
+      file.copy(filetemp, widget_name)
+      file.remove(filetemp)
+      message(widget_name, ' was generated.')
+    }
+  }
+  return(tree_widget)
+}
