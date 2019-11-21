@@ -6,10 +6,12 @@
 
 With 'mindr' you can draw a mind map in markdown syntax, or start a markdown document from a mind map!
 
-mindr is an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as the desktop software ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net), or the online webware '[mindmeister](https://www.mindmeister.com/)'.
+mindr is an R package which converts markdown (.md) or rmarkdown (.Rmd) files to mind maps (.mm), and vice versa. Mind map files (.mm) can be opened by or imported to common mindmap software such as the desktop software ['FreeMind'](http://freemind.sourceforge.net/wiki/index.php/Main_Page)and ['XMind'](http://www.xmind.net), or the online webware '[mindmeister](https://www.mindmeister.com/)'. Plenty of cross-platform mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)).
 
 - If your are a  user of markdown or  rmarkdown or bookdown or blogdown, mindr can convert your .md or .Rmd files into mind maps easily. Furthermore, you can write a new mind map with markdown syntax and use mindr to convert it into an .mm mind map.
 - If you are a mind map user, you can export your mind map into an .mm file and use mindr to convert it into a markdown file as an outline of your new document or book.
+
+If you don't know what is markdown, here is [a demo file](https://github.com/pzhaonet/mindr/blob/master/inst/examples/md/bookdownplus1.md).
 
 ## Quick start
 
@@ -38,27 +40,55 @@ To create a mind map from your own markdown files, create a folder named `mm` in
 md2mm()
 ```
 
-Plenty of cross-platform mindmap software suits are available (see [the list](https://en.wikipedia.org/wiki/List_of_concept-_and_mind-mapping_software)), among which [freemind](http://freemind.sourceforge.net/wiki/index.php/Download) and [Xmind](http://www.xmind.net/download/win/) are highly recommended. If you would not like to install any of them, you could open the `.mm` file with the online webware '[mindmeister](https://www.mindmeister.com/)' in your web browser.
-
-If you don't know what is markdown, here is [a demo file](https://github.com/pzhaonet/mindr/blob/master/inst/examples/md/bookdownplus1.md).
-
 Actually this is a new way to draw a mind map!
 
-### Convert (a) mind map(s) into a markdown file 
+### Convert between mind maps, markdown files, texts and directories 
 
-Run: 
+From v.1.2.0, the old individual functions such as `md2mm()` or `mm2md()` are to be deprecated. A more powerful, universal function `mm()` takes the place as the main function of mindr.
 
-```R
-library('mindr')
-example(mm2md)
 ```
+### text -> widget
+input <- c("# Chapter 1", "## Section 1.1", "## Section 1.2", "# Chapter 2")
+mm(from = input, type = "text", root = "mindr")
 
-then you will get a demo markdown file `mindr.md`in the working directory (`getwd()`). 
+### directory -> widget
+input <- paste0(.libPaths(), "/mindr")[1]
+mm(from = input, type = "dir")
+mm(from = input, type = "dir", widget_name = "mindrtest.html")
+### directory -> mm
+mm(from = input, type = "dir", to = "test.mm")
+### directory -> md
+mm(from = input, type = "dir", to = "test.md")
+### directory -> txt
+mm(from = input, type = "dir", to = "test.txt")
 
-To create a markdown file from your own mind map files, create a folder named `mm` in the working directory (`getwd()`), and drop some .mm files into `mm/`. Run:
+### Rmd -> widget
+input <- system.file("examples/r/rmd2r.Rmd", package = "mindr")
+mm(from = input, type = "file", root = "mindr")
+### Rmd -> r
+mm(from = input, type = "file", root = "mindr", to = "test.r")
+### Rmd -> mm
+mm(from = input, type = "file", root = "mindr", to = "test.mm")
 
-```R
-mm2md()
+### mm -> widget
+input <- system.file("examples/mm/bookdownplus.mm", package = "mindr")
+mm(from = input, type = "file", root = "mindr")
+### mm -> Rmd
+mm(from = input, type = "file", root = "mindr", to = "test.Rmd")
+### mm -> r
+mm(from = input, type = "file", root = "mindr", to = "test.r")
+
+### r -> widget
+input <- system.file("examples/r/r2rmd.R", package = "mindr")
+mm(from = input, type = "file", root = "mindr")
+### r -> Rmd
+mm(from = input, type = "file", root = "mindr", to = "test.Rmd")
+### r -> mm
+mm(from = input, type = "file", root = "mindr", to = "test.mm")
+
+### The outline of the book Learning R
+input <- system.file("examples/xuer/xuer.md", package = "mindr")
+mm(from = input, type = "file", root = "Learning R", to = "learningr.mm")
 ```
 
 ### Create Interactive Web MindMap with the JavaScript 'markmap' Library
@@ -116,6 +146,8 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+New updates after 2019-01-25 are not logged here. Please see the commits.
+
 - 2019-01-25. **v1.2.0**. universal function `mm()`.
 - 2018-12-16. **v1.1.9**. Added an option of 'pandoc' to extract headings.
 - 2018-11-10. **v1.1.8**. Adapted to the roxygen style when conversion between .R scripts and .Rmd documents.
@@ -123,7 +155,7 @@ Still being developed. Feel free to give your feedback to me!
 - 2018-10-21. **v1.1.6**. Support LaTeX equations.
 - 2018-10-11. **v1.1.5**. Improve the support for bookdown projects. Bugs fixed.
 - 2018-09-28. **v1.1.2**. Display .mm mind maps. Keep hyperlinks. `dir2()` for creating mindmaps from folder structure.
-- 2018-04-17. **v1.1.1**. Support tribble dataframes.
+- 2018-04-17. **v1.1.1**. Support tibble dataframes.
 - 2017-07-19. **v1.1.0**. On CRAN. See [CHANGES IN mindr VERSION 1.1](https://github.com/pzhaonet/mindr/releases/tag/v1.1).
 - 2017-07-05. **v1.0.6**. [Rmarkmap](https://github.com/seifer08ms/Rmarkmap) added. Run `example(markmap)`.
 - 2017-07-03. **v1.0.5**. Better backup.
@@ -138,6 +170,8 @@ Still being developed. Feel free to give your feedback to me!
 
 - convert md/Rmd/mm into slides.
 - RStudio addin to convert selected text into a mindmap widget.
+- support numbered/unnumbered lists.
+- show the complete path of the output files.
 
 # License
 
