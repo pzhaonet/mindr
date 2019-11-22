@@ -85,6 +85,13 @@ mm <- function(from = NULL,
   type <- match.arg(type)
   method <- match.arg(method)
 
+  if (!is.null(to)) {
+    if(dirname(to) == '.') to <- file.path(getwd(), to)
+    to_name <- basename(to)
+    to_dir <- dirname(to)
+    to_ext <- get_filename_ext(to_name)
+  }
+
   # 1. get clean headers for widgets, and convert files  ----
   if (type == 'text') {
     # 1.1 input is text -------------------------------
@@ -130,9 +137,10 @@ mm <- function(from = NULL,
       )
       # to mm ------------------------------------------------
       if (!is.null(to)) {
-        to_name <- basename(to)
-        to_dir <- dirname(to)
-        to_ext <- get_filename_ext(to_name)
+        # if(dirname(to) == '.') to <- file.path(getwd(), to)
+        # to_name <- basename(to)
+        # to_dir <- dirname(to)
+        # to_ext <- get_filename_ext(to_name)
         if (to_ext == 'mm') {
           md2mm(
             pattern = from_name,
@@ -166,9 +174,9 @@ mm <- function(from = NULL,
                 path = from_dir,
                 savefile = FALSE)
       } else{
-        to_name <- basename(to)
-        to_dir <- dirname(to)
-        to_ext <- get_filename_ext(to_name)
+        # to_name <- basename(to)
+        # to_dir <- dirname(to)
+        # to_ext <- get_filename_ext(to_name)
         # to md ------------------------------------------------
         if (to_ext == 'Rmd' | to_ext == 'md') {
           header <-
@@ -216,9 +224,9 @@ mm <- function(from = NULL,
         )
         file.remove(mmtemp)
       } else{
-        to_name <- basename(to)
-        to_dir <- dirname(to)
-        to_ext <- get_filename_ext(to_name)
+        # to_name <- basename(to)
+        # to_dir <- dirname(to)
+        # to_ext <- get_filename_ext(to_name)
         # to rmd -----------------------------------------------
         if (to_ext == 'Rmd' | to_ext == 'md') {
           header <-
