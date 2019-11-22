@@ -24,29 +24,12 @@ install.packages("mindr")
 devtools::install_github("pzhaonet/mindr")
 ```
 
-### Convert (a) markdown file(s) into a mindmap 
-
-Run: 
-
-```R
-library('mindr')
-example(md2mm)
-```
-then you will get a demo mind map file `mindr.mm` in the working directory (`getwd()`). Open it with any mind-map (brainstorm) software, and you will get a mind map.
-
-To create a mind map from your own markdown files, create a folder named `mm` in the working directory (`getwd()`), and drop some markdown or rmarkdown files into `mm/`. Run:
-
-```R
-md2mm()
-```
-
-Actually this is a new way to draw a mind map!
-
 ### Convert between mind maps, markdown files, texts and directories 
 
 From v.1.2.0, the old individual functions such as `md2mm()` or `mm2md()` are to be deprecated. A more powerful, universal function `mm()` takes the place as the main function of mindr.
 
 ```
+library('mindr')
 ### text -> widget
 input <- c("# Chapter 1", "## Section 1.1", "## Section 1.2", "# Chapter 2")
 mm(from = input, type = "text", root = "mindr")
