@@ -153,8 +153,6 @@ New updates after 2019-01-25 are not logged here. Please see the commits.
 
 - convert md/Rmd/mm into slides.
 - RStudio addin to convert selected text into a mindmap widget.
-- support numbered/unnumbered lists.
-- show the complete path of the output files.
 
 # License
 
