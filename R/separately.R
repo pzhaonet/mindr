@@ -556,9 +556,7 @@ tree2mm <- function(tree,
              ifelse(backup &
                       file.exists(paste0(
                         savefilename, '.mm'
-                      )), paste0(
-                        '-', format(Sys.time(), '%Y-%m-%d-%H-%M-%S')
-                      ), ''),
+                      )), '-new', ''),
              '.mm')
     writeLines(text = mm, savefilename, useBytes = TRUE)
   }

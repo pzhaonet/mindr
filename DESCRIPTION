@@ -16,5 +16,5 @@ License: MIT + file LICENSE
 URL: https://github.com/pzhaonet/mindr
 BugReports: https://github.com/pzhaonet/mindr/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.0.0
+RoxygenNote: 7.0.2
 NeedsCompilation: no

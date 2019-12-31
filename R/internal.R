@@ -54,7 +54,7 @@ rename2 <- function(filename, connect = '-'){
   } else {
     filename2 <- c(paste(filename_sep[-nfilename], collapse = '.'), paste0('.', filename_sep[nfilename]))
   }
-  newname <- paste0(filename2[1], connect, format(Sys.time(), paste('%Y', '%m','%d', '%H', '%M', '%S', sep = connect)), filename2[2])
+  newname <- paste0(filename2[1], connect, 'new', filename2[2])
   return(newname)
 }
 
@@ -208,8 +208,7 @@ dir2 <- function(path = getwd(),
         message(paste0(savefilename, '.txt already exits.'))
         savefilename <-
           paste0(savefilename,
-                 '-',
-                 format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+                 '-new')
       }
       writeLines(mytree, savefilename, useBytes = TRUE)
       message(paste(savefilename), ' was generated!')
@@ -320,8 +319,7 @@ dir4 <- function(path = getwd(),
         message(paste0(savefilename, '.txt already exits.'))
         savefilename <-
           paste0(savefilename,
-                 '-',
-                 format(Sys.time(), '%Y-%m-%d-%H-%M-%S'))
+                 '-new')
       }
       writeLines(mytree, savefilename, useBytes = TRUE)
       message(paste(savefilename), ' was generated!')
