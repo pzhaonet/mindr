@@ -26,52 +26,188 @@ devtools::install_github("pzhaonet/mindr")
 
 ### Convert between mind maps, markdown files, texts and directories 
 
-From v.1.2.0, the old individual functions such as `md2mm()` or `mm2md()` are to be deprecated. A more powerful, universal function `mm()` takes the place as the main function of mindr.
-
 ```
 library('mindr')
-### text -> widget
-input <- c("# Chapter 1", "## Section 1.1", "## Section 1.2", "# Chapter 2")
-mm(from = input, type = "text", root = "mindr")
+# Example 1: From Markdown to other outputs ####
 
-### directory -> widget
-input <- paste0(.libPaths(), "/mindr")[1]
-mm(from = input, type = "dir")
-mm(from = input, type = "dir", widget_name = "mindrtest.html")
-### directory -> mm
-mm(from = input, type = "dir", to = "test.mm")
-### directory -> md
-mm(from = input, type = "dir", to = "test.md")
-### directory -> txt
-mm(from = input, type = "dir", to = "test.txt")
+## Source document ####
+input <- system.file("examples/mindr-md.Rmd", package = "mindr")
 
-### Rmd -> widget
-input <- system.file("examples/r/rmd2r.Rmd", package = "mindr")
-mm(from = input, type = "file", root = "mindr")
-### Rmd -> r
-mm(from = input, type = "file", root = "mindr", to = "test.r")
-### Rmd -> mm
-mm(from = input, type = "file", root = "mindr", to = "test.mm")
+## file.show(input) # Open the input file with the default program, if any
+input_txt <- readLines(input, encoding = "UTF-8")
 
-### mm -> widget
-input <- system.file("examples/mm/bookdownplus.mm", package = "mindr")
-mm(from = input, type = "file", root = "mindr")
-### mm -> Rmd
-mm(from = input, type = "file", root = "mindr", to = "test.Rmd")
-### mm -> r
-mm(from = input, type = "file", root = "mindr", to = "test.r")
+## Convert to mind map text, markdown outline, R script, and HTML widget ####
+mm_output <- mm(input_txt, output_type = c("mindmap", "markdown", "R", "widget"))
+mm_output
 
-### r -> widget
-input <- system.file("examples/r/r2rmd.R", package = "mindr")
-mm(from = input, type = "file", root = "mindr")
-### r -> Rmd
-mm(from = input, type = "file", root = "mindr", to = "test.Rmd")
-### r -> mm
-mm(from = input, type = "file", root = "mindr", to = "test.mm")
+## Save the output texts as files ####
 
-### The outline of the book Learning R
-input <- system.file("examples/xuer/xuer.md", package = "mindr")
-mm(from = input, type = "file", root = "Learning R", to = "learningr.mm")
+### mind map ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
+writeLines(mm_output$mindmap, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### markdown outline ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
+writeLines(mm_output$markdown, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### R script ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
+writeLines(mm_output$r, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### Widget ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+htmlwidgets::saveWidget(mm_output$widget, file = output)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+## Generate directory according to the source document ####
+temp_dir <- file.path(tempdir(), "mindr")
+mm_output <- mm(input_txt, output_type = "dir", root = "mindr", md_list = TRUE,
+    md_braces = TRUE, md_bookdown = TRUE, dir_to = temp_dir)
+# system2('open', temp_dir) # Open the generated directory unlink(temp_dir,
+# recursive = TRUE) # remove the generated directory
+
+## More arguments ####
+mm_output <- mm(input_txt, output_type = c("mindmap", "markdown", "R", "widget"),
+    root = "mindr", md_list = TRUE, md_braces = TRUE, md_bookdown = TRUE)
+mm_output
+
+# Example 2: From mind map to other outputs ####
+
+## Source document ####
+input <- system.file("examples/mindr-mm.mm", package = "mindr")
+
+## file.show(input) # Open the input file with the default program, if any
+input_txt <- readLines(input, encoding = "UTF-8")
+
+## Convert markdown outline, R script, and HTML widget ####
+mm_output <- mm(input_txt, output_type = c("markdown", "R", "widget"))
+mm_output
+
+## Save the output texts as files ####
+
+### markdown outline ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
+writeLines(mm_output$markdown, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### R script ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
+writeLines(mm_output$r, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### Widget ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+htmlwidgets::saveWidget(mm_output$widget, file = output)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+## Generate directory according to the source document ####
+temp_dir <- file.path(tempdir(), "mindr")
+mm_output <- mm(input_txt, output_type = "dir", root = "mindr", dir_to = temp_dir)
+# system2('open', temp_dir) # Open the generatecd directory unlink(temp_dir,
+# recursive = TRUE) # remove the generated directory
+
+# Example 3: From R script to other outputs ####
+
+## Source document ####
+input <- system.file("examples/mindr-r.R", package = "mindr")
+
+## file.show(input) # Open the input file with the default program, if any
+input_txt <- readLines(input, encoding = "UTF-8")
+
+## Convert to mind map text, markdown text, and HTML widget ####
+mm_output <- mm(input_txt, output_type = c("mindmap", "markdown", "widget"))
+mm_output
+
+## Save the output texts as files ####
+
+### mind map ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
+writeLines(mm_output$mindmap, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### R markdown ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
+writeLines(mm_output$markdown, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### Widget ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+htmlwidgets::saveWidget(mm_output$widget, file = output)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+## Generate directory according to the source document ####
+temp_dir <- file.path(tempdir(), "mindr")
+mm_output <- mm(input_txt, output_type = "dir", root = "mindr", dir_to = temp_dir)
+# system2('open', temp_dir) # Open the generated directory unlink(temp_dir,
+# recursive = TRUE) # remove the generated directory
+
+# Example 4: From directory to other outputs ####
+
+## Source directory ####
+input <- system.file(package = "mindr")
+
+## Convert to mind map text, markdown outline, R script, and HTML widget ####
+mm_output <- mm(input, output_type = c("mindmap", "markdown", "R", "widget"))
+mm_output
+
+## Save the output texts as files ####
+
+### mind map ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
+writeLines(mm_output$mindmap, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### markdown outline ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
+writeLines(mm_output$markdown, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### R script ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
+writeLines(mm_output$r, output, useBytes = TRUE)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+### Widget ####
+output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+htmlwidgets::saveWidget(mm_output$widget, file = output)
+# file.show(output) # Open the output file with the default program, if any
+message("Input:  ", input, "\nOutput: ", output)
+# file.remove(output) # remove the output file
+
+## Clone the source directory ####
+temp_dir <- file.path(tempdir(), "mindr")
+mm_output <- mm(input, output_type = "dir", dir_to = temp_dir)
+# system2('open', temp_dir) # Open the generated directory unlink(temp_dir,
+# recursive = TRUE) # remove the generated directory
 ```
 
 ### Create Interactive Web MindMap with the JavaScript 'markmap' Library
@@ -129,6 +265,17 @@ Still being developed. Feel free to give your feedback to me!
 
 ## Updates
 
+Version 1.3:
+
+- Re-write the whole package.
+- Rename and new arguments.
+- The all-in-one wrapper function `mm()`.
+- Complete individual functions `md2mm()`, `mm2md()`, `r2mm()`, `mm2r()`, `dir2mm()`, `mm2dir()`, `r2md()`, `md2r()`, `r2dir()`, `dir2r()`.
+- The `markmap()` function supports more input types.
+- Remove unnecessary dependencies (on pandoc, tree, jsonlite, data.tree).
+- Remove redundant functions.
+- Give more exmaples.
+
 New updates after 2019-01-25 are not logged here. Please see the commits.
 
 - 2019-01-25. **v1.2.0**. universal function `mm()`.
@@ -151,12 +298,11 @@ New updates after 2019-01-25 are not logged here. Please see the commits.
 
 ## To do
 
-- convert md/Rmd/mm into slides.
-- RStudio addin to convert selected text into a mindmap widget.
+- RStudio addin to convert text into a mindmap widget.
 
 # License
 
-Copyright 2019 [Peng Zhao](http://pzhao.org).
+Copyright 2021 [Peng Zhao](http://pzhao.org).
 
-Released under the MIT license.
+Released under the GPL-3 license.
 
