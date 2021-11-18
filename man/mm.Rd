@@ -13,6 +13,7 @@ mm(
   md_eq = FALSE,
   md_braces = FALSE,
   md_bookdown = FALSE,
+  md_maxlevel = "",
   r_seclabel = " --------",
   r_chunkheading = FALSE,
   dir_files = TRUE,
@@ -43,6 +44,8 @@ mm(
 \item{md_braces}{Logical. Whether to remove \href{https://bookdown.org/yihui/bookdown/cross-references.html}{{#ID}} in the headings of the markdown file (usually in a \href{https://github.com/rstudio/bookdown}{bookdown}> project.}
 
 \item{md_bookdown}{Logical. Whether the R Markdown syntax text is in bookdown style, i.e. \code{# (PART), # (APPENDIX)}, and \code{# References} as an upper level of the Level 1 heading.}
+
+\item{md_maxlevel}{Integer or ''. The maximum level of the markdown headings that are displayed in the mind map.}
 
 \item{r_seclabel}{Character. The ending characters indicating sections in R Markdown.}
 

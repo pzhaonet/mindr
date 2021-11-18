@@ -16,14 +16,16 @@ r2mm <- function(from = NA, root = NA,
                  md_list = FALSE,
                  md_braces = FALSE,
                  md_bookdown = FALSE,
-                 md_eq = FALSE) {
+                 md_eq = FALSE,
+                 md_maxlevel = '') {
   if (is.na(root)) root <- 'root'
   md <- r2md(from)
   mm <- md2mm(from = md, root = root,
               md_list = md_list,
               md_braces = md_braces,
               md_bookdown = md_bookdown,
-              md_eq = md_eq)
+              md_eq = md_eq,
+              md_maxlevel = md_maxlevel)
   return(mm)
 }
 
@@ -62,14 +64,15 @@ mm2r <- function(from = NA, r_seclabel = ' --------', r_chunkheading = FALSE) {
 #' message('Input:  ', input, '\nOutput: ', output)
 #' # file.show(output) # Open the output file
 #' # file.remove(output) # remove the output file
-dir2mm <- function(from = '.', root = NA, dir_files = TRUE, dir_all = TRUE, dir_excluded = NA){
+dir2mm <- function(from = '.', root = NA, dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, md_maxlevel = ''){
   if (is.na(root)) root <- basename(from)
   md <- dir2md(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded)
   mm <- md2mm(from = md, root = root,
               md_list = FALSE,
               md_braces = TRUE,
               md_bookdown = FALSE,
-              md_eq = FALSE)
+              md_eq = FALSE,
+              md_maxlevel = md_maxlevel)
   return(mm)
 }
 
@@ -145,6 +148,7 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' @param md_eq Logical. Whether to include LaTeX equations in the Markdown input when converted to other formats.
 #' @param md_braces Logical. Whether to remove \href{https://bookdown.org/yihui/bookdown/cross-references.html}{{#ID}} in the headings of the markdown file (usually in a \href{https://github.com/rstudio/bookdown}{bookdown}> project.
 #' @param md_bookdown Logical. Whether the R Markdown syntax text is in bookdown style, i.e. \code{# (PART), # (APPENDIX)}, and \code{# References} as an upper level of the Level 1 heading.
+#' @param md_maxlevel Integer or ''. The maximum level of the markdown headings that are displayed in the mind map.
 #' @param r_seclabel Character. The ending characters indicating sections in R Markdown.
 #' @param r_chunkheading Logical. Whether process the chunk label as headings.
 #' @param dir_files Logical. Whether to include files. If \code{FALSE}, only folders are included. If \code{TRUE}, folders and files are included.
@@ -350,7 +354,7 @@ mm <- function(from = NA,
                input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
                output_type = c('widget', 'mindmap', 'markdown', 'R', 'dir'),
                root = NA,
-               md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, # markdown options
+               md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, md_maxlevel = '', # markdown options
                r_seclabel = ' --------', r_chunkheading = FALSE, # R script options
                dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, dir_to = NA, dir_quiet = FALSE, # dir options
                widget_name = NA, widget_width = NULL, widget_height = NULL, widget_elementId = NULL, widget_options = markmapOption(preset = 'colorful') # widget options
@@ -362,10 +366,10 @@ mm <- function(from = NA,
   output <- list()
 
   if ('mindmap' %in% output_type){
-    if (input_type == "markdown") mindmap <- md2mm(from = from, root = root, md_list = md_list, md_braces = md_braces, md_bookdown = md_bookdown, md_eq = md_eq)
+    if (input_type == "markdown") mindmap <- md2mm(from = from, root = root, md_list = md_list, md_braces = md_braces, md_bookdown = md_bookdown, md_eq = md_eq, md_maxlevel = md_maxlevel)
     if (input_type == "mindmap") mindmap <- from
-    if (input_type == "R") mindmap <- r2mm(from = from, root = root, md_list = md_list, md_braces = md_braces, md_bookdown = md_bookdown, md_eq = md_eq)
-    if (input_type == "dir") mindmap <- dir2mm(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded)
+    if (input_type == "R") mindmap <- r2mm(from = from, root = root, md_list = md_list, md_braces = md_braces, md_bookdown = md_bookdown, md_eq = md_eq, md_maxlevel = md_maxlevel)
+    if (input_type == "dir") mindmap <- dir2mm(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded, md_maxlevel = md_maxlevel)
     output <- c(output, list(mindmap = mindmap))
   }
 
@@ -395,7 +399,7 @@ mm <- function(from = NA,
 
   if ('widget' %in% output_type){
     widget <- markmap(from = from, root = root, input_type = input_type,
-                      md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown = md_bookdown, # markdown options
+                      md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown = md_bookdown, md_maxlevel = md_maxlevel, # markdown options
                       dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded, # dir options
                       widget_name = widget_name, widget_width = widget_width, widget_height = widget_height, widget_elementId = widget_elementId, widget_options = widget_options) # widget options
     output <- c(output, list(widget = widget))

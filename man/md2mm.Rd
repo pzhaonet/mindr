@@ -10,7 +10,8 @@ md2mm(
   md_list = FALSE,
   md_braces = FALSE,
   md_bookdown = FALSE,
-  md_eq = FALSE
+  md_eq = FALSE,
+  md_maxlevel = ""
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ md2mm(
 \item{md_bookdown}{Logical. Whether the R Markdown syntax text is in bookdown style, i.e. \code{# (PART), # (APPENDIX)}, and \code{# References} as an upper level of the Level 1 heading.}
 
 \item{md_eq}{Logical. Whether to include LaTeX equations in the Markdown input when converted to other formats.}
+
+\item{md_maxlevel}{Integer or ''. The maximum level of the markdown headings that are displayed in the mind map.}
 }
 \value{
 FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{http://freemind.sourceforge.net/wiki/index.php/Main_Page}{FreeMind} and \href{https://www.xmind.net}{XMind}.

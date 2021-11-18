@@ -7,11 +7,13 @@
 #' input_txt <- readLines(input, encoding = 'UTF-8')
 #' outline(input_txt)
 #' outline(input_txt, md_list = TRUE, md_bookdown = TRUE)
+#' outline(input_txt, md_list = TRUE, md_bookdown = TRUE, md_maxlevel = 2)
 outline <- function(from,
                     md_list = FALSE,
                     md_eq = FALSE,
                     md_braces = FALSE,
-                    md_bookdown = FALSE) {
+                    md_bookdown = FALSE,
+                    md_maxlevel = '') {
   mdlength <- length(from)
 
   # exclude the code blocks
@@ -30,7 +32,7 @@ outline <- function(from,
   }
 
   # get the heading locations
-  headingloc <- grep('^#+ ', from)
+  headingloc <- grep(paste0('^#{1,', md_maxlevel, '} '), from)
 
   # remove the curly brackets
   if (!md_braces){
@@ -89,12 +91,14 @@ md2mm <- function(from = NA,
                   md_list = FALSE,
                   md_braces = FALSE,
                   md_bookdown = FALSE,
-                  md_eq = FALSE) {
+                  md_eq = FALSE,
+                  md_maxlevel = '') {
   md <- outline(from = from,
                 md_list = md_list,
                 md_eq = md_eq,
                 md_braces = md_braces,
-                md_bookdown = md_bookdown)
+                md_bookdown = md_bookdown,
+                md_maxlevel = md_maxlevel)
   mm <- mdtxt2mmtxt(from = md, root = root, md_eq = md_eq)
   return(mm)
 }
@@ -346,7 +350,7 @@ md2dir <- function(from = NA, dir_to = 'mindr', md_list = FALSE, md_bookdown = T
 #'         dir_files = FALSE, dir_excluded = c('Meta','htmlwidgets/lib'),
 #'         widget_elementId = "mindr-dir")
 markmap <- function(from = '.', root = NA, input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
-                    md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, # markdown options
+                    md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, md_maxlevel = '', # markdown options
                     dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, # dir options
                     widget_name = NA, widget_width = NULL, widget_height = NULL, widget_elementId = NULL, widget_options = markmapOption(preset = 'colorful') # widget options
                     ) {
@@ -355,10 +359,11 @@ markmap <- function(from = '.', root = NA, input_type = c('auto', 'markdown', 'm
   if (input_type == 'mindmap') {
     md <- mm2md(from = from)
   } else{
-    if (input_type == 'markdown') md <- outline(from = from, md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown =  md_bookdown)
-    if (input_type == 'R') md <- outline(r2md(from = from),   md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown =  md_bookdown)
+    if (input_type == 'markdown') md <- outline(from = from, md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown =  md_bookdown, md_maxlevel = md_maxlevel)
+    if (input_type == 'R') md <- outline(r2md(from = from),   md_list = md_list, md_eq = md_eq, md_braces = md_braces, md_bookdown =  md_bookdown, md_maxlevel = md_maxlevel)
     if (input_type == 'dir') {
-      md <- dir2md(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded)
+      md <- outline(dir2md(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded),
+                    md_maxlevel = md_maxlevel)
       if (is.na(root)) root <- basename(from)
       }
     }

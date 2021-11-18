@@ -9,7 +9,8 @@ dir2mm(
   root = NA,
   dir_files = TRUE,
   dir_all = TRUE,
-  dir_excluded = NA
+  dir_excluded = NA,
+  md_maxlevel = ""
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ dir2mm(
 \item{dir_all}{Logical. Whether to include all files in a directory. If \code{FALSE}, only the names of visible files are included (following Unix-style visibility, that is files whose name does not start with a dot). If \code{TRUE}, all file names will be included.}
 
 \item{dir_excluded}{Character. The directories which are not included in the output.}
+
+\item{md_maxlevel}{Integer or ''. The maximum level of the markdown headings that are displayed in the mind map.}
 }
 \value{
 FreeMind mind map code.
