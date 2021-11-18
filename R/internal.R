@@ -12,352 +12,143 @@ get_eqloc <- function(eq_begin, eq_end){
   return(eq)
 }
 
-#' #' Get the folder name of a given complete path
-#' #'
-#' #' @param path The complete path
-#' #'
-#' #' @return The folder name
-#' #'
-#' get_foldername <- function(path){
-#'   foldername <- strsplit(path, '[/\\]')[[1]]
-#'   return(foldername[length(foldername)])
-#' }
-
-#' get the file name extension
+#' Get the file name extension
 #'
 #' @param filename character, the file name
 #'
 #' @return character, the file name extension
 get_filename_ext <- function(filename){
-  filename_sep <- strsplit(filename, '\\.')[[1]]
-  nfilename <- length(filename_sep)
-  if(nfilename == 1) {
-    filename_ext <- ''
-  } else {
-    filename_ext <- filename_sep[nfilename]
-  }
-  return(filename_ext)
+  gsub('^.*\\.([^.]+)$', '\\1', basename(filename))
 }
 
-#' Rename a file automatically with a time stamp
-#'
-#' @param filename character.
-#' @param connect the connecting character in the time stamp
-#'
-#' @return a new file name
-#'
-rename2 <- function(filename, connect = '-'){
-  filename_sep <- strsplit(filename, '\\.')[[1]]
-  nfilename <- length(filename_sep)
-  if(nfilename == 1) {
-    filename2 <- c(filename_sep, '')
-  } else {
-    filename2 <- c(paste(filename_sep[-nfilename], collapse = '.'), paste0('.', filename_sep[nfilename]))
-  }
-  newname <- paste0(filename2[1], connect, 'new', filename2[2])
-  return(newname)
-}
-
-#' Write txt files avoiding overwriting existent files.
-#'
-#' @param text The text to write.
-#' @param filename The destinated file name
-#' @param backup Logical.
-#'
-#' @return a txt file
-writeLines2 <- function(text, filename, backup = TRUE){
-  newname <- filename
-  if (backup & file.exists(filename)){
-    newname <- rename2(filename)
-  }
-  writeLines(text = text, newname, useBytes = TRUE)
-  message(newname, ' was generated!')
-}
-
-#' check whether a digital number is within a given range
+#' Check whether a digital number is within a given range
 #'
 #' @param index integer. a row number in a markdown file
-#' @param loc integer vector. the row numbers of the code block indicator, e.g.  triple backticks
+#' @param loc integer vector. the row numbers of the code block indicator, e.g.  triple backsticks
 #'
 #' @return logical.
 rmvcode <- function(index, loc) {
-  sum(index > loc[seq(1, length(loc), by = 2)] &
-        index < loc[seq(2, length(loc), by = 2)])
+  sum(index > loc[seq(1, length(loc), by = 2)] & index < loc[seq(2, length(loc), by = 2)])
 }
 
-#' get the headings out of given strings
+#' convert lists to headings in a text
 #'
-#' @param pattern The definition of the headings
-#' @param text the given strings
-#'
-#' @return integer. the index of the headings in the given strings.
-get_heading <- function(pattern = '^#+ ', text, include_list = FALSE){
-  newtext <- grep(pattern = pattern, x = text)
-  return(newtext)
-}
-
-#' convert list to heading
-#'
+#' @importFrom stats na.omit
 #' @param text the given strings
 #'
 #' @return integer. the index of the headings in the given strings.
 list2heading <- function(text){
-    # convert list into headings
-    ## remove blank lines
-    text <- text[text != '']
+  ## remove blank lines
+  text <- text[text != '']
 
-    ## get the heading level by counting # number
-    oldheadings <- gsub('^(#+) .+', '\\1', x = text)
-    oldheadings[!grepl('^(#+) .+', x = text)] <- NA
-    heading_level <- nchar(oldheadings)
-    heading_level <- na.omit(heading_level)[cumsum(!is.na(heading_level))]
+  ## get the heading level by counting # number
+  oldheadings <- gsub('^(#+) .+', '\\1', x = text)
+  oldheadings[!grepl('^(#+) .+', x = text)] <- NA
+  heading_level <- nchar(oldheadings)
+  heading_level <- na.omit(heading_level)[cumsum(!is.na(heading_level))]
 
-    list_loc <- grepl('^ *- .+', text)
-    oldlist <- gsub('^( *-) .+', '\\1', text)
-    oldlist_title <- gsub('^( *-) (.+)', '\\2', text)[list_loc]
+  ## unnumbered list
+  text_unnumbered <- text
+  list_loc_unnumbered <- grepl('^ *[-*\\+] .+', text_unnumbered)
+  text_unnumbered[!list_loc_unnumbered] <- NA
+  list_marker_unnumbered <- gsub('^( *[-*\\+]) .+', '\\1', text_unnumbered)
+  list_level_unnumbered <- nchar(gsub('^( *)[-*+] .+', '\\1', text_unnumbered))/2 + 1 + heading_level
+  list_title_unnumbered <- gsub('^( *[-*+]) (.+)', '\\2', text_unnumbered)
 
-    oldlist[!list_loc] <- NA
-    list_level <- (nchar(oldlist) - 1)/2 + 1
-    list_level <- list_level + heading_level
-    list_level <- na.omit(list_level)
-    new_list_prefix <- sapply(list_level, function(x) paste(rep('#', x), collapse = ''))
-    text[list_loc] <- paste(new_list_prefix, oldlist_title)
+  ## numbered list
+  text_numbered <- text
+  list_loc_numbered <- grepl('^ *[0-9]+\\. .+', text_numbered)
+  text_numbered[!list_loc_numbered] <- NA
+  list_marker_numbered <- gsub('^( *[0-9]+\\.) .+$', '\\1', text_numbered)
+  list_level_numbered <- nchar(gsub('^( *)[0-9]+\\. .+', '\\1', text_numbered))/2 + 1 + heading_level
+  list_title_numbered <- gsub('^( *[0-9]+\\.) (.+)', '\\2', text_numbered)
+
+  ## merge
+  list_title <- list_title_numbered
+  list_title[is.na(list_title)] <- list_title_unnumbered[is.na(list_title)]
+  list_title <- na.omit(list_title)
+  list_level <- list_level_numbered
+  list_level[is.na(list_level)] <- list_level_unnumbered[is.na(list_level)]
+  list_level <- na.omit(list_level)
+  list_loc <- list_loc_numbered + list_loc_unnumbered
+
+  ## output
+  new_list_prefix <- sapply(list_level, function(x) paste(rep('#', x), collapse = ''))
+  text[as.logical(list_loc)] <- paste(new_list_prefix, list_title)
   return(text)
 }
 
-#' get the headings out of given strings
-#'
-#' @param pattern The definition of the headings
-#' @param text the given strings
-#'
-#' @return integer. the index of the headings in the given strings.
-get_heading2 <- function(pattern = '^#= #+ ', text){
-  return(grep(pattern = pattern, x = text))
-}
-
-#' get the headings out of given strings
-#'
-#' @param pattern The definition of the headings
-#' @param text the given strings
-#'
-#' @return integer. the index of the headings in the given strings.
-get_heading3 <- function(pattern = "^#' #+ ", text){
-  return(grep(pattern = pattern, x = text))
-}
-
-#' get the body out of given strings
-#'
-#' @param pattern The definition of the body text
-#' @param text the given strings
-#'
-#' @return integer. the index of the body text in the given strings.
-get_body <- function(pattern = '^#[^ ]*', text){
-  return(grep(pattern = pattern, x = text))
-}
-
-#' Count the spaces between two given strings
-#'
-#' @param sep character for separation.
-#' @param mychar The character to check.
-#'
-#' @return character as title with '#' inserted.
-count_space <- function(mychar, sep){
-  mychar_new <- gsub(sep, '    ', mychar)
-  spaces <- gsub('^( +).*', '\\1', mychar_new)
-  title <- gsub('^( +)(.*)', '\\2', mychar_new)
-  if(title == '') return('NULLLL')
-  paste(paste(rep('#', nchar(spaces)/4), collapse = ''), title)
-}
-
-#' Convert a folder structure into a mindmap by using the 'tree' command.
-#' @details
-#' For LinUx OS and mac OS, the 'tree' command must be pre-installed.
-#' - Linux: `sudo apt-get install tree`
-#' - mac: install [Homebrew](https://brew.sh/) first. Then in the terminal: `brew install tree`.
-#'
-#' @param savefilename character. Valid when savefile == TRUE.
-#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
-#' @param path character. the path of the folder.
-#' @param output a file with the folder structure.
-#' @param savefile logical. Whether to save the output as a file.
-#' @param dir_files logical. Whether to display files besides folders.
-#'
-#' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
-dir2 <- function(path = getwd(),
-                 savefile = TRUE,
-                 savefilename = 'mindr.mm',
-                 output = c('mm', 'txt', 'md', 'Rmd'),
-                 backup = TRUE,
-                 dir_files = FALSE) {
-  output <- match.arg(output)
-  if (is.na(path))
-    return(message('The path cannot be NA!'))
-  if (dir.exists(path)) {
-    os <- Sys.info()['sysname']
-    if(os == 'Windows') {
-      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
-      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
-    } else{
-      non_ascii <- readLines(system.file('resource/non-ascii-linux.txt', package = 'mindr'), encoding = 'UTF-8')
-      tree <- paste0('tree "', path, '"', ifelse(dir_files, '', ' -d'))
-    }
-    mytree <- system(tree, intern = T)
-    for(i in c('\033\\[[[:digit:]]{2};[[:digit:]]{2}m', '\033\\[00m')) mytree <- gsub(i, '', mytree)
-    if ('txt' %in% output) {
-      if (backup & file.exists(paste0(savefilename, '.txt'))) {
-        message(paste0(savefilename, '.txt already exits.'))
-        savefilename <-
-          paste0(savefilename,
-                 '-new')
-      }
-      writeLines(mytree, savefilename, useBytes = TRUE)
-      message(paste(savefilename), ' was generated!')
-    }
-    if(os == 'Windows') {
-      md <- mytree[-(1:3)]
+#' Convert Markdown text to FreeMind mind map text.
+#' @inheritParams mm
+#' @return a mindmap text.
+mdtxt2mmtxt <-  function(from = '', root = 'root', md_eq = FALSE) {
+  # merge non-headings (e.g. multi-line headings, equations, if any) into headings
+  j <- 1
+  md_heading <- from[j]
+  for (i in 2:length(from)) {
+    if (grepl('^#+ ', from[i])) {
+      j <- j + 1
+      md_heading[j] <- from[i]
     } else {
-      md <- mytree[-1]
-      md_length <- length(md)
-      md <- md[-((md_length - 1):md_length)]
+      md_heading[j] <- paste(md_heading[j], from[i])
     }
-
-    ## dir_files
-    if(dir_files & os == 'Windows'){
-      loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-      md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
-    }
-
-    md <- md[md != 'NULLLL']
-    md <- gsub(pattern = non_ascii[1], '# ', md)
-    md <- gsub(pattern = non_ascii[3], '# ', md)
-    md <- gsub(pattern = non_ascii[2], '#', md)
-    md <- gsub(pattern = '    ', '#', md)
-
-    mm <- mdtxt2mmtxt(title = path, mdtxt = md)
-    if ('md' %in% output) {
-      if(savefile) writeLines2(
-        text = md,
-        filename = savefilename,
-        backup = backup
-      )
-      return(md)
-    }
-    if ('Rmd' %in% output) {
-      if(savefile) writeLines2(
-        text = md,
-        filename = savefilename,
-        backup = backup
-      )
-      return(md)
-    }
-    if ('mm' %in% output) {
-      if(savefile) writeLines2(
-        text = mm,
-        filename = savefilename,
-        backup = backup
-      )
-      return(mm)
-    }
-  } else {
-    return(message(paste('The directory', path, 'does not exist!')))
   }
+
+  # replace un-supported characters
+  md_heading <- gsub(pattern = '&', '&amp;', md_heading)
+  md_heading <- gsub(pattern = '"', '&quot;', md_heading)
+
+  # get heading titles
+
+  ncc <- nchar(gsub('^(#+) .*$', '\\1', md_heading)) # level of the headings
+  mmtext <- substr(md_heading, ncc + 2, nchar(md_heading)) # heading text
+
+  # get the hyperlinks
+  which_link <- grep(pattern = '\\[.*](.*)', mmtext)
+  mmtext[which_link] <- gsub('\\((.*)\\)', '" LINK="\\1', mmtext[which_link])
+  mmtext[which_link] <- gsub(pattern = '[][]*', replacement = '', mmtext[which_link])
+
+  # build the code for .mm file
+  mm <- rep('', length(md_heading) + 3)
+  mm[1] <- '<map version="1.0.1">'
+  mm[2] <- paste0('<node TEXT="', root, '">', paste0(rep('<node TEXT="">', ncc[1] - 1), collapse = ''))
+  diffncc <- diff(ncc)
+  for (i in 1:(length(md_heading) - 1)) {
+    if (diffncc[i] == 1) mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '">')
+    if (diffncc[i] == 0) mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
+    if (diffncc[i] < 0)  mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>',-diffncc[i] + 1), collapse = ''))
+    if (md_eq){
+      # mm[i + 3] <- gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 3])
+      mm[i + 2] <- gsub('(\\$\\$[^$]+\\$\\$)(">)', '\\2\\1', mm[i + 2])
+      mm[i + 2] <- gsub('\\$\\$([^$]+)\\$\\$', '<hook EQUATION="\\1" NAME="plugins/latex/LatexNodeHook.properties"/>', mm[i + 2])
+    }
+  }
+  mm[length(md_heading) + 2] <- paste0(rep('</node>', ncc[length(md_heading)] - 1), collapse = '')
+  mm[length(md_heading) + 3] <- '</node></map>'
+  return(mm)
 }
 
-#' Convert a folder structure into a mindmap (using the data.tree package for non-windows os).
+#' Guess the type of input or output
 #'
-#' @param savefilename character. Valid when savefile == TRUE.
-#' @param backup logical. Whether the existing target file, if any, should be saved as backup.
-#' @param path character. the path of the folder.
-#' @param output a file with the folder structure.
-#' @param savefile logical. Whether to save the output as a file.
-#' @param dir_files logical. Whether to display files besides folders.
+#' @importFrom utils head
+#' @param from The source text
 #'
-#' @return a mindmap file, which can be viewed by common mindmap software, such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>) and 'XMind' (<http://www.xmind.net>).
-dir4 <- function(path = getwd(),
-                 savefile = TRUE,
-                 savefilename = 'mindr.mm',
-                 output = c('mm', 'txt', 'md', 'Rmd'),
-                 backup = TRUE,
-                 dir_files = FALSE) {
-  output <- match.arg(output)
-  if (is.na(path))
-    return(message('The path cannot be NA!'))
-  if (dir.exists(path)) {
-    os <- Sys.info()['sysname']
-    # windows ----
-    if(os == 'Windows') {
-      oldlocale <- Sys.getlocale('LC_CTYPE')
-      on.exit(Sys.setlocale('LC_CTYPE', oldlocale))
-      Sys.setlocale('LC_CTYPE', 'Chinese')
-      non_ascii <- readLines(system.file('resource/non-ascii-windows.txt', package = 'mindr'), encoding = 'UTF-8')
-      tree <- paste0('tree "', path, '"', ifelse(dir_files, ' /F', ''))
-      mytree <- system(tree, intern = T, show.output.on.console = TRUE)
-      md <- mytree[-(1:3)]
-      ## dir_files
-      if(dir_files){
-        loc_files <- !(grepl(non_ascii[1], md) | grepl(non_ascii[3], md))
-        md[loc_files] <- unlist(sapply(md[loc_files], function(x) count_space(x, sep = non_ascii[2])))
-      }
-    } else {
-      ## non windows ----
-      # data.tree method ----
-      non_ascii <- readLines(system.file('resource/non-ascii-datatree.txt', package = 'mindr'), encoding = 'UTF-8')
-      if(path == '.') path <- getwd()
-      if(path == '..') path <- dirname(getwd())
-      if(dir_files) mydir <- list.files(path, full.names = TRUE, recursive = TRUE) else mydir <- list.dirs(path, full.names = TRUE, recursive = TRUE)
-      rootname <- path #dirname(mydir[1])
-      root <- dirname(rootname)
-      mydir <- gsub(paste0('^', root, '/'), '', mydir)
-      mytree <- data.tree::as.Node(data.frame(pathString = mydir))
-      md <- print(mytree)[, 1]
-      md[1] <- rootname
-    }
+#' @return the type, including 'dir', 'mindmap', 'R', 'markdown'.
+guess_type <- function(from){
+  if (length(from) == 1 && dir.exists(from)) return('dir')
+  if (any(grepl('<node TEXT=', head(from)))) return('mindmap')
+  if (any(grepl("^#' |^#= ", from))) return('R')
+  if (any(grepl("^# ", from))) return('markdown')
+  return(warning('Sorry, I do not know what type it is. The mission as aborted.'))
+}
 
-    # Both ----
-    if ('txt' %in% output) {
-      if (backup & file.exists(paste0(savefilename, '.txt'))) {
-        message(paste0(savefilename, '.txt already exits.'))
-        savefilename <-
-          paste0(savefilename,
-                 '-new')
-      }
-      writeLines(mytree, savefilename, useBytes = TRUE)
-      message(paste(savefilename), ' was generated!')
-    }
-
-    md <- md[md != 'NULLLL']
-    md <- gsub('[ ]*$', '', md)
-    md <- gsub(pattern = non_ascii[1], '# ', md)
-    md <- gsub(pattern = non_ascii[3], '# ', md)
-    md <- gsub(pattern = non_ascii[2], '#', md)
-    md <- gsub(pattern = '    ', '#', md)
-
-    mm <- mdtxt2mmtxt(title = path, mdtxt = md)
-    if ('md' %in% output) {
-      if(savefile) writeLines2(
-        text = md,
-        filename = savefilename,
-        backup = backup
-      )
-      return(md)
-    }
-    if ('Rmd' %in% output) {
-      if(savefile) writeLines2(
-        text = md,
-        filename = savefilename,
-        backup = backup
-      )
-      return(md)
-    }
-    if ('mm' %in% output) {
-      if(savefile) writeLines2(
-        text = mm,
-        filename = savefilename,
-        backup = backup
-      )
-      return(mm)
-    }
-  } else {
-    return(message(paste('The directory', path, 'does not exist!')))
-  }
+#' A function for markmap
+#'
+#' @param x something
+#'
+#' @return something else
+filterNULL <- function (x) {
+  if (length(x) == 0 || !is.list(x))
+    return(x)
+  x[!unlist(lapply(x, is.null))]
 }

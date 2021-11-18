@@ -1,0 +1,35 @@
+# (PART) A
+
+# [Chapter 1](https://pzhao.org) {#cha1}
+
+## Section 1.1 {#sec1.1}
+
+$$f(k) = {n \choose k} p^{k} (1-p)^{n-k}$$
+
+## Section 1.2 {#sec1.2}
+
+$$\begin{array}{ccc}
+x_{11} & x_{12} & x_{13}\\
+x_{21} & x_{22} & x_{23}
+\end{array}$$
+
+# Chapter 2
+
+## Section 2.1
+
+- Item 1
+- Item 2
+  + Item 2.1
+  * Item 2.2
+  
+## Section 2.2 
+
+# (PART) B
+
+# Chapter 3
+
+# (APPENDIX) Appendix {-}
+
+# a
+
+# b
