@@ -165,7 +165,9 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' @return Desired output.
 #' @export
 #' @examples
+#' ################################################
 #' # Example 1: From Markdown to other outputs ####
+#' ################################################
 #'
 #' ## Source document ####
 #' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
@@ -201,10 +203,10 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # file.remove(output) # remove the output file
 #'
 #' ### Widget ####
-#' output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
-#' htmlwidgets::saveWidget(mm_output$widget, file = output)
+#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+#' # htmlwidgets::saveWidget(mm_output$widget, file = output)
 #' # file.show(output) # Open the output file with the default program, if any
-#' message('Input:  ', input, '\nOutput: ', output)
+#' # message('Input:  ', input, '\nOutput: ', output)
 #' # file.remove(output) # remove the output file
 #'
 #' ## Generate directory according to the source document ####
@@ -220,7 +222,9 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #'                 md_list = TRUE, md_braces = TRUE, md_bookdown = TRUE)
 #' mm_output
 #'
+#' ################################################
 #' # Example 2: From mind map to other outputs ####
+#' ################################################
 #'
 #' ## Source document ####
 #' input <- system.file('examples/mindr-mm.mm', package = 'mindr')
@@ -249,10 +253,10 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # file.remove(output) # remove the output file
 #'
 #' ### Widget ####
-#' output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
-#' htmlwidgets::saveWidget(mm_output$widget, file = output)
+#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+#' # htmlwidgets::saveWidget(mm_output$widget, file = output)
 #' # file.show(output) # Open the output file with the default program, if any
-#' message('Input:  ', input, '\nOutput: ', output)
+#' # message('Input:  ', input, '\nOutput: ', output)
 #' # file.remove(output) # remove the output file
 #'
 #' ## Generate directory according to the source document ####
@@ -262,7 +266,9 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # system2('open', temp_dir) # Open the generatecd directory
 #' # unlink(temp_dir, recursive = TRUE) # remove the generated directory
 #'
+#' ################################################
 #' # Example 3: From R script to other outputs ####
+#' ################################################
 #'
 #' ## Source document ####
 #' input <- system.file('examples/mindr-r.R', package = 'mindr')
@@ -291,10 +297,10 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # file.remove(output) # remove the output file
 #'
 #' ### Widget ####
-#' output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
-#' htmlwidgets::saveWidget(mm_output$widget, file = output)
+#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+#' # htmlwidgets::saveWidget(mm_output$widget, file = output)
 #' # file.show(output) # Open the output file with the default program, if any
-#' message('Input:  ', input, '\nOutput: ', output)
+#' # message('Input:  ', input, '\nOutput: ', output)
 #' # file.remove(output) # remove the output file
 #'
 #' ## Generate directory according to the source document ####
@@ -304,7 +310,9 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # system2('open', temp_dir) # Open the generated directory
 #' # unlink(temp_dir, recursive = TRUE) # remove the generated directory
 #'
+#' #################################################
 #' # Example 4: From directory to other outputs ####
+#' #################################################
 #'
 #' ## Source directory ####
 #' input <- system.file(package = 'mindr')
@@ -337,10 +345,10 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # file.remove(output) # remove the output file
 #'
 #' ### Widget ####
-#' output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
-#' htmlwidgets::saveWidget(mm_output$widget, file = output)
+#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
+#' # htmlwidgets::saveWidget(mm_output$widget, file = output)
 #' # file.show(output) # Open the output file with the default program, if any
-#' message('Input:  ', input, '\nOutput: ', output)
+#' # message('Input:  ', input, '\nOutput: ', output)
 #' # file.remove(output) # remove the output file
 #'
 #' ## Clone the source directory ####
@@ -350,6 +358,27 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' # system2('open', temp_dir) # Open the generated directory
 #' # unlink(temp_dir, recursive = TRUE) # remove the generated directory
 #'
+#' ################################################
+#' # Example 5: From any format to mind map    ####
+#' ################################################
+#'
+#' # With the help of pandoc, you can display the outline of any documents that pandoc can convert to Markdown.
+#'
+#' # # HTML: here we use the R-FQA webpage
+#' # myurl <- 'https://cran.r-project.org/doc/FAQ/R-FAQ.html'
+#' # input <- tempfile(pattern = "file", tmpdir = tempdir())
+#' # markdown_temp <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
+#' # download.file(myurl, destfile = input, method = 'curl')
+#' # rmarkdown::pandoc_convert(input, to = "markdown", output = markdown_temp)
+#' # input_txt <- readLines(markdown_temp, encoding = 'UTF-8')
+#' # mindr::mm(input_txt)
+#'
+#' # # MS Word: here we use a .docx document shipped by the 'officer' package
+#' # input <- system.file('doc_examples/example.docx', package = 'officer')
+#' # markdown_temp <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
+#' # rmarkdown::pandoc_convert(input, to = "markdown", output = markdown_temp)
+#' # input_txt <- readLines(markdown_temp, encoding = 'UTF-8')
+#' # mindr::mm(input_txt, md_list = TRUE)
 mm <- function(from = NA,
                input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
                output_type = c('widget', 'mindmap', 'markdown', 'R', 'dir'),
