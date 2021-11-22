@@ -137,7 +137,7 @@ mdtxt2mmtxt <-  function(from = '', root = 'root', md_eq = FALSE) {
 guess_type <- function(from){
   if (length(from) == 1 && dir.exists(from)) return('dir')
   if (any(grepl('<node TEXT=', head(from)))) return('mindmap')
-  if (any(grepl("^#' |^#= ", from))) return('R')
+  if (any(grepl("^#' |^#= ", outline(from)))) return('R')
   if (any(grepl("^# ", from))) return('markdown')
   return(warning('Sorry, I do not know what type it is. The mission as aborted.'))
 }

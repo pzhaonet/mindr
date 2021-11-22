@@ -16,6 +16,10 @@ outline <- function(from,
                     md_maxlevel = '') {
   mdlength <- length(from)
 
+  # exclude yaml header
+  yaml_loc <- grep('^[-+]{3,} *$', from)
+  if (length(yaml_loc) > 1) from <- from[-(yaml_loc[1]:yaml_loc[2])]
+
   # exclude the code blocks
   codeloc4backsticks <- grep('^````', from)
   if (length(codeloc4backsticks) > 0){
@@ -401,7 +405,7 @@ markmap <- function(from = '.', root = NA, input_type = c('auto', 'markdown', 'm
 #' @param spacingVertical space of vertical.
 #' @param spacingHorizontal space of horizontal.
 #' @param duration duration time for animation.
-#' @param layout layout mode of makrmap. Currently, only 'tree' is accepted.
+#' @param layout layout mode of markmap. Currently, only 'tree' is accepted.
 #' @param color color of markmap. A character color value ,either 'gray' or a categorical colors including 'category10','category20','category20b' and 'category20c'.
 #' @param linkShape link shape of markmap. A character value, either 'diagonal' or 'bracket'.
 #' @param renderer rendered shaped of markmap. A character value ,either 'basic' or 'boxed'.
