@@ -31,7 +31,7 @@ markmapOption(
 
 \item{duration}{duration time for animation.}
 
-\item{layout}{layout mode of makrmap. Currently, only 'tree' is accepted.}
+\item{layout}{layout mode of markmap. Currently, only 'tree' is accepted.}
 
 \item{color}{color of markmap. A character color value ,either 'gray' or a categorical colors including 'category10','category20','category20b' and 'category20c'.}
 
