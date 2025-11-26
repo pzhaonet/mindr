@@ -1,3 +1,19 @@
+#' Get the shape maker for mermaid mindmap
+#'
+#' @param mmd_shape Character.
+#'
+#' @returns Character.
+get_mmdshape <- function(mmd_shape = c('square', 'rounded_square', 'circle', 'bang', 'cloud', 'hexagon')) {
+  mmd_shape <- match.arg(mmd_shape, c('square', 'rounded_square', 'circle', 'bang', 'cloud', 'hexagon'))
+  switch(mmd_shape,
+         square = c('[', ']'),
+         rounded_square = c('(', ')'),
+         circle = c('((', '))'),
+         bang = c('))', '(('),
+         cloud = c(')', '('),
+         hexagon = c('{{', '}}'))
+}
+
 #' Get the index of equations in a string vector
 #'
 #' @param eq_begin the beginning index of an equation
@@ -6,8 +22,8 @@
 #' @return a index vector
 get_eqloc <- function(eq_begin, eq_end){
   eq <- eq_begin[1]:eq_end[1]
-  if(length(eq_begin) > 1) {
-    for(i in 2:length(eq_begin)) eq <- c(eq, eq_begin[i]:eq_end[i])
+  if (length(eq_begin) > 1) {
+    for (i in 2:length(eq_begin)) eq <- c(eq, eq_begin[i]:eq_end[i])
   }
   return(eq)
 }
@@ -117,7 +133,7 @@ mdtxt2mmtxt <-  function(from = '', root = 'root', md_eq = FALSE) {
     if (diffncc[i] == 1) mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '">')
     if (diffncc[i] == 0) mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '"></node>')
     if (diffncc[i] < 0)  mm[i + 2] <- paste0('<node TEXT="', mmtext[i], '">', paste0(rep('</node>',-diffncc[i] + 1), collapse = ''))
-    if (md_eq){
+    if (md_eq) {
       # mm[i + 3] <- gsub('(\\$\\$[^$]+\\$\\$)(">)(</node>)$', '\\2\\1\\3', mm[i + 3])
       mm[i + 2] <- gsub('(\\$\\$[^$]+\\$\\$)(">)', '\\2\\1', mm[i + 2])
       mm[i + 2] <- gsub('\\$\\$([^$]+)\\$\\$', '<hook EQUATION="\\1" NAME="plugins/latex/LatexNodeHook.properties"/>', mm[i + 2])
@@ -135,11 +151,12 @@ mdtxt2mmtxt <-  function(from = '', root = 'root', md_eq = FALSE) {
 #'
 #' @return the type, including 'dir', 'mindmap', 'R', 'markdown'.
 guess_type <- function(from){
+  if (length(from) == 0) return(warning('There is no input. The mission is aborted.'))
   if (length(from) == 1 && dir.exists(from)) return('dir')
   if (any(grepl('<node TEXT=', head(from)))) return('mindmap')
   if (any(grepl("^#' |^#= ", outline(from)))) return('R')
   if (any(grepl("^# ", from))) return('markdown')
-  return(warning('Sorry, I do not know what type it is. The mission as aborted.'))
+  return(warning('Sorry, I do not know what type the input is. The mission is aborted.'))
 }
 
 #' A function for markmap
@@ -147,7 +164,7 @@ guess_type <- function(from){
 #' @param x something
 #'
 #' @return something else
-filterNULL <- function (x) {
+filterNULL <- function(x) {
   if (length(x) == 0 || !is.list(x))
     return(x)
   x[!unlist(lapply(x, is.null))]
