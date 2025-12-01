@@ -107,7 +107,7 @@ outline <- function(from,
 
 #' Convert (R) Markdown-syntax text to FreeMind mind map code
 #' @inheritParams mm
-#' @return FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{http://freemind.sourceforge.net/wiki/index.php/Main_Page}{FreeMind} and \href{https://www.xmind.net}{XMind}.
+#' @return FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{https://freemind.sourceforge.io/wiki/index.php/Main_Page}{FreeMind} and \href{https://xmind.com}{XMind}.
 #' @examples
 #' # input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
 #' # input_txt <- readLines(input, encoding = 'UTF-8')

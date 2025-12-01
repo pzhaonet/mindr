@@ -67,7 +67,7 @@ list2heading <- function(text){
   text_unnumbered <- text
   list_loc_unnumbered <- grepl('^ *[-*\\+] .+', text_unnumbered)
   text_unnumbered[!list_loc_unnumbered] <- NA
-  list_marker_unnumbered <- gsub('^( *[-*\\+]) .+', '\\1', text_unnumbered)
+  # list_marker_unnumbered <- gsub('^( *[-*\\+]) .+', '\\1', text_unnumbered)
   list_level_unnumbered <- nchar(gsub('^( *)[-*+] .+', '\\1', text_unnumbered))/2 + 1 + heading_level
   list_title_unnumbered <- gsub('^( *[-*+]) (.+)', '\\2', text_unnumbered)
 
@@ -75,7 +75,7 @@ list2heading <- function(text){
   text_numbered <- text
   list_loc_numbered <- grepl('^ *[0-9]+\\. .+', text_numbered)
   text_numbered[!list_loc_numbered] <- NA
-  list_marker_numbered <- gsub('^( *[0-9]+\\.) .+$', '\\1', text_numbered)
+  # list_marker_numbered <- gsub('^( *[0-9]+\\.) .+$', '\\1', text_numbered)
   list_level_numbered <- nchar(gsub('^( *)[0-9]+\\. .+', '\\1', text_numbered))/2 + 1 + heading_level
   list_title_numbered <- gsub('^( *[0-9]+\\.) (.+)', '\\2', text_numbered)
 

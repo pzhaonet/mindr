@@ -4,5 +4,5 @@ LICENCE
 ^\.gitignore$
 ^\.travis\.yml$
 showcase/
-vignettes/
 readme*.*
+_config.yml

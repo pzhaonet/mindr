@@ -2,7 +2,11 @@ Package: mindr
 Version: 1.4.0
 Date: 2025-11-26
 Title: Generate Mind Maps with R
-Author: Peng Zhao
+Authors@R: person(given = "Peng", 
+                  family = "Zhao", 
+                  role = c("aut", "cre"), 
+                  email = "pengzhao20@outlook.com", 
+                  comment = c(ORCID = "0000-0001-5267-9797"))
 Maintainer: Peng Zhao <pengzhao20@outlook.com>
 Depends: R (>= 4.1.0)
 Imports: 
@@ -14,7 +18,7 @@ Imports:
 RdMacros: Rdpack
 VignetteBuilder: knitr
 SystemRequirements: pandoc (>= 1.14) - http://pandoc.org
-Description: Convert Markdown ('.md') or R Markdown ('.Rmd') texts, R scripts, directory structures, and other hierarchical structured documents into mind map widgets or "FreeMind" codes or "mermaid" mind map codes, and vice versa. "FreeMind" mind map ('.mm') files can be opened by or imported to common mindmap software such as 'FreeMind' (<http://freemind.sourceforge.net/wiki/index.php/Main_Page>). "Mermaid" mind map codes (<https://mermaid.js.org/>) can be directly embedded in documents.
+Description: Convert Markdown ('.md') or R Markdown ('.Rmd') texts, R scripts, directory structures, and other hierarchical structured documents into mind map widgets or "FreeMind" codes or "mermaid" mind map codes, and vice versa. "FreeMind" mind map ('.mm') files can be opened by or imported to common mind map software such as 'FreeMind' (<https://freemind.sourceforge.io/wiki/index.php/Main_Page>). "Mermaid" mind map codes (<https://mermaid.js.org/>) can be directly embedded in documents.
 License: GPL-3
 URL: https://github.com/pzhaonet/mindr
 BugReports: https://github.com/pzhaonet/mindr/issues

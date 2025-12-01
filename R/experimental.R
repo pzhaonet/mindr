@@ -3,9 +3,9 @@
 #' @param input_toc Character. The table of contents (TOC) of a pdf file, extracted by \code{pdftools::pdf_toc()}.
 #' @return Character, showing the TOC in Markdown.
 #' @examples
-#' input <- file.path(R.home(), 'doc/manual/R-intro.pdf')
-#' input_toc <- pdftools::pdf_toc(input)
-#' mindr:::outline_pdf(input_toc)
+#' # input <- file.path(R.home(), 'doc/manual/R-intro.pdf')
+#' # input_toc <- pdftools::pdf_toc(input)
+#' # mindr:::outline_pdf(input_toc)
 outline_pdf <- function(input_toc){
   input_toc <- unlist(input_toc)
   toc_name <- names(input_toc)
@@ -47,6 +47,7 @@ outline_pdf <- function(input_toc){
 #' # mmm(input)
 mmm <- function(input_file = NA,
                 output_type = c('widget', 'mindmap', 'markdown', 'mermaid'),
+                input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
                 root = NA,
                 md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, md_maxlevel = '', # markdown options
                 r_seclabel = ' --------', r_chunkheading = FALSE, # R script options
@@ -54,6 +55,7 @@ mmm <- function(input_file = NA,
                 mmd_shape = c('cloud', 'rounded_square', 'square', 'bang', 'circle', 'hexagon'), # mermaid options
                 widget_name = NA, widget_width = NULL, widget_height = NULL, widget_elementId = NULL, widget_options = markmapOption(preset = 'colorful') # widget options
 ){
+  input_type <- match.arg(input_type, c('auto', 'markdown', 'mindmap', 'R', 'dir'))
   output_type <- match.arg(output_type, c('widget', 'markdown', 'mindmap', 'R', 'mermaid'), several.ok = TRUE)
   if (length(input_file) > 1) return(message('Processing multiple files is not supported. Please use lapply() or loop for processing multiple files. Mission aborted.'))
   if (!file.exists(input_file)) return(message(input_file, ' does not exist. Mission aborted.'))
@@ -82,7 +84,7 @@ mmm <- function(input_file = NA,
   }
 
   if (file_ext %in% c('r', 'R')) input_type <- 'R'
-  if (file_ext %in% c('md', 'Rmd')) input_type <- 'markdown'
+  if (file_ext %in% c('md', 'Rmd', 'qmd')) input_type <- 'markdown'
   if (file_ext %in% c('mm')) input_type <- 'mindmap'
 
   output <- mm(from = from, input_type = input_type,
