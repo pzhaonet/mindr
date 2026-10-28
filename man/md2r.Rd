@@ -19,14 +19,3 @@ Character, R code.
 \description{
 Convert (R) Markdown-syntax text into R code
 }
-\examples{
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output_txt <- md2r(from = input_txt)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-writeLines(output_txt, output, useBytes = TRUE)
-# file.show(input) # Open the input file file.show(output) # Open the output
-# file
-message("Input:  ", input, "\nOutput: ", output)
-# file.remove(output) # remove the output file
-}

@@ -6,7 +6,8 @@
 \usage{
 mmm(
   input_file = NA,
-  output_type = c("widget", "mindmap", "markdown"),
+  output_type = c("widget", "mindmap", "markdown", "mermaid"),
+  input_type = c("auto", "markdown", "mindmap", "R", "dir"),
   root = NA,
   md_list = FALSE,
   md_eq = FALSE,
@@ -15,6 +16,12 @@ mmm(
   md_maxlevel = "",
   r_seclabel = " --------",
   r_chunkheading = FALSE,
+  dir_files = TRUE,
+  dir_all = TRUE,
+  dir_excluded = NA,
+  dir_to = NA,
+  dir_quiet = FALSE,
+  mmd_shape = c("cloud", "rounded_square", "square", "bang", "circle", "hexagon"),
   widget_name = NA,
   widget_width = NULL,
   widget_height = NULL,
@@ -25,7 +32,9 @@ mmm(
 \arguments{
 \item{input_file}{Character. The path to the file for input.}
 
-\item{output_type}{Character. The type of the output. It can be \code{'widget', 'mindmap', 'markdown', 'R', 'dir'}. The default value is \code{'widget'}.}
+\item{output_type}{Character. The type of the output. It can be \code{'widget', 'mindmap', 'markdown', 'R', 'dir', 'mmd'}. The default value is \code{'widget'}.}
+
+\item{input_type}{Character. The type of the input text. It can be \code{'auto', 'markdown', 'mindmap', 'R', 'dir'}. The default value is \code{'auto'}, which means the type will be automatically assigned according to the features of the input text.}
 
 \item{root}{Character. The string displayed as the root (center) of the mind map.}
 
@@ -42,6 +51,18 @@ mmm(
 \item{r_seclabel}{Character. The ending characters indicating sections in R Markdown.}
 
 \item{r_chunkheading}{Logical. Whether process the chunk label as headings.}
+
+\item{dir_files}{Logical. Whether to include files. If \code{FALSE}, only folders are included. If \code{TRUE}, folders and files are included.}
+
+\item{dir_all}{Logical. Whether to include all files in a directory. If \code{FALSE}, only the names of visible files are included (following Unix-style visibility, that is files whose name does not start with a dot). If \code{TRUE}, all file names will be included.}
+
+\item{dir_excluded}{Character. The directories which are not included in the output.}
+
+\item{dir_to}{Character. The path of the output directory.}
+
+\item{dir_quiet}{Logical. Whether to display the results of generated directories.}
+
+\item{mmd_shape}{Character. The shape of mermaid mindmap nodes. See \href{https://bookdown.org/yihui/bookdown/cross-references.html}{{Mermaid document}}.}
 
 \item{widget_name}{Character. The name of the html widget.}
 
@@ -60,19 +81,11 @@ Desired output.
 Convert almost any file into mind map.
 }
 \details{
-The input file type could be .md, .Rmd, .R, .mm, .pdf, .docx, .html, .rtf, .odt, .epub, .tex, and any other types which pandoc can convert from. See \href{https://pandoc.org/}{pandoc} for more details.
+The input file type could be .md, .Rmd, .qmd, .R, .mm, .pdf, .docx, .html, .rtf, .odt, .epub, .tex, and any other types which pandoc can convert from. See \href{https://pandoc.org/}{pandoc} for more details.
 }
 \examples{
-# pdf: here we use the pdf files in the R installation
-input <- file.path(R.home(), "doc/manual/R-intro.pdf")
-mmm(input)
-input <- file.path(R.home(), "doc/manual/R-data.pdf")
-mmm(input, root = "R-data", md_maxlevel = 2)
-
-# MS Word: here we use a .docx document shipped by the 'officer' package input
-# <- system.file('doc_examples/example.docx', package = 'officer') mmm(input)
-
-# HTML: here we use the R-FQA webpage
-input <- file.path(R.home(), "doc/html/rw-FAQ.html")
-mmm(input)
+mp <- mmm(input_file = system.file('examples/mindr-md.Rmd', package = 'mindr'))
+mp
+# See the vignette for more examples:
+vignette('mindr', package = 'mindr')
 }

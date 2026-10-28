@@ -4,11 +4,6 @@
 #' @param root Character. The string displayed as the root (center) of the mind map.
 #' @param mmd_shape Character vector. The shape of mermaid mindmap nodes. See \href{https://bookdown.org/yihui/bookdown/cross-references.html}{{Mermaid document}}.
 #' @returns Mermaid mindmap code chunk
-#' @examples
-#' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' mm_output <- mm(input_txt, output_type = 'markdown')
-#' mindr:::md2mmd(from = mm_output$markdown, root = 'mindr')
 md2mmd <- function(from, root = 'mindr', mmd_shape = c('cloud', 'rounded_square', 'square', 'bang', 'circle', 'hexagon')) {
   mmd <- gsub('^(#*)# (.*)$', '\\1  \\2', from)
   mmd <- gsub('#', '  ', mmd)
@@ -31,12 +26,6 @@ md2mmd <- function(from, root = 'mindr', mmd_shape = c('cloud', 'rounded_square'
 #' Extract headings of (R) Markdown-syntax text as an outline
 #' @inheritParams mm
 #' @return Character, showing the outline.
-#' @examples
-#' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' mindr:::outline(input_txt)
-#' mindr:::outline(input_txt, md_list = TRUE, md_bookdown = TRUE)
-#' mindr:::outline(input_txt, md_list = TRUE, md_bookdown = TRUE, md_maxlevel = 2)
 outline <- function(from,
                     md_list = FALSE,
                     md_eq = FALSE,
@@ -108,16 +97,6 @@ outline <- function(from,
 #' Convert (R) Markdown-syntax text to FreeMind mind map code
 #' @inheritParams mm
 #' @return FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{https://freemind.sourceforge.io/wiki/index.php/Main_Page}{FreeMind} and \href{https://xmind.com}{XMind}.
-#' @examples
-#' # input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' # input_txt <- readLines(input, encoding = 'UTF-8')
-#' # output_txt <- mindr:::md2mm(input_txt)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 md2mm <- function(from = NA,
                   root = 'mindr',
                   md_list = FALSE,
@@ -138,16 +117,6 @@ md2mm <- function(from = NA,
 #' Convert FreeMind mind map code into Markdown headings
 #' @inheritParams mm
 #' @return Character, showing outline in Markdown syntax.
-#' @examples
-#' # input <- system.file('examples/mindr-mm.mm', package = 'mindr')
-#' # input_txt <- readLines(input, encoding = 'UTF-8')
-#' # output_txt <- mindr:::mm2md(input_txt)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 mm2md <- function(from = NA) {
   # compatible for both versions: node ends with '/>' or '</node>'
   mm <- gsub('/>', '</node>', from)
@@ -183,16 +152,6 @@ mm2md <- function(from = NA) {
 #' @inheritParams mm
 #' @return R markdown-syntax text.
 #' @importFrom knitr spin
-#' @examples
-#' # input <- system.file('examples/mindr-r.R', package = 'mindr')
-#' # input_txt <- readLines(input, encoding = 'UTF-8')
-#' # output_txt <- mindr:::r2md(from = input_txt)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 r2md <- function(from = NA) {
   # process the headings
   ## find the location of the headings
@@ -218,16 +177,6 @@ r2md <- function(from = NA) {
 #' @inheritParams mm
 #' @return Character, R code.
 #' @importFrom knitr purl
-#' @examples
-#' # input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' # input_txt <- readLines(input, encoding = 'UTF-8')
-#' # output_txt <- mindr:::md2r(from = input_txt)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 md2r <- function(from = NA, r_seclabel = ' --------', r_chunkheading = FALSE) {
   # prepare a temp file for knitr::purl()
   rmdfile_temp <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
@@ -261,16 +210,6 @@ md2r <- function(from = NA, r_seclabel = ' --------', r_chunkheading = FALSE) {
 #' Display a directory hierarchical structure in Markdown syntax
 #' @inheritParams mm
 #' @return Character, in Markdown syntax.
-#' @examples
-#' # input <- system.file(package = 'mindr')
-#' # mindr:::dir2md(input)
-#' # mindr:::dir2md(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = 'Meta')
-#' # output_txt <- mindr:::dir2md(input)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.show(output) # Open the output file
-#' # file.remove(output) # remove the output file
 dir2md <- function(from = '.', dir_files = TRUE, dir_all = TRUE, dir_excluded = NA) {
   tree <- if (dir_files) {
     list.files(from, all.files = dir_all, recursive = TRUE, include.dirs = TRUE)
@@ -292,23 +231,7 @@ dir2md <- function(from = '.', dir_files = TRUE, dir_all = TRUE, dir_excluded = 
 #' Create hierarchical directories according to (R) Markdown-syntax text
 #' @inheritParams mm
 #' @return Directories generated.
-#' @examples
-#' output <- file.path(tempdir(), 'mindr')
-#' mindr:::md2dir(c('# a', '## a1', '## a2'), output)
-#' message('Output: ', output)
-#' # unlink(output, recursive = TRUE) # remove the output file
-#'
-#' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' output <- file.path(tempdir(), 'mindr')
-#' mindr:::md2dir(from = input_txt, output)
-#' message('Input:  ', input, '\nOutput: ', output)
-#' # file.show(input) # Open the input file
-#' # unlink(output, recursive = TRUE) # remove the output file
-#'
-#' mindr:::md2dir(from = input_txt, output, md_list = TRUE)
-md2dir <- function(from = NA, dir_to = 'mindr', md_list = FALSE, md_bookdown = TRUE, dir_quiet = FALSE){
-  if (is.na(dir_to)) dir_to <- 'mindr'
+md2dir <- function(from = NA, dir_to, md_list = FALSE, md_bookdown = TRUE, dir_quiet = FALSE){
   if (dir.exists(dir_to)) return(warning(dir_to, ' already exists! Please use another folder name for "dir_to =" and try again.'))
   md <- outline(from = from,
                 md_list = md_list,
@@ -345,36 +268,6 @@ md2dir <- function(from = NA, dir_to = 'mindr', md_list = FALSE, md_bookdown = T
 #' @return HTML widget object.
 #' @importFrom htmlwidgets createWidget sizingPolicy
 #' @details This function, adapted from the \href{https://github.com/seifer08ms/Rmarkmap}{Rmarkup} package, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
-#' @examples
-#' # Display Markdown:
-#' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' # file.show(input)
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' mindr:::markmap(input_txt)
-#' mindr:::markmap(input_txt, root = basename(input),
-#'         md_list = TRUE, md_eq = FALSE, md_braces = FALSE, md_bookdown = TRUE)
-#'
-#' # Display Mind Map:
-#' input <- system.file('examples/mindr-mm.mm', package = 'mindr')
-#' # file.show(input)
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' mindr:::markmap(input_txt)
-#' mindr:::markmap(input_txt, root = basename(input))
-#'
-#' # Display R script:
-#' input <- system.file('examples/mindr-r.R', package = 'mindr')
-#' # file.show(input)
-#' from <- input_txt <- readLines(input, encoding = 'UTF-8')
-#' mindr:::markmap(input_txt)
-#' mindr:::markmap(input_txt, root = basename(input),
-#'         md_list = TRUE, md_eq = FALSE, md_braces = FALSE, md_bookdown = TRUE)
-#'
-#' # Display directory:
-#' input <- system.file(package = 'mindr')
-#' mindr:::markmap(input)
-#' mindr:::markmap(input, root = 'The mindr package',
-#'         dir_files = FALSE, dir_excluded = c('Meta','htmlwidgets/lib'),
-#'         widget_elementId = "mindr-dir")
 markmap <- function(from = '.', root = NA, input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
                     md_list = FALSE, md_eq = FALSE, md_braces = FALSE, md_bookdown = FALSE, md_maxlevel = '', # markdown options
                     dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, # dir options
@@ -433,28 +326,7 @@ markmap <- function(from = '.', root = NA, input_type = c('auto', 'markdown', 'm
 #' @param renderer rendered shaped of markmap. A character value ,either 'basic' or 'boxed'.
 #' @param ... other options.
 #' @seealso \url{https://github.com/seifer08ms/Rmarkmap} and \url{https://github.com/dundalek/markmap/blob/master/lib/view.mindmap.js} for details.
-#' @export
-#' @examples
-#' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#' # file.show(input)
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' mindr:::markmap(input_txt)
-#' mindr:::markmap(input_txt,
-#'         widget_options = markmapOption(preset = 'default'))
-#' mindr:::markmap(input_txt,
-#'         widget_options = markmapOption(
-#'           color = 'category20b',
-#'           linkShape = 'bracket'))
-#' mindr:::markmap(input_txt,
-#'         widget_options = markmapOption(
-#'           color = 'category10',
-#'           linkShape = 'diagonal',
-#'           renderer = 'basic'))
-#' mindr:::markmap(input_txt,
-#'         widget_options = markmapOption(
-#'           nodeHeight = 30,
-#'           nodeWidth = 100,
-#'           spacingHorizontal = 60))
+#' @return A list of settings for mind map widget.
 markmapOption <- function(preset = NULL,
                           nodeHeight = 20,
                           nodeWidth = 180,

@@ -28,7 +28,7 @@ markmap(
 
 \item{root}{Character. The string displayed as the root (center) of the mind map.}
 
-\item{input_type}{Character. The type of the input text. It can be \code{'auto', 'markdown', 'mindmap', 'R', 'dir'}. The default value is \code{'auto'}, which means the type will be automatically assgined according to the features of the input text.}
+\item{input_type}{Character. The type of the input text. It can be \code{'auto', 'markdown', 'mindmap', 'R', 'dir'}. The default value is \code{'auto'}, which means the type will be automatically assigned according to the features of the input text.}
 
 \item{md_list}{Logical. whether to process lists like headings in the Markdown input.}
 
@@ -64,34 +64,4 @@ Create a mind map in HTML widget
 }
 \details{
 This function, adapted from the \href{https://github.com/seifer08ms/Rmarkmap}{Rmarkup} package, creates a markmap widget using htmlwidgets. The widget can be rendered on HTML pages generated from R Markdown, Shiny,or other applications.
-}
-\examples{
-# Display Markdown:
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-# file.show(input)
-input_txt <- readLines(input, encoding = "UTF-8")
-markmap(input_txt)
-markmap(input_txt, root = basename(input), md_list = TRUE, md_eq = FALSE,
-    md_braces = FALSE, md_bookdown = TRUE)
-
-# Display Mind Map:
-input <- system.file("examples/mindr-mm.mm", package = "mindr")
-# file.show(input)
-input_txt <- readLines(input, encoding = "UTF-8")
-markmap(input_txt)
-markmap(input_txt, root = basename(input))
-
-# Display R script:
-input <- system.file("examples/mindr-r.R", package = "mindr")
-# file.show(input)
-from <- input_txt <- readLines(input, encoding = "UTF-8")
-markmap(input_txt)
-markmap(input_txt, root = basename(input), md_list = TRUE, md_eq = FALSE,
-    md_braces = FALSE, md_bookdown = TRUE)
-
-# Display directory:
-input <- system.file(package = "mindr")
-markmap(input)
-markmap(input, root = "The mindr package", dir_files = FALSE, dir_excluded = c("Meta",
-    "htmlwidgets/lib"), widget_elementId = "mindr-dir")
 }

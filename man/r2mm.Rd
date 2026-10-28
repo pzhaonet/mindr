@@ -35,14 +35,3 @@ Character, FreeMind mind map code.
 \description{
 Convert R code into FreeMind mind map code
 }
-\examples{
-input <- system.file("examples/mindr-r.R", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output_txt <- r2mm(from = input_txt)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-writeLines(output_txt, output, useBytes = TRUE)
-# file.show(input) # Open the input file file.show(output) # Open the output
-# file
-message("Input:  ", input, "\nOutput: ", output)
-# file.remove(output) # remove the output file
-}

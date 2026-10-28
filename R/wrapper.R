@@ -1,16 +1,6 @@
 #' Convert R code into FreeMind mind map code
 #' @inheritParams mm
 #' @return Character, FreeMind mind map code.
-#' @examples
-#' # input <- system.file('examples/mindr-r.R', package = 'mindr')
-#' # input_txt <- readLines(input, encoding = 'UTF-8')
-#' # output_txt <- mindr:::r2mm(from = input_txt)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 r2mm <- function(from = NA, root = NA,
                  md_list = FALSE,
                  md_braces = FALSE,
@@ -31,16 +21,6 @@ r2mm <- function(from = NA, root = NA,
 #' Convert FreeMind mind map code into .R code
 #' @inheritParams mm
 #' @return Character, R code.
-#' @examples
-#' input <- system.file('examples/mindr-mm.mm', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' output_txt <- mindr:::mm2r(input_txt)
-#' output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-#' writeLines(output_txt, output, useBytes = TRUE)
-#' # file.show(input) # Open the input file
-#' # file.show(output) # Open the output file
-#' message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
 mm2r <- function(from = NA, r_seclabel = ' --------', r_chunkheading = FALSE) {
   md <- mm2md(from = from)
   rtext <- md2r(from = md, r_seclabel = r_seclabel, r_chunkheading = r_chunkheading)
@@ -50,17 +30,6 @@ mm2r <- function(from = NA, r_seclabel = ' --------', r_chunkheading = FALSE) {
 #' Display hierarchical structure of a directory in FreeMind mind map
 #' @inheritParams mm
 #' @return FreeMind mind map code.
-#' @examples
-#' # input <- system.file(package = 'mindr')
-#' # mindr:::dir2mm(input)
-#' # mindr:::dir2mm(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = 'Meta')
-#'
-#' # output_txt <- mindr:::dir2mm(input)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.show(output) # Open the output file
-#' # file.remove(output) # remove the output file
 dir2mm <- function(from = '.', root = NA, dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, md_maxlevel = ''){
   if (is.na(root)) root <- basename(from)
   md <- dir2md(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded)
@@ -76,16 +45,6 @@ dir2mm <- function(from = '.', root = NA, dir_files = TRUE, dir_all = TRUE, dir_
 #' Generate hierarchical directories according to a FreeMind mind map
 #' @inheritParams mm
 #' @return Directory generated.
-#' @examples
-#' input <- system.file('examples/mindr-mm.mm', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' output <- file.path(tempdir(), 'mindr')
-#' mindr:::mm2dir(input_txt, output)
-#' message('Input:  ', input, '\nOutput: ', output)
-#' # file.show(input) # Open the input file
-#' # system2("open", output) # Open the output dir in explorer.
-#' # unlink(output, recursive = TRUE) # remove the output file
-#'
 mm2dir <- function(from = NA, dir_to = NA, dir_quiet = FALSE){
   md <- mm2md(from)
   md2dir(from = md, dir_to = dir_to, md_list = FALSE, md_bookdown = FALSE, dir_quiet = dir_quiet)
@@ -94,19 +53,6 @@ mm2dir <- function(from = NA, dir_to = NA, dir_quiet = FALSE){
 #' Convert a hierarchical directory into R code
 #' @inheritParams mm
 #' @return Character, R code
-#' @examples
-#' # input <- system.file(package = 'mindr')
-#' # mindr:::dir2r(input)
-#' # mindr:::dir2r(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = 'Meta')
-#'
-#' # output_txt <- mindr:::dir2r(input)
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-#' # writeLines(output_txt, output, useBytes = TRUE)
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # system2("open", input) # Open the input dir in explorer.
-#' # file.show(output) # Open the output file
-#' # file.remove(output) # remove the output file
-#'
 dir2r <- function(from = '.', dir_files = TRUE, dir_all = TRUE, dir_excluded = NA, r_seclabel = ' --------', r_chunkheading = FALSE){
   md <- dir2md(from = from, dir_files = dir_files, dir_all = dir_all, dir_excluded = dir_excluded)
   rtext <- md2r(from = md, r_seclabel = r_seclabel, r_chunkheading = r_chunkheading)
@@ -116,16 +62,6 @@ dir2r <- function(from = '.', dir_files = TRUE, dir_all = TRUE, dir_excluded = N
 #' Generate hierarchical directories according to the outline of R code
 #' @inheritParams mm
 #' @return Directory generated.
-#' @examples
-#' input <- system.file('examples/mindr-r.R', package = 'mindr')
-#' input_txt <- readLines(input, encoding = 'UTF-8')
-#' output <- file.path(tempdir(), 'mindr')
-#' mindr:::r2dir(input_txt, output)
-#' message('Input:  ', input, '\nOutput: ', output)
-#' # file.show(input) # Open the input file
-#' # system2("open", output) # Open the output dir in explorer.
-#' # unlink(output, recursive = TRUE) # remove the output file
-#'
 r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, dir_quiet = FALSE){
   md <- r2md(from = from)
   md2dir(from = md, dir_to = dir_to, md_list = md_list, md_bookdown = md_bookdown, dir_quiet = dir_quiet)
@@ -136,7 +72,7 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #'
 #' @importFrom Rdpack reprompt
 #' @param from Character. The source text of the (R) Markdown syntax text, the R code, the FreeMind mind map code, or the path to the directory.
-#' @param input_type Character. The type of the input text. It can be \code{'auto', 'markdown', 'mindmap', 'R', 'dir'}. The default value is \code{'auto'}, which means the type will be automatically assgined according to the features of the input text.
+#' @param input_type Character. The type of the input text. It can be \code{'auto', 'markdown', 'mindmap', 'R', 'dir'}. The default value is \code{'auto'}, which means the type will be automatically assigned according to the features of the input text.
 #' @param output_type Character. The type of the output. It can be \code{'widget', 'mindmap', 'markdown', 'R', 'dir', 'mmd'}. The default value is \code{'widget'}.
 #' @param root Character. The string displayed as the root (center) of the mind map.
 #' @param md_list Logical. whether to process lists like headings in the Markdown input.
@@ -161,46 +97,12 @@ r2dir <- function(from = NA, dir_to = NA, md_list = FALSE, md_bookdown = TRUE, d
 #' @return Desired output.
 #' @export
 #' @examples
-#' ## Source document ####
 #' input <- system.file('examples/mindr-md.Rmd', package = 'mindr')
-#'
-#' ## file.show(input) # Open the input file with the default program, if any
 #' input_txt <- readLines(input, encoding = 'UTF-8')
-#'
-#' ## Convert to mind map text, markdown outline, R script, and HTML widget ####
 #' mm_output <- mm(input_txt, output_type = c('mindmap', 'markdown', 'R', 'widget'))
 #' mm_output
-#'
-#' ## Save the output texts as files ####
-#'
-#' ### mind map ####
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-#' # writeLines(mm_output$mindmap, output, useBytes = TRUE)
-#' # file.show(output) # Open the output file with the default program, if any
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
-#'
-#' ### markdown outline ####
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".md")
-#' # writeLines(mm_output$markdown, output, useBytes = TRUE)
-#' # file.show(output) # Open the output file with the default program, if any
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
-#'
-#' ### R script ####
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-#' # writeLines(mm_output$r, output, useBytes = TRUE)
-#' # file.show(output) # Open the output file with the default program, if any
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
-#'
-#' ### Widget ####
-#' # output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".html")
-#' # htmlwidgets::saveWidget(mm_output$widget, file = output)
-#' # file.show(output) # Open the output file with the default program, if any
-#' # message('Input:  ', input, '\nOutput: ', output)
-#' # file.remove(output) # remove the output file
-#'
+#' # See the vignette for more examples:
+#' vignette('mindr', package = 'mindr')
 mm <- function(from = NA,
                input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),
                output_type = c('widget', 'mindmap', 'markdown', 'R', 'dir', 'mermaid'),

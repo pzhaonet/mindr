@@ -32,15 +32,3 @@ FreeMind mind map code.
 \description{
 Display hierarchical structure of a directory in FreeMind mind map
 }
-\examples{
-input <- system.file(package = "mindr")
-dir2mm(input)
-dir2mm(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = "Meta")
-
-output_txt <- dir2mm(input)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-writeLines(output_txt, output, useBytes = TRUE)
-message("Input:  ", input, "\nOutput: ", output)
-# file.show(output) # Open the output file file.remove(output) # remove the
-# output file
-}

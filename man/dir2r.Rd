@@ -32,15 +32,3 @@ Character, R code
 \description{
 Convert a hierarchical directory into R code
 }
-\examples{
-input <- system.file(package = "mindr")
-dir2r(input)
-dir2r(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = "Meta")
-
-output_txt <- dir2r(input)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".R")
-writeLines(output_txt, output, useBytes = TRUE)
-message("Input:  ", input, "\nOutput: ", output)
-# system2('open', input) # Open the input dir in explorer.  file.show(output) #
-# Open the output file file.remove(output) # remove the output file
-}

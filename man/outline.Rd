@@ -32,10 +32,3 @@ Character, showing the outline.
 \description{
 Extract headings of (R) Markdown-syntax text as an outline
 }
-\examples{
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-outline(input_txt)
-outline(input_txt, md_list = TRUE, md_bookdown = TRUE)
-outline(input_txt, md_list = TRUE, md_bookdown = TRUE, md_maxlevel = 2)
-}

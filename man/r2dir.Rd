@@ -29,13 +29,3 @@ Directory generated.
 \description{
 Generate hierarchical directories according to the outline of R code
 }
-\examples{
-input <- system.file("examples/mindr-r.R", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output <- file.path(tempdir(), "mindr")
-r2dir(input_txt, output)
-message("Input:  ", input, "\nOutput: ", output)
-# file.show(input) # Open the input file system2('open', output) # Open the
-# output dir in explorer.  unlink(output, recursive = TRUE) # remove the output
-# file
-}

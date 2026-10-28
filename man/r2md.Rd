@@ -15,14 +15,3 @@ R markdown-syntax text.
 \description{
 Convert R code into (R) Markdown-syntax text
 }
-\examples{
-input <- system.file("examples/mindr-r.R", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output_txt <- r2md(from = input_txt)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
-writeLines(output_txt, output, useBytes = TRUE)
-# file.show(input) # Open the input file file.show(output) # Open the output
-# file
-message("Input:  ", input, "\nOutput: ", output)
-# file.remove(output) # remove the output file
-}

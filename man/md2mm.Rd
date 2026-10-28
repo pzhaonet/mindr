@@ -30,19 +30,8 @@ md2mm(
 \item{md_maxlevel}{Integer or ''. The maximum level of the markdown headings that are displayed in the mind map.}
 }
 \value{
-FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{http://freemind.sourceforge.net/wiki/index.php/Main_Page}{FreeMind} and \href{https://www.xmind.net}{XMind}.
+FreeMind mind map code, which can be saved as a .mm file and viewed by common mind map software, such as \href{https://freemind.sourceforge.io/wiki/index.php/Main_Page}{FreeMind} and \href{https://xmind.com}{XMind}.
 }
 \description{
 Convert (R) Markdown-syntax text to FreeMind mind map code
-}
-\examples{
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output_txt <- md2mm(input_txt)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".mm")
-writeLines(output_txt, output, useBytes = TRUE)
-# file.show(input) # Open the input file file.show(output) # Open the output
-# file
-message("Input:  ", input, "\nOutput: ", output)
-# file.remove(output) # remove the output file
 }

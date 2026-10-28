@@ -15,8 +15,3 @@ Character, showing the TOC in Markdown.
 \description{
 Extract the outline from pdf toc, and output as Markdown
 }
-\examples{
-input <- file.path(R.home(), "doc/manual/R-intro.pdf")
-input_toc <- pdftools::pdf_toc(input)
-outline_pdf(input_toc)
-}

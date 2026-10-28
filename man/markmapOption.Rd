@@ -41,26 +41,16 @@ markmapOption(
 
 \item{...}{other options.}
 }
+\value{
+A list of settings for mind map widget.
+}
 \description{
 Theme options for markmap creation
 }
 \details{
 This function is adapted from the \href{https://github.com/seifer08ms/Rmarkmap}{Rmarkup} package.
 
-Currently, markmap have 'default' and 'colorful' themes. colorful' themes have three different parameters from default themes: {nodeHeight: 10, renderer: 'basic',color: 'category20'}
-}
-\examples{
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-# file.show(input)
-input_txt <- readLines(input, encoding = "UTF-8")
-markmap(input_txt)
-markmap(input_txt, widget_options = markmapOption(preset = "default"))
-markmap(input_txt, widget_options = markmapOption(color = "category20b",
-    linkShape = "bracket"))
-markmap(input_txt, widget_options = markmapOption(color = "category10",
-    linkShape = "diagonal", renderer = "basic"))
-markmap(input_txt, widget_options = markmapOption(nodeHeight = 30, nodeWidth = 100,
-    spacingHorizontal = 60))
+Currently, markmap have 'default' and 'colorful' themes.
 }
 \seealso{
 \url{https://github.com/seifer08ms/Rmarkmap} and \url{https://github.com/dundalek/markmap/blob/master/lib/view.mindmap.js} for details.

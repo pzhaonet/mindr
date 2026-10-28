@@ -2,10 +2,6 @@
 #'
 #' @param input_toc Character. The table of contents (TOC) of a pdf file, extracted by \code{pdftools::pdf_toc()}.
 #' @return Character, showing the TOC in Markdown.
-#' @examples
-#' # input <- file.path(R.home(), 'doc/manual/R-intro.pdf')
-#' # input_toc <- pdftools::pdf_toc(input)
-#' # mindr:::outline_pdf(input_toc)
 outline_pdf <- function(input_toc){
   input_toc <- unlist(input_toc)
   toc_name <- names(input_toc)
@@ -32,19 +28,10 @@ outline_pdf <- function(input_toc){
 #' @return Desired output.
 #' @export
 #' @examples
-#' # pdf: here we use the pdf files in the R installation
-#' # input <- file.path(R.home(), 'doc/manual/R-intro.pdf')
-#' # mmm(input)
-#' # input <- file.path(R.home(), 'doc/manual/R-data.pdf')
-#' # mmm(input, root = 'R-data', md_maxlevel = 2)
-#'
-#' # MS Word: here we use a .docx document shipped by the 'officer' package
-#' # input <- system.file('doc_examples/example.docx', package = 'officer')
-#' # mmm(input)
-#'
-#' # HTML: here we use the R-FQA webpage
-#' # input <- file.path(R.home(), 'doc/html/rw-FAQ.html')
-#' # mmm(input)
+#' mp <- mmm(input_file = system.file('examples/mindr-md.Rmd', package = 'mindr'))
+#' mp
+#' # See the vignette for more examples:
+#' vignette('mindr', package = 'mindr')
 mmm <- function(input_file = NA,
                 output_type = c('widget', 'mindmap', 'markdown', 'mermaid'),
                 input_type = c('auto', 'markdown', 'mindmap', 'R', 'dir'),

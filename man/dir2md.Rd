@@ -21,14 +21,3 @@ Character, in Markdown syntax.
 \description{
 Display a directory hierarchical structure in Markdown syntax
 }
-\examples{
-input <- system.file(package = "mindr")
-dir2md(input)
-dir2md(input, dir_files = FALSE, dir_all = TRUE, dir_excluded = "Meta")
-output_txt <- dir2md(input)
-output <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = ".Rmd")
-writeLines(output_txt, output, useBytes = TRUE)
-message("Input:  ", input, "\nOutput: ", output)
-# file.show(output) # Open the output file file.remove(output) # remove the
-# output file
-}

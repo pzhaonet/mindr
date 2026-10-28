@@ -6,7 +6,7 @@
 \usage{
 md2dir(
   from = NA,
-  dir_to = "mindr",
+  dir_to,
   md_list = FALSE,
   md_bookdown = TRUE,
   dir_quiet = FALSE
@@ -28,20 +28,4 @@ Directories generated.
 }
 \description{
 Create hierarchical directories according to (R) Markdown-syntax text
-}
-\examples{
-output <- file.path(tempdir(), "mindr")
-md2dir(c("# a", "## a1", "## a2"), output)
-message("Output: ", output)
-# unlink(output, recursive = TRUE) # remove the output file
-
-input <- system.file("examples/mindr-md.Rmd", package = "mindr")
-input_txt <- readLines(input, encoding = "UTF-8")
-output <- file.path(tempdir(), "mindr")
-md2dir(from = input_txt, output)
-message("Input:  ", input, "\nOutput: ", output)
-# file.show(input) # Open the input file unlink(output, recursive = TRUE) #
-# remove the output file
-
-md2dir(from = input_txt, output, md_list = TRUE)
 }
